@@ -1,3 +1,3 @@
-pub fn h() -> String {
-	"h".into()
-}
+#![allow(clippy::should_implement_trait)]
+
+pub mod lazy_wrap;

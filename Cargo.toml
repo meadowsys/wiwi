@@ -6,3 +6,6 @@ edition = "2021"
 authors = ["Meadowsys"]
 repository = "https://github.com/Meadowsys/wiwi.git"
 license = "MIT"
+
+[dependencies]
+parking_lot = "0.12.1"
