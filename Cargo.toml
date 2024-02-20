@@ -8,4 +8,8 @@ repository = "https://github.com/Meadowsys/wiwi.git"
 license = "MIT"
 
 [dependencies]
-parking_lot = "0.12.1"
+parking_lot = { version = "0.12.1", optional = true }
+
+[features]
+# enables lazy wrapping
+lazy-wrap = ["dep:parking_lot"]
