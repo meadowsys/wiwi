@@ -141,5 +141,6 @@ checksum = "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
 name = "wiwi"
 version = "0.0.0"
 dependencies = [
+ "cfg-if",
  "parking_lot",
 ]
