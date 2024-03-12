@@ -454,21 +454,16 @@ impl<P: Pool> Clone for String<P> {
 	}
 }
 
-impl<P: Pool> Debug for String<P>
-where
-	P: Debug,
-	P::Raw: Debug
-{
+impl<P: Pool> Debug for String<P> {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("String")
 			.field("string", &self.as_str())
 			.field("pool", &self.pool)
-			.field("raw", &self.raw)
 			.finish()
 	}
 }
 
-impl<P: Pool + Default> Default for String<P> {
+impl<P: Pool> Default for String<P> {
 	fn default() -> Self {
 		let pool = P::default();
 		let raw = pool.raw_empty();

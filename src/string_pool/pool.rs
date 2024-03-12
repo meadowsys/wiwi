@@ -1,10 +1,11 @@
+use ::std::fmt::Debug;
 use ::std::hash::{ Hash, Hasher };
 
 mod global;
 
 pub use global::GlobalPool;
 
-pub trait Pool: Clone {
+pub trait Pool: Clone + Debug + Default {
 	type Raw;
 
 	// --- required functions ---
