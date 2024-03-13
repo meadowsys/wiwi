@@ -39,7 +39,7 @@ jobs:
         tar xvf grcov.bz2
         rm grcov.bz2
 
-        ./grcov . -s . -t lcov --binary-path ./target/release/ --branch --ignore-not-existing --ignore "./src/tests/*" -o ./target/coverage/tests.lcov
+        ./grcov . -s . -t lcov --binary-path ./target/release/ --branch --ignore-not-existing -o ./target/coverage/tests.lcov
 
     - name: upload to codecov
       uses: codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab # v4.1.0
