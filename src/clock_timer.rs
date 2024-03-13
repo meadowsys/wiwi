@@ -4,7 +4,7 @@ super::runtime_selection_compile_check!("clock-timer");
 pub use tokio::*;
 #[cfg(feature = "tokio")]
 mod tokio {
-	use ::chrono::{ DateTime, Local, NaiveDateTime, ParseError, Timelike as _, Utc };
+	use ::chrono::{ DateTime, Local, NaiveDateTime, ParseError };
 	pub use ::chrono::TimeDelta;
 	use ::thiserror::Error;
 

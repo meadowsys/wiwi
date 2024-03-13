@@ -59,4 +59,5 @@ macro_rules! runtime_selection_compile_check {
 		compile_error!(concat!("an async runtime is required to make use of `", $featname, "`; available runtimes (enable by selecting the crate feature): `tokio`"));
 	}
 }
+#[allow(unused)]
 use runtime_selection_compile_check;

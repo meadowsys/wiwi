@@ -80,7 +80,7 @@ impl<'h> Equivalent<<GlobalPool as Pool>::Raw> for SlicesWrap<'h> {
 				//    - if a == b, good but not done yet, continue
 				(Some(a), Some(b)) if a == b => { continue }
 				//    - else (a != b), not good, return false
-				(Some(a), Some(b)) => { return false }
+				(Some(_), Some(_)) => { return false }
 
 				// Some None
 				// None Some
