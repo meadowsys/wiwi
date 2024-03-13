@@ -16,5 +16,6 @@ parking_lot = { version = "0.12.1", optional = true }
 rand = "0.8.5"
 
 [features]
+h = []
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]

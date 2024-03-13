@@ -8,6 +8,12 @@
 use cfg_if::cfg_if;
 
 cfg_if! {
+	if #[cfg(feature = "h")] {
+		pub mod h;
+	}
+}
+
+cfg_if! {
 	if #[cfg(feature = "lazy-wrap")] {
 		pub mod lazy_wrap;
 	}
