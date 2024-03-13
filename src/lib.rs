@@ -8,6 +8,12 @@
 use ::cfg_if::cfg_if;
 
 cfg_if! {
+	if #[cfg(feature = "clock-timer")] {
+		pub mod clock_timer;
+	}
+}
+
+cfg_if! {
 	if #[cfg(feature = "h")] {
 		pub mod h;
 	}
@@ -24,3 +30,33 @@ cfg_if! {
 		pub mod string_pool;
 	}
 }
+
+// ensure max one runtime is selected
+cfg_if! {
+	if #[cfg(all(
+		feature = "tokio"
+		// not(any(
+		// 	// other runtime features go here
+		// ))
+	))] {
+		// only tokio
+	} else if #[cfg(not(any(
+		feature = "tokio"
+	)))] {
+		// no runtime selected, ignore
+	} else {
+		// more than one runtime selected
+		compile_error!("more than one runtime feature enabled; make sure only one of `tokio` features are enabled (by the way, there is only one runtime available, how have you managed to trigger this?????)");
+	}
+}
+
+#[allow(unused)]
+macro_rules! runtime_selection_compile_check {
+	($featname:literal) => {
+		#[cfg(not(any(
+			feature = "tokio"
+		)))]
+		compile_error!(concat!("an async runtime is required to make use of `", $featname, "`; available runtimes (enable by selecting the crate feature): `tokio`"));
+	}
+}
+use runtime_selection_compile_check;

@@ -9,13 +9,20 @@ license = "MIT"
 
 [dependencies]
 cfg-if = "1.0.0"
+chrono = { version = "0.4.35", features = ["clock"], optional = true }
 hashbrown = { version = "0.14.3", optional = true }
 parking_lot = { version = "0.12.1", optional = true }
+thiserror = { version = "1.0.58", optional = true }
+tokio = { version = "1.36.0", features = ["full"], optional = true }
 
 [dev-dependencies]
 rand = "0.8.5"
 
 [features]
+clock-timer = ["dep:chrono", "dep:thiserror"]
 h = []
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]
+
+# runtime selection features
+tokio = ["dep:tokio"]
