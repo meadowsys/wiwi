@@ -1,6 +1,6 @@
 [package]
 name = "wiwi"
-version = "0.1.1"
+version = "0.1.2"
 description = "A library, of, Stuff™"
 edition = "2021"
 authors = ["Meadowsys"]
@@ -26,6 +26,8 @@ string-pool = ["dep:hashbrown", "lazy-wrap"]
 
 # runtime selection features
 tokio = ["dep:tokio"]
+
+# default = ["clock-timer", "h", "lazy-wrap", "string-pool", "tokio"]
 
 [package.metadata.docs.rs]
 # https://docs.rs/about/metadata

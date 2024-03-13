@@ -6,7 +6,7 @@ pub use tokio::*;
 #[cfg(feature = "tokio")]
 mod tokio {
 	use ::chrono::{ DateTime, Local, NaiveDateTime, ParseError };
-	pub use ::chrono::TimeDelta;
+	pub use ::chrono::{ TimeDelta, Timelike };
 	use ::thiserror::Error;
 
 	pub const SECS_PER_MIN: u64 = 60;
