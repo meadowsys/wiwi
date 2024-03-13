@@ -17,10 +17,10 @@ jobs:
     - name: setup rust
       run: rustc --version
 
-    - run: cargo build --verbose
-    - run: cargo build --release --verbose
-    - run: cargo test --verbose
-    - run: cargo test --release --verbose
+    - run: cargo build --all-features --verbose
+    - run: cargo build --all-features --release --verbose
+    - run: cargo test --all-features --verbose
+    - run: cargo test --all-features --release --verbose
 
     - name: dry run publish
       run: cargo publish --dry-run

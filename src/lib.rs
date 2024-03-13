@@ -9,13 +9,12 @@ use cfg_if::cfg_if;
 
 cfg_if! {
 	if #[cfg(feature = "lazy-wrap")] {
-		mod lazy_wrap;
-		pub use lazy_wrap::{ LazyWrap, LazyWrapState };
+		pub mod lazy_wrap;
 	}
 }
 
 cfg_if! {
 	if #[cfg(feature = "string-pool")] {
-		mod string_pool;
+		pub mod string_pool;
 	}
 }
