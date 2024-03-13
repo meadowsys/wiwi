@@ -5,7 +5,7 @@
 // TODO: remove when more finished
 #![allow(dead_code, unused_imports, unused_variables)]
 
-use cfg_if::cfg_if;
+use ::cfg_if::cfg_if;
 
 cfg_if! {
 	if #[cfg(feature = "h")] {
