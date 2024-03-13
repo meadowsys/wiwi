@@ -1,6 +1,6 @@
 [package]
 name = "wiwi"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library, of, Stuff™"
 edition = "2021"
 authors = ["Meadowsys"]
@@ -26,3 +26,11 @@ string-pool = ["dep:hashbrown", "lazy-wrap"]
 
 # runtime selection features
 tokio = ["dep:tokio"]
+
+[package.metadata.docs.rs]
+# https://docs.rs/about/metadata
+
+# all features, and only tokio for runtime feature
+features = ["clock-timer", "h", "lazy-wrap", "string-pool", "tokio"]
+
+targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
