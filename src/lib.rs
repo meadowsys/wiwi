@@ -7,29 +7,17 @@
 
 use ::cfg_if::cfg_if;
 
-cfg_if! {
-	if #[cfg(feature = "clock-timer")] {
-		pub mod clock_timer;
-	}
-}
+#[cfg(feature = "clock-timer")]
+pub mod clock_timer;
 
-cfg_if! {
-	if #[cfg(feature = "h")] {
-		pub mod h;
-	}
-}
+#[cfg(feature = "h")]
+pub mod h;
 
-cfg_if! {
-	if #[cfg(feature = "lazy-wrap")] {
-		pub mod lazy_wrap;
-	}
-}
+#[cfg(feature = "lazy-wrap")]
+pub mod lazy_wrap;
 
-cfg_if! {
-	if #[cfg(feature = "string-pool")] {
-		pub mod string_pool;
-	}
-}
+#[cfg(feature = "string-pool")]
+pub mod string_pool;
 
 // ensure max one runtime is selected
 cfg_if! {
