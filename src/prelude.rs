@@ -6,6 +6,17 @@ pub use crate::clock_timer::{
 	Timelike
 };
 
+#[cfg(feature = "clock-timer-2")]
+pub use crate::clock_timer_2::{
+	ClockTimer,
+	Tick,
+	chrono::{
+		DateTime,
+		Local,
+		TimeDelta
+	}
+};
+
 #[cfg(feature = "debounce")]
 pub use crate::debounce::{
 	debounce,

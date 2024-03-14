@@ -12,6 +12,9 @@ pub mod prelude;
 #[cfg(feature = "clock-timer")]
 pub mod clock_timer;
 
+#[cfg(feature = "clock-timer-2")]
+pub mod clock_timer_2;
+
 #[cfg(feature = "debounce")]
 pub mod debounce;
 feature_cfg_compile_check!("debounce-dyn-fn", cfg of "debounce");

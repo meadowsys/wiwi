@@ -23,6 +23,7 @@ rand = "0.8.5"
 # Also check below, docs.rs config
 
 clock-timer = ["dep:chrono", "dep:thiserror"]
+clock-timer-2 = ["dep:chrono"]
 debounce = ["dep:chrono"]
 h = []
 lazy-wrap = ["dep:parking_lot"]
