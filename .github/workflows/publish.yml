@@ -13,7 +13,12 @@ jobs:
     strategy:
       matrix:
         featureflags:
-        - --features clock-timer,h,lazy-wrap,string-pool,tokio
+        # Make sure to check README and Cargo.toml too
+        - clock-timer,debounce,h,lazy-wrap,string-pool
+        - clock-timer,debounce,h,lazy-wrap,string-pool,debounce-dyn-fn
+
+        runtimes:
+        - tokio
 
     steps:
     - name: checkout code
@@ -23,10 +28,10 @@ jobs:
       run: rustc --version
 
     - name: build
-      run: cargo build --release --verbose ${{ matrix.featureflags }}
+      run: cargo build --release --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
 
     - name: test
-      run: cargo test --release --verbose ${{ matrix.featureflags }}
+      run: cargo test --release --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
 
   publish:
     name: publish crate

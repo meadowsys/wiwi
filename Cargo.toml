@@ -19,6 +19,9 @@ tokio = { version = "1.36.0", features = ["full"], optional = true }
 rand = "0.8.5"
 
 [features]
+# Make sure to check README and workflow files too
+# Also check below, docs.rs config
+
 clock-timer = ["dep:chrono", "dep:thiserror"]
 debounce = ["dep:chrono"]
 h = []
@@ -44,6 +47,8 @@ features = [
 	"string-pool",
 
 	"tokio"
+
+	# debounce-dyn-fn not enabled, because it doesn't change docs
 ]
 
 targets = [
