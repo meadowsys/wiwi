@@ -8,7 +8,7 @@ All exposed features are gated behind features, none of which are enabled by def
 
 <!-- make sure to check Cargo.toml and workflow files too -->
 
-- `clock-timer` - Async struct that yields ticks at specified intervals and for a specified duration. **Requires an async runtime**
+- `clock-timer-2` - An interval tracking clock, yielding ticks at specified intervals and doing so for a specified duration. **Requires an async runtime**
 - `debounce` - Delay calling a function until a certain time period has passed since the last time it was called. **Requires an async runtime**
 - `h` - h
 - `lazy-wrap` - Wrapper around an initialisation function to lazily initialise a value on first access (can be used in statics)
