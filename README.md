@@ -16,7 +16,7 @@ All exposed features are gated behind features, none of which are enabled by def
 
 ### Async runtime features
 
-Only one can be enabled at a time. `tokio` will be prioritised over the others, if/when they are added.
+Only one can be enabled at a time. utility implementations for `tokio` will be prioritised over other runtimes, if/when they are added.
 
 - `tokio` - Currently the only available runtime.
 
