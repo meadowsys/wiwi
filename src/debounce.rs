@@ -32,7 +32,7 @@ mod tokio {
 	/// sleeping for the right amount of time, then calling the function.
 	#[inline]
 	pub fn debounce<F>(f: F, wait_in_ms: usize)
-		-> impl Fn() + Send + Sync + 'static
+		-> impl Fn() + Clone + Send + Sync + 'static
 	where
 		F: Fn() + Send + 'static
 	{
@@ -44,7 +44,7 @@ mod tokio {
 	/// [`debounce`] for more information.
 	#[inline]
 	pub fn debounce_immediate<F>(f: F, wait_in_ms: usize)
-		-> impl Fn() + Send + Sync + 'static
+		-> impl Fn() + Clone + Send + Sync + 'static
 	where
 		F: Fn() + Send + 'static
 	{
@@ -56,7 +56,7 @@ mod tokio {
 	/// debouncing. See [`debounce`] for more information.
 	#[inline]
 	pub fn debounce_with_rt<F>(f: F, wait_in_ms: usize, handle: &Handle)
-		-> impl Fn() + Send + Sync + 'static
+		-> impl Fn() + Clone + Send + Sync + 'static
 	where
 		F: Fn() + Send + 'static
 	{
@@ -69,7 +69,7 @@ mod tokio {
 	/// of the delay. See [`debounce`] for more information.
 	#[inline]
 	pub fn debounce_immediate_with_rt<F>(f: F, wait_in_ms: usize, handle: &Handle)
-		-> impl Fn() + Send + Sync + 'static
+		-> impl Fn() + Clone + Send + Sync + 'static
 	where
 		F: Fn() + Send + 'static
 	{
@@ -85,7 +85,7 @@ mod tokio {
 
 	/// setup fn
 	fn _debounce<F>(f: F, wait_in_ms: usize, immediate: bool, rt_handle: &Handle)
-		-> impl Fn() + Send + Sync + 'static
+		-> impl Fn() + Clone + Send + Sync + 'static
 	where
 		F: Fn() + Send + 'static
 	{
