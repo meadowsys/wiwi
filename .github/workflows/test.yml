@@ -4,9 +4,6 @@ on:
     branches:
     - "**"
 
-env:
-  RUSTFLAGS: "-Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code"
-
 jobs:
   test:
     name: run
@@ -35,8 +32,9 @@ jobs:
     - name: test
       run: cargo test --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
       env:
-        LLVM_PROFILE_FILE: "target/coverage/test-file.profraw"
         CARGO_INCREMENTAL: "0"
+        LLVM_PROFILE_FILE: "target/coverage/test-file.profraw"
+        RUSTFLAGS: "-Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code"
 
     - name: fetch/run grcov
       run: |
