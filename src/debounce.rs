@@ -1,3 +1,6 @@
+//! A debounced function; or a function that won't actually get called until
+//! there haven't been calls to it for a certain amount of time.
+
 super::runtime_selection_compile_check!("debounce");
 
 #[cfg(feature = "tokio")]

@@ -1,3 +1,7 @@
+//! Wrapper for initialisation function, initialising it only on first access.
+//!
+//! Works in static contexts (static variables)
+
 use ::parking_lot::{ Once, OnceState };
 use ::std::cell::UnsafeCell;
 use ::std::fmt::{ self, Debug, Display };
@@ -81,6 +85,8 @@ where
 		}
 	}
 
+	/// Fetch the value if its initialised, or return the initialisation function
+	/// if it isn't.
 	pub fn into_inner(this: Self) -> LazyWrapState<T, F> {
 		let initialised = Self::is_initialised(&this);
 		let this = ManuallyDrop::new(this);
@@ -95,6 +101,7 @@ where
 		}
 	}
 
+	/// Ensures that the value is initialised, then returns the value.
 	pub fn into_inner_initialised(this: Self) -> T {
 		Self::ensure_initialised(&this);
 		let this = ManuallyDrop::new(this);

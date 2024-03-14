@@ -1,3 +1,5 @@
+#![doc = include_str!("../README.md")]
+
 #![allow(clippy::should_implement_trait)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::new_without_default)]
@@ -46,6 +48,13 @@ cfg_if! {
 		compile_error!("more than one runtime feature enabled; make sure only one of `tokio` features are enabled (by the way, there is only one runtime available, how have you managed to trigger this?????)");
 	}
 }
+
+// misc other checks
+
+#[cfg(all(feature = "clock-timer", feature = "clock-timer-2"))]
+compile_error!("Cannot have both `clock-timer` and `clock-timer-2` features enabled");
+
+// macros and stuff
 
 #[allow(unused)]
 macro_rules! runtime_selection_compile_check {

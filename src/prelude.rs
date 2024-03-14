@@ -1,4 +1,6 @@
-#[cfg(feature = "clock-timer")]
+//! Prelude module, exporting types from enabled features
+
+#[cfg(all(feature = "clock-timer", not(feature = "clock-timer-2")))]
 pub use crate::clock_timer::{
 	ClockTimer,
 	ClockTimerError,
@@ -6,7 +8,7 @@ pub use crate::clock_timer::{
 	Timelike
 };
 
-#[cfg(feature = "clock-timer-2")]
+#[cfg(all(feature = "clock-timer-2", not(feature = "clock-timer")))]
 pub use crate::clock_timer_2::{
 	ClockTimer,
 	Tick,

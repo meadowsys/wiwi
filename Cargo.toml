@@ -41,7 +41,7 @@ debounce-dyn-fn = []
 
 # all features, and only tokio for runtime feature
 features = [
-	"clock-timer",
+	"clock-timer-2",
 	"debounce",
 	"h",
 	"lazy-wrap",

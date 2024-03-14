@@ -1,3 +1,10 @@
+//! An interval tracking clock.
+//!
+//! This one is deprecated in favour of the one available by enabling feature
+//! `clock-timer-2`
+
+#![deprecated = "use feature clock-timer-2 instead"]
+
 super::runtime_selection_compile_check!("clock-timer");
 
 #[cfg(feature = "tokio")]
