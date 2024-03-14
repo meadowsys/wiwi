@@ -5,6 +5,7 @@ pub use tokio::*;
 
 #[cfg(feature = "tokio")]
 mod tokio {
+	use super::dyn_fn;
 	use ::chrono::{ Local, NaiveDateTime, TimeDelta };
 	use ::std::{ mem::swap, sync::Arc };
 	use ::tokio::runtime::Handle;
@@ -14,6 +15,10 @@ mod tokio {
 
 	/// Returns a new function that debounces calls to the passed function. This
 	/// function can be cloned however many times you want and passed across threads.
+	///
+	/// If the feature `debounce-dyn-fn` is enabled, this function (and the other 3 exposed) will
+	/// wrap the function into a `Box<dyn Fn>`, to use dynamic dispatch and avoid
+	/// monomorphisation binary size cost.
 	///
 	/// If you would like to call the provided function on the leading edge,
 	/// [`debounce_immediate`] is what you're after.
@@ -43,7 +48,7 @@ mod tokio {
 		f: impl Fn() + Send + 'static,
 		wait_in_ms: usize
 	) -> impl Fn() + Clone + Send + Sync + 'static {
-		_debounce(f, wait_in_ms, false, &current_rt())
+		_debounce(dyn_fn(f), wait_in_ms, false, &current_rt())
 	}
 
 	/// Returns a new function that debounces calls to the passed function. This
@@ -54,7 +59,7 @@ mod tokio {
 		f: impl Fn() + Send + 'static,
 		wait_in_ms: usize
 	) -> impl Fn() + Clone + Send + Sync + 'static {
-		_debounce(f, wait_in_ms, true, &current_rt())
+		_debounce(dyn_fn(f), wait_in_ms, true, &current_rt())
 	}
 
 	/// Returns a new function that debounces calls to the passed function, using
@@ -66,7 +71,7 @@ mod tokio {
 		wait_in_ms: usize,
 		handle: &Handle
 	) -> impl Fn() + Clone + Send + Sync + 'static {
-		_debounce(f, wait_in_ms, false, handle)
+		_debounce(dyn_fn(f), wait_in_ms, false, handle)
 	}
 
 	/// Returns a new function that debounces calls to the passed function, using
@@ -79,7 +84,7 @@ mod tokio {
 		wait_in_ms: usize,
 		handle: &Handle
 	) -> impl Fn() + Clone + Send + Sync + 'static {
-		_debounce(f, wait_in_ms, true, handle)
+		_debounce(dyn_fn(f), wait_in_ms, true, handle)
 	}
 
 	struct DebounceInternalArgs<F> {
@@ -176,4 +181,20 @@ mod tokio {
 		Handle::try_current()
 			.expect("debounce functions can only be created within the context of a tokio runtime")
 	}
+}
+
+#[cfg(feature = "debounce-dyn-fn")]
+#[inline(always)]
+fn dyn_fn(
+	f: impl Fn() + Send + 'static
+) -> Box<dyn Fn() + Send> {
+	Box::new(f)
+}
+
+#[cfg(not(feature = "debounce-dyn-fn"))]
+#[inline(always)]
+fn dyn_fn(
+	f: impl Fn() + Send + 'static
+) -> impl Fn() + Send + 'static {
+	f
 }

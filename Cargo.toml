@@ -28,6 +28,10 @@ string-pool = ["dep:hashbrown", "lazy-wrap"]
 # runtime selection features
 tokio = ["dep:tokio"]
 
+# config options for certain features
+# compiler errors if the feature its for isn't enabled
+debounce-dyn-fn = []
+
 [package.metadata.docs.rs]
 # https://docs.rs/about/metadata
 
