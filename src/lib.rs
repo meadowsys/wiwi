@@ -7,6 +7,8 @@
 
 use ::cfg_if::cfg_if;
 
+pub mod prelude;
+
 #[cfg(feature = "clock-timer")]
 pub mod clock_timer;
 
