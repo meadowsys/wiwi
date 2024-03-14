@@ -29,13 +29,20 @@ mod tokio {
 	/// the runtime. One of them receives messages from the calls, and stores the
 	/// time in which the last call occured. The second one is the one that owns the
 	/// passed function, and is the one reading the times the first task stores,
-	/// sleeping for the right amount of time, then calling the function.
+	/// sleeping for the right amount of time, then calling the function. These
+	/// background tasks will exit themself after the last debounced handle is dropped.
+	///
+	/// If the background tasks get stopped (caused by ex. the backing runtime is
+	/// stopped), then the returned debounce function will panic.
+	///
+	/// I suppose there could be two threads spawned in the background, but that
+	/// felt like an overkill thing heh, perhaps there could be a static runtime
+	/// available here, enabled with a feature.
 	#[inline]
-	pub fn debounce<F>(f: F, wait_in_ms: usize)
-		-> impl Fn() + Clone + Send + Sync + 'static
-	where
-		F: Fn() + Send + 'static
-	{
+	pub fn debounce(
+		f: impl Fn() + Send + 'static,
+		wait_in_ms: usize
+	) -> impl Fn() + Clone + Send + Sync + 'static {
 		_debounce(f, wait_in_ms, false, &current_rt())
 	}
 
@@ -43,11 +50,10 @@ mod tokio {
 	/// returns one that calls the function on the leading edge of the delay. See
 	/// [`debounce`] for more information.
 	#[inline]
-	pub fn debounce_immediate<F>(f: F, wait_in_ms: usize)
-		-> impl Fn() + Clone + Send + Sync + 'static
-	where
-		F: Fn() + Send + 'static
-	{
+	pub fn debounce_immediate(
+		f: impl Fn() + Send + 'static,
+		wait_in_ms: usize
+	) -> impl Fn() + Clone + Send + Sync + 'static {
 		_debounce(f, wait_in_ms, true, &current_rt())
 	}
 
@@ -55,11 +61,11 @@ mod tokio {
 	/// the provided runtime handle to spawn the background tasks needed to handle
 	/// debouncing. See [`debounce`] for more information.
 	#[inline]
-	pub fn debounce_with_rt<F>(f: F, wait_in_ms: usize, handle: &Handle)
-		-> impl Fn() + Clone + Send + Sync + 'static
-	where
-		F: Fn() + Send + 'static
-	{
+	pub fn debounce_with_rt(
+		f: impl Fn() + Send + 'static,
+		wait_in_ms: usize,
+		handle: &Handle
+	) -> impl Fn() + Clone + Send + Sync + 'static {
 		_debounce(f, wait_in_ms, false, handle)
 	}
 
@@ -68,11 +74,11 @@ mod tokio {
 	/// debouncing. This returns one that calls the function on the leading edge
 	/// of the delay. See [`debounce`] for more information.
 	#[inline]
-	pub fn debounce_immediate_with_rt<F>(f: F, wait_in_ms: usize, handle: &Handle)
-		-> impl Fn() + Clone + Send + Sync + 'static
-	where
-		F: Fn() + Send + 'static
-	{
+	pub fn debounce_immediate_with_rt(
+		f: impl Fn() + Send + 'static,
+		wait_in_ms: usize,
+		handle: &Handle
+	) -> impl Fn() + Clone + Send + Sync + 'static {
 		_debounce(f, wait_in_ms, true, handle)
 	}
 
@@ -84,11 +90,12 @@ mod tokio {
 	}
 
 	/// setup fn
-	fn _debounce<F>(f: F, wait_in_ms: usize, immediate: bool, rt_handle: &Handle)
-		-> impl Fn() + Clone + Send + Sync + 'static
-	where
-		F: Fn() + Send + 'static
-	{
+	fn _debounce(
+		f: impl Fn() + Send + 'static,
+		wait_in_ms: usize,
+		immediate: bool,
+		rt_handle: &Handle
+	) -> impl Fn() + Clone + Send + Sync + 'static {
 		let debounce_time = TimeDelta::try_milliseconds(wait_in_ms as _).unwrap();
 		let (sender, receiver) = unbounded_channel();
 		let (fn_caller_sender, fn_caller_receiver) = unbounded_channel();
