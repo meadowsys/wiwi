@@ -12,6 +12,9 @@ pub mod prelude;
 #[cfg(feature = "clock-timer")]
 pub mod clock_timer;
 
+#[cfg(feature = "debounce")]
+pub mod debounce;
+
 #[cfg(feature = "h")]
 pub mod h;
 

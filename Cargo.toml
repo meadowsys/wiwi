@@ -20,6 +20,7 @@ rand = "0.8.5"
 
 [features]
 clock-timer = ["dep:chrono", "dep:thiserror"]
+debounce = ["dep:chrono"]
 h = []
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]
@@ -31,6 +32,19 @@ tokio = ["dep:tokio"]
 # https://docs.rs/about/metadata
 
 # all features, and only tokio for runtime feature
-features = ["clock-timer", "h", "lazy-wrap", "string-pool", "tokio"]
+features = [
+	"clock-timer",
+	"debounce",
+	"h",
+	"lazy-wrap",
+	"string-pool",
 
-targets = ["aarch64-apple-darwin", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+	"tokio"
+]
+
+targets = [
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc"
+]
