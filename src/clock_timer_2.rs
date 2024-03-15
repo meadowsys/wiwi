@@ -78,6 +78,45 @@ mod tokio {
 		}
 	}
 
+	impl Tick {
+		/// Get time of this tick
+		#[inline]
+		pub fn time(&self) -> DateTime<Local> {
+			self.this_tick
+		}
+
+		/// Get elapsed time since the start of this timer
+		#[inline]
+		pub fn elapsed(&self) -> TimeDelta {
+			self.elapsed
+		}
+
+		/// Get remaining runtime of this timer
+		#[inline]
+		pub fn remaining(&self) -> TimeDelta {
+			self.remaining
+		}
+
+		/// Get start time of this timer
+		#[inline]
+		pub fn start_time(&self) -> DateTime<Local> {
+			self.this_tick - self.elapsed
+		}
+
+		/// Get end time of this timer
+		#[inline]
+		pub fn end_time(&self) -> DateTime<Local> {
+			self.this_tick + self.remaining
+		}
+
+		/// Get total runtime of this timer, including elapsed
+		/// time and remaining time
+		#[inline]
+		pub fn total_runtime(&self) -> TimeDelta {
+			self.elapsed + self.remaining
+		}
+	}
+
 	pub mod builder {
 		use super::*;
 
