@@ -13,7 +13,7 @@
 //! and remove it from the end of the decoded bytes.
 //!
 //! Original Z85 spec: https://rfc.zeromq.org/spec/32
-// TODO: ^ document this padding behaviour
+
 use ::std::{ ptr, slice };
 
 pub const TABLE_ENCODER_LEN: usize = 85;
