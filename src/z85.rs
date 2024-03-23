@@ -296,8 +296,8 @@ unsafe fn encode_chunk_into(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) 
 	debug_assert!(int % TABLE_ENCODER_LEN == int);
 	debug_assert!(int / TABLE_ENCODER_LEN == 0);
 
-	// SAFETY: these are calculated by modulo TABLE_LEN, which
-	// guarantees the numbers are 0 <= n < TABLE_LEN, which won't overflow
+	// SAFETY: these are calculated by modulo TABLE_ENCODER_LEN, which
+	// guarantees the numbers are 0 <= n < TABLE_ENCODER_LEN, which won't overflow
 	let chars: [u8; STRING_FRAME_LEN] = unsafe { [
 		*TABLE_ENCODER.get_unchecked(byte1),
 		*TABLE_ENCODER.get_unchecked(byte2),
@@ -322,7 +322,9 @@ where
 	let [byte1, byte2, byte3, byte4, byte5] = *chunk;
 
 	// SAFETY: 0 <= n < 256 is always true for a u8, and TABLE_DECODER is len 256,
-	// so this is safe
+	// so this is safe.
+	// Additionally, if this comes back as Some from TABLE_DECODER, it is guaranteed
+	// to be 0 <= n <= 84, since there are no Some(n) outside this range.
 	let Some(byte1) = *TABLE_DECODER.get_unchecked(byte1 as usize) else {
 		return Err(DecodeError::InvalidChar)
 	};
