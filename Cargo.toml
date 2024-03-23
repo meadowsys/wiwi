@@ -16,7 +16,9 @@ thiserror = { version = "1.0.58", optional = true }
 tokio = { version = "1.36.0", features = ["full"], optional = true }
 
 [dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
 rand = "0.8.5"
+z85 = "3.0.5"
 
 [features]
 # Make sure to check README and workflow files too
@@ -36,6 +38,10 @@ tokio = ["dep:tokio"]
 # config options for certain features
 # compiler errors if the feature its for isn't enabled
 debounce-dyn-fn = []
+
+[[bench]]
+name = "z85"
+harness = false
 
 [package.metadata.docs.rs]
 # https://docs.rs/about/metadata
