@@ -432,4 +432,28 @@ mod tests {
 			}
 		}
 	}
+
+	#[test]
+	fn z85_crate_nonpadded_compat() {
+		// this should work, since when bytes length is a multiple of 4
+		// we don't add any padding characters and `z85` doesn't add any
+		// either, meaning in this situation our impls are cross compatible
+
+		let mut rng = thread_rng();
+
+		let mut bytes = vec![0u8; 1000];
+		rng.fill(&mut *bytes);
+		let bytes = &*bytes;
+
+		let wiwi_encoded = encode_z85(bytes);
+		let z85_encoded = ::z85::encode(bytes);
+		assert_eq!(wiwi_encoded, z85_encoded);
+
+		let wiwi_decoded_z85 = decode_z85(z85_encoded.as_bytes())
+			.expect("wiwi can decode z85");
+		let z85_decoded_wiwi = ::z85::decode(wiwi_encoded.as_bytes())
+			.expect("z85 can decode wiwi");
+
+		assert_eq!(wiwi_decoded_z85, z85_decoded_wiwi);
+	}
 }
