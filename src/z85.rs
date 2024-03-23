@@ -362,6 +362,7 @@ where
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use ::rand::{ Rng, thread_rng };
 
 	#[test]
 	fn provided_test_case() {
@@ -373,5 +374,62 @@ mod tests {
 
 		assert_eq!(encoded, encode_z85(bytes));
 		assert_eq!(bytes, decode_z85(encoded.as_bytes()).unwrap());
+	}
+
+	#[test]
+	fn randomised() {
+		// (bytes_len, encoded_len)
+		// (expected_input_len, expected_output_len)
+		let expected_lengths = [
+			(0usize, 0usize),
+			(1, 6),
+			(2, 6),
+			(3, 6),
+			(4, 5),
+			(5, 11),
+			(6, 11),
+			(7, 11),
+			(8, 10),
+			(9, 16),
+			(10, 16),
+			(11, 16),
+			(12, 15),
+			(13, 21),
+			(14, 21),
+			(15, 21),
+			(16, 20),
+			(17, 26),
+			(18, 26),
+			(19, 26),
+			(20, 25),
+
+			(50, 66),
+			(100, 125),
+			(500, 625),
+			(1000, 1250),
+			(100_000, 125_000),
+			(1_000_000, 1_250_000),
+		];
+		let mut rng = thread_rng();
+
+		for (expected_input_len, expected_output_len) in expected_lengths {
+			for _ in 0usize..5 {
+				let mut original_input = vec![0u8; expected_input_len];
+				rng.fill(&mut *original_input);
+				assert_eq!(original_input.len(), expected_input_len);
+
+				let encoded = encode_z85(&original_input);
+				assert_eq!(encoded.len(), expected_output_len);
+
+				let decoded = decode_z85(encoded.as_bytes()).expect("decoding failed");
+				assert_eq!(decoded.len(), expected_input_len);
+
+				assert_eq!(original_input, decoded);
+
+				// this is enforced by debug_assert! in the code, so this already
+				// is validated if tests are run in debug, but still,
+				assert_eq!(decoded.len(), decoded.capacity());
+			}
+		}
 	}
 }
