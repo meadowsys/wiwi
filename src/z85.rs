@@ -47,7 +47,11 @@ pub const BINARY_FRAME_LEN: usize = 4;
 pub const STRING_FRAME_LEN: usize = 5;
 
 pub fn encode_z85(bytes: &[u8]) -> String {
-	if bytes.is_empty() { return String::new() }
+	// we *don't* fast path out on zero bytes, because in like, 99% of situation
+	// the input is not 0 length, lol. if it were, chunks and remainder would be 0,
+	// capacity would end up 0 (so no allocation is made), the first loop wouldn't
+	// run, the remainder if block wouldn't run, debug_assert's pass, and String is
+	// created from empty Vec (empty string). so all is good anyways
 
 	// right shift 2 is same as integer divide by 4 (BINARY_FRAME_LEN)
 	let chunks = bytes.len() >> 2;
@@ -101,6 +105,8 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 }
 
 pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
+	// this "fast path" isn't here because its beneficial, it's here because
+	// it's needed it gets rid of the zero len, which is helpful for later.
 	if bytes.is_empty() { return Ok(Vec::new()) }
 
 	// we already returned on empty input. (empty bytes <-> empty string)
@@ -118,11 +124,13 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 
 	let remainder = bytes.len() % STRING_FRAME_LEN;
 
+	// left shift 2 is the same as multiply by 4 (BINARY_FRAME_LEN)
+	let capacity = chunks << 2;
+
 	let (capacity, added_padding) = match remainder {
 		0 => {
-			// no padding added
-			// left shift 2 is the same as multiply by 4 (BINARY_FRAME_LEN)
-			(chunks << 2, 0usize)
+			// no padding was added
+			(capacity, 0usize)
 		}
 		1 => {
 			// the singular padding byte (there will never be more)
@@ -142,14 +150,11 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 
 				match decoded {
 					Some(val) if (val as usize) < BINARY_FRAME_LEN => { val }
-					Some(_) => { return Err(DecodeError::InvalidChar) }
-					None => { return Err(DecodeError::InvalidChar) }
+					Some(_) | None => { return Err(DecodeError::InvalidChar) }
 				}
-			};
+			} as usize;
 
-			// left shift 2 is the same as multiply by 4 (BINARY_FRAME_LEN)
-			let capacity = (chunks << 2) - added_padding as usize;
-			(capacity, added_padding as usize)
+			(capacity - added_padding, added_padding)
 		}
 		_n => { return Err(DecodeError::InvalidLength) }
 	};
