@@ -181,7 +181,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			// - if 0 < n < 4 bytes of padding were added, this is correct
 			// - if 4 <= n bytes of "padding" were added, this would either be 0 or
 			//   0 < n < 4
-			debug_assert!(added_padding < 4);
+			debug_assert!(added_padding < BINARY_FRAME_LEN);
 
 			// - 0 bytes of padding were added, this would be 4, slice would be 0..4
 			// - 0 < 4 bytes of padding, this would also be 0 < 4
@@ -276,7 +276,7 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 	}
 }
 
-unsafe fn encode_chunk_into(chunk: &[u8; 4], dest: &mut Vec<u8>) {
+unsafe fn encode_chunk_into(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
 	let mut int = u32::from_be_bytes(*chunk) as usize;
 
 	let byte5 = int % TABLE_ENCODER_LEN;
@@ -298,7 +298,7 @@ unsafe fn encode_chunk_into(chunk: &[u8; 4], dest: &mut Vec<u8>) {
 
 	// SAFETY: these are calculated by modulo TABLE_LEN, which
 	// guarantees the numbers are 0 <= n < TABLE_LEN, which won't overflow
-	let chars = unsafe { [
+	let chars: [u8; STRING_FRAME_LEN] = unsafe { [
 		*TABLE_ENCODER.get_unchecked(byte1),
 		*TABLE_ENCODER.get_unchecked(byte2),
 		*TABLE_ENCODER.get_unchecked(byte3),
@@ -307,7 +307,7 @@ unsafe fn encode_chunk_into(chunk: &[u8; 4], dest: &mut Vec<u8>) {
 	] };
 
 	// SAFETY: these are all ASCII chars defined in `TABLE`
-	debug_assert!(dest.len() + 5 <= dest.capacity());
+	debug_assert!(dest.len() + STRING_FRAME_LEN <= dest.capacity());
 
 	// TODO: potential optimisation maybe,
 	// manipulate vec's raw pointer and .set_len?
@@ -315,9 +315,9 @@ unsafe fn encode_chunk_into(chunk: &[u8; 4], dest: &mut Vec<u8>) {
 	dest.extend(chars);
 }
 
-unsafe fn decode_chunk_into<F>(chunk: &[u8; 5], f: F) -> Result<(), DecodeError>
+unsafe fn decode_chunk_into<F>(chunk: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
 where
-	F: FnOnce([u8; 4])
+	F: FnOnce([u8; BINARY_FRAME_LEN])
 {
 	let [byte1, byte2, byte3, byte4, byte5] = *chunk;
 
