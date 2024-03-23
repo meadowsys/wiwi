@@ -17,6 +17,7 @@ tokio = { version = "1.36.0", features = ["full"], optional = true }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
+hex = "0.4.3"
 rand = "0.8.5"
 z85 = "3.0.5"
 
