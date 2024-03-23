@@ -58,7 +58,9 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	let capacity = if remainder == 0 {
 		chunks * STRING_FRAME_LEN
 	} else {
-		(chunks + 1) * STRING_FRAME_LEN
+		let capacity = (chunks + 1) * STRING_FRAME_LEN;
+		// don't forget that last byte that encodes amount of padding
+		capacity + 1
 	};
 
 	let mut chunks_iter = ChunkSlice::<BINARY_FRAME_LEN> { bytes };
@@ -76,12 +78,13 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 
 	if remainder > 0 {
 		unsafe {
-			let padding_len = chunks_iter.with_remainder_unchecked(|remainder| {
+			let data_len = chunks_iter.with_remainder_unchecked(|remainder| {
 				// SAFETY: everything has been calculated:
 				// - remainder, so 0 < remainder < N will be true
 				// - dest, we preallocated enough for the remainder up front
 				encode_chunk_into(remainder, &mut dest)
-			}) - BINARY_FRAME_LEN;
+			});
+			let padding_len = BINARY_FRAME_LEN - data_len;
 
 			// SAFETY: 0 < padding_len < 4 will always be true, which
 			// fits in TABLE_ENCODER_LEN
@@ -135,10 +138,13 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 
 				// SAFETY: 0 <= n < 256 is always true for a u8, and TABLE_DECODER is len 256,
 				// so this is safe
-				let decoded = TABLE_DECODER.get_unchecked(*ptr as usize);
-				debug_assert!(decoded.is_some());
+				let decoded = *TABLE_DECODER.get_unchecked(byte as usize);
 
-				decoded.unwrap_unchecked()
+				match decoded {
+					Some(val) if (val as usize) < BINARY_FRAME_LEN => { val }
+					Some(_) => { return Err(DecodeError::InvalidChar) }
+					None => { return Err(DecodeError::InvalidChar) }
+				}
 			};
 
 			// left shift 2 is the same as multiply by 4 (BINARY_FRAME_LEN)
@@ -309,9 +315,9 @@ unsafe fn encode_chunk_into(chunk: &[u8; 4], dest: &mut Vec<u8>) {
 	dest.extend(chars);
 }
 
-unsafe fn decode_chunk_into<F>(chunk: &[u8; 5], mut f: F) -> Result<(), DecodeError>
+unsafe fn decode_chunk_into<F>(chunk: &[u8; 5], f: F) -> Result<(), DecodeError>
 where
-	F: FnMut([u8; 4])
+	F: FnOnce([u8; 4])
 {
 	let [byte1, byte2, byte3, byte4, byte5] = *chunk;
 
