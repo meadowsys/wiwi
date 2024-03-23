@@ -4,6 +4,9 @@ on:
     branches:
     - "**"
 
+env:
+  RUSTFLAGS: "-Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code"
+
 jobs:
   test:
     name: run
@@ -30,11 +33,10 @@ jobs:
       run: cargo build --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
 
     - name: test
-      run: cargo test --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
+      run: cargo test --release --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
       env:
         CARGO_INCREMENTAL: "0"
         LLVM_PROFILE_FILE: "target/coverage/test-file.profraw"
-        RUSTFLAGS: "-Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code"
 
     - name: fetch/run grcov
       run: |
@@ -42,7 +44,7 @@ jobs:
         tar xvf grcov.bz2
         rm grcov.bz2
 
-        ./grcov . -s . -t lcov --binary-path ./target/debug/ --branch --ignore-not-existing -o ./target/coverage/tests.lcov
+        ./grcov . -s . -t lcov --binary-path ./target/release/ --branch --ignore-not-existing -o ./target/coverage/tests.lcov
 
     - name: upload to codecov
       uses: codecov/codecov-action@54bcd8715eee62d40e33596ef5e8f0f48dbbccab # v4.1.0
