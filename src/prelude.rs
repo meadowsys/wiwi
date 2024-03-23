@@ -38,3 +38,6 @@ pub use crate::lazy_wrap::{
 
 #[cfg(feature = "string-pool")]
 pub use crate::string_pool::String;
+
+#[cfg(feature = "z85")]
+pub use crate::z85::{ encode_z85, decode_z85 };

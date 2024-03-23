@@ -30,6 +30,9 @@ pub mod lazy_wrap;
 #[cfg(feature = "string-pool")]
 pub mod string_pool;
 
+#[cfg(feature = "z85")]
+pub mod z85;
+
 // ensure max one runtime is selected
 cfg_if! {
 	if #[cfg(all(

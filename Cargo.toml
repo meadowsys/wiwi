@@ -28,6 +28,7 @@ debounce = ["dep:chrono"]
 h = []
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]
+z85 = ["dep:thiserror"]
 
 # runtime selection features
 tokio = ["dep:tokio"]
