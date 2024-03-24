@@ -30,7 +30,7 @@ impl UnsafeBufWriteGuard {
 	}
 
 	#[inline(always)]
-	unsafe fn write_bytes_const<const N: usize>(&mut self, src: *const u8) {
+	pub unsafe fn write_bytes_const<const N: usize>(&mut self, src: *const u8) {
 		#[cfg(debug_assertions)] {
 			self.bytes_written += N;
 			assert!(self.bytes_written <= self.vec.capacity())
@@ -41,7 +41,7 @@ impl UnsafeBufWriteGuard {
 	}
 
 	#[inline(always)]
-	unsafe fn write_bytes(&mut self, src: *const u8, n: usize) {
+	pub unsafe fn write_bytes(&mut self, src: *const u8, n: usize) {
 		#[cfg(debug_assertions)] {
 			self.bytes_written += n;
 			assert!(self.bytes_written <= self.vec.capacity())
@@ -51,8 +51,24 @@ impl UnsafeBufWriteGuard {
 		self.ptr = self.ptr.add(n);
 	}
 
+	/// In debug, make sure to also call `add_byte_count` function afterwards.
 	#[inline(always)]
-	unsafe fn into_full_vec(mut self) -> Vec<u8> {
+	pub unsafe fn as_ptr(&mut self) -> *mut u8 {
+		self.ptr
+	}
+
+	#[inline(always)]
+	pub unsafe fn add_byte_count(&mut self, n: usize) {
+		#[cfg(debug_assertions)] {
+			self.bytes_written += n;
+			assert!(self.bytes_written <= self.vec.capacity())
+		}
+
+		self.ptr = self.ptr.add(n);
+	}
+
+	#[inline(always)]
+	pub unsafe fn into_full_vec(mut self) -> Vec<u8> {
 		#[cfg(debug_assertions)]
 		assert!(self.bytes_written == self.vec.capacity());
 
