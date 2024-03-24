@@ -456,6 +456,7 @@ mod tests {
 
 				// this is enforced by debug_assert! in the code, so this already
 				// is validated if tests are run in debug, but still,
+				assert_eq!(encoded.len(), encoded.capacity());
 				assert_eq!(decoded.len(), decoded.capacity());
 			}
 		}
