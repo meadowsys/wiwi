@@ -67,6 +67,47 @@ fn _encode(bytes: &[u8], table: &[u8; 16]) -> String {
 	unsafe { String::from_utf8_unchecked(dest) }
 }
 
+#[cfg(target_arch = "aarch64")]
+#[target_feature(enable = "neon")]
+unsafe fn _encode_neon_uint8x8(
+	mut bytes_ptr: *const u8,
+	mut dest_ptr: *mut u8,
+	num_rounds: usize
+) -> *const u8 {
+	use ::std::arch::aarch64::*;
+
+	let four_lower_bits = vdup_n_u8(0xf);
+	let nine = vdup_n_u8(9);
+	let char_0 = vdup_n_u8(b'0');
+	let char_a = vdup_n_u8(b'a' - 10);
+
+	for _ in 0..num_rounds {
+		let vec = vld1_u8(bytes_ptr);
+
+		let upper_vals = vshr_n_u8::<4>(vec);
+		let lower_vals = vand_u8(vec, four_lower_bits);
+
+		let upper_cmp = vcgt_u8(upper_vals, nine);
+		let lower_cmp = vcgt_u8(lower_vals, nine);
+
+		let upper = vbsl_u8(upper_cmp, char_a, char_0);
+		let lower = vbsl_u8(lower_cmp, char_a, char_0);
+
+		let upper = vadd_u8(upper_vals, upper);
+		let lower = vadd_u8(lower_vals, lower);
+
+		let zipped = vzip_u8(upper, lower);
+		vst1_u8_x2(dest_ptr, zipped);
+
+		bytes_ptr = bytes_ptr.add(8);
+		dest_ptr = dest_ptr.add(16);
+	}
+
+	bytes_ptr
+}
+
+
+
 pub fn decode_hex(bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 	if bytes.len() & 0b1 != 0 { return Err(DecodeError::InvalidLength) }
 
@@ -200,5 +241,32 @@ mod tests {
 			.expect("hex can decode wiwi");
 
 		assert_eq!(wiwi_decoded_hex, hex_decoded_wiwi);
+	}
+
+	#[test]
+	fn test_neon_impl() {
+		const IN_SIZE: usize = 1024 * 1024;
+		const NUM_ROUNDS: usize = IN_SIZE / 8;
+
+		let mut rng = thread_rng();
+
+		let mut bytes = vec![0u8; IN_SIZE];
+		rng.fill(&mut *bytes);
+		let bytes = &*bytes;
+
+		let regular_encoded = encode_hex(bytes);
+		let neon_encoded = unsafe {
+			let capacity = bytes.len() * 2;
+			let mut dest = Vec::with_capacity(capacity);
+			_encode_neon_uint8x8(
+				bytes as *const [u8] as *const u8,
+				dest.as_mut_ptr(),
+				NUM_ROUNDS
+			);
+			dest.set_len(capacity);
+			unsafe { String::from_utf8_unchecked(dest) }
+		};
+
+		assert_eq!(regular_encoded, neon_encoded);
 	}
 }
