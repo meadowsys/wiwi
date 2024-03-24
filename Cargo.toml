@@ -1,11 +1,17 @@
 [package]
 name = "wiwi"
-version = "0.5.1"
+version = "0.5.2"
 description = "A library, of, Stuff™"
 edition = "2021"
 authors = ["Meadowsys"]
 repository = "https://github.com/meadowsys/wiwi.git"
 license = "MIT"
+keywords = [
+	"decode",
+	"encode",
+	"hex",
+	"z85"
+]
 
 [dependencies]
 cfg-if = "1.0.0"
