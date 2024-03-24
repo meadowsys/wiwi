@@ -30,6 +30,8 @@ jobs:
       run: cargo build --release --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
 
     - name: test
+      run: cargo test --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
+    - name: test in release
       run: cargo test --release --verbose --features ${{ matrix.featureflags }} --features ${{ matrix.runtimes }}
 
   publish:
