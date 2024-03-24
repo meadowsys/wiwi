@@ -91,11 +91,7 @@ pub fn decode_hex(bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 				return Err(DecodeError::InvalidChar)
 			};
 
-			let mut byte = 0u8;
-			byte |= byte1 << 4;
-			byte |= byte2;
-
-			*dest_ptr = byte;
+			*dest_ptr = (byte1 << 4) | byte2;
 
 			bytes_ptr = bytes_ptr.add(2);
 			dest_ptr = dest_ptr.add(1);
