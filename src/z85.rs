@@ -76,7 +76,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 			// - chunks, so we'll always be in bounds of bytes
 			// - dest, we preallocated all the capacity we need up front
 			let chunk = chunks_iter.next_chunk_unchecked();
-			encode_chunk_into(chunk, &mut dest)
+			encode_chunk(chunk, &mut dest);
 		}
 	}
 
@@ -86,7 +86,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 				// SAFETY: everything has been calculated:
 				// - remainder, so 0 < remainder < N will be true
 				// - dest, we preallocated enough for the remainder up front
-				encode_chunk_into(remainder, &mut dest)
+				encode_chunk(remainder, &mut dest);
 			});
 			let padding_len = BINARY_FRAME_LEN - data_len;
 
@@ -173,14 +173,14 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			// - dest, we preallocated all the capacity we need up front
 
 			let chunk = chunks_iter.next_chunk_unchecked();
-			decode_chunk_into(chunk, |chunk| dest.extend(chunk))?;
+			decode_chunk(chunk, |chunk| extend_unchecked_const(&mut dest, chunk))?;
 		}
 	}
 
 	// the last chunk, this is where the padding is handled
 	unsafe {
 		let chunk = chunks_iter.next_chunk_unchecked();
-		decode_chunk_into(chunk, |chunk| {
+		decode_chunk(chunk, |chunk| {
 			// - if 0 bytes of padding were added, this is whole chunk and
 			//   added_padding would be 0
 			// - if 0 < n < 4 bytes of padding were added, this is correct
@@ -188,7 +188,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			//   0 < n < 4
 			debug_assert!(added_padding < BINARY_FRAME_LEN);
 
-			// - 0 bytes of padding were added, this would be 4, slice would be 0..4
+			// - 0 bytes of padding were added, this would be 4
 			// - 0 < 4 bytes of padding, this would also be 0 < 4
 			//   - ex. 3 bytes of padding were added, this is 1 non-padding byte,
 			//     which is correct
@@ -196,8 +196,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			let non_padding_bytes = BINARY_FRAME_LEN - added_padding;
 
 			// SAFETY: as explained above, this is safe
-			let chunk = chunk.get_unchecked(0..non_padding_bytes);
-			dest.extend(chunk);
+			extend_unchecked(&mut dest, chunk as *const u8, non_padding_bytes);
 		})?;
 	}
 
@@ -235,7 +234,7 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 		let self_ptr = self.bytes as *const [u8] as *const u8;
 		let self_len = self.bytes.len();
 
-		// new slice reference
+		// new slice
 		let new_slice = &*(self_ptr as *const [u8; N]);
 
 		// new ptr to self (with N bytes removed from front)
@@ -281,7 +280,7 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 	}
 }
 
-unsafe fn encode_chunk_into(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
+unsafe fn encode_chunk(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
 	let mut int = u32::from_be_bytes(*chunk) as usize;
 
 	let byte5 = int % TABLE_ENCODER_LEN;
@@ -311,18 +310,12 @@ unsafe fn encode_chunk_into(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) 
 		*TABLE_ENCODER.get_unchecked(byte5),
 	] };
 
-	// SAFETY: these are all ASCII chars defined in `TABLE`
-	debug_assert!(dest.len() + STRING_FRAME_LEN <= dest.capacity());
-
-	// TODO: potential optimisation maybe,
-	// manipulate vec's raw pointer and .set_len?
-	// since .extend checks capacity, and we don't need to do that
-	dest.extend(chars);
+	extend_unchecked_const(dest, &chars);
 }
 
-unsafe fn decode_chunk_into<F>(chunk: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
+unsafe fn decode_chunk<F>(chunk: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
 where
-	F: FnOnce([u8; BINARY_FRAME_LEN])
+	F: FnOnce(&[u8; BINARY_FRAME_LEN])
 {
 	let [byte1, byte2, byte3, byte4, byte5] = *chunk;
 
@@ -361,9 +354,28 @@ where
 	int += byte5 as u32;
 
 	let chunk = u32::to_be_bytes(int);
-	f(chunk);
+	f(&chunk);
 
 	Ok(())
+}
+
+#[inline(always)]
+unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *const [u8; N]) {
+	let len = vec.len();
+	let dest_ptr = vec.as_mut_ptr().add(len);
+	let bytes_ptr = bytes_ptr as *const u8;
+
+	ptr::copy_nonoverlapping(bytes_ptr, dest_ptr, N);
+	vec.set_len(len + N);
+}
+
+#[inline(always)]
+unsafe fn extend_unchecked(vec: &mut Vec<u8>, bytes_ptr: *const u8, n: usize) {
+	let len = vec.len();
+	let dest_ptr = vec.as_mut_ptr().add(len);
+
+	ptr::copy_nonoverlapping(bytes_ptr, dest_ptr, n);
+	vec.set_len(len + n);
 }
 
 #[cfg(test)]
