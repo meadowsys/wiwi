@@ -194,6 +194,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			//     which is correct
 			// - if 4 <= n bytes of "padding", they would be the above
 			let non_padding_bytes = BINARY_FRAME_LEN - added_padding;
+			debug_assert!(non_padding_bytes <= BINARY_FRAME_LEN);
 
 			// SAFETY: as explained above, this is safe
 			extend_unchecked(&mut dest, chunk as *const u8, non_padding_bytes);
@@ -361,6 +362,7 @@ where
 
 #[inline(always)]
 unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *const [u8; N]) {
+	debug_assert!(vec.len() + N <= vec.capacity());
 	let len = vec.len();
 	let dest_ptr = vec.as_mut_ptr().add(len);
 	let bytes_ptr = bytes_ptr as *const u8;
@@ -371,6 +373,8 @@ unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *
 
 #[inline(always)]
 unsafe fn extend_unchecked(vec: &mut Vec<u8>, bytes_ptr: *const u8, n: usize) {
+	debug_assert!(vec.len() + n <= vec.capacity());
+
 	let len = vec.len();
 	let dest_ptr = vec.as_mut_ptr().add(len);
 
