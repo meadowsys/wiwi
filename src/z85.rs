@@ -9,7 +9,7 @@
 //!
 //! Decoding: If the len of the slice passed is one more than a multiple of 5
 //! (ie. `(n * 5) + 1`), it is trimmed off the slice, decoded to get amount of
-//! padding needed, and held onto. Then while decoding the last chunk, we take
+//! padding needed, and held onto. Then while decoding the last frame, we take
 //! that stored amount of padding, and remove that amount from the end of the
 //! decoded bytes.
 //!
@@ -50,49 +50,49 @@ pub const STRING_FRAME_LEN: usize = 5;
 /// Encodes a slice of bytes into a Z85 string, adding padding if necessary
 pub fn encode_z85(bytes: &[u8]) -> String {
 	// we *don't* fast path out on zero bytes, because in like, 99% of situations,
-	// the input is not 0 length, lol. if it were, chunks and remainder would be 0,
+	// the input is not 0 length, lol. if it were, frames and remainder would be 0,
 	// capacity would end up 0 (so no allocation is made), the first loop wouldn't
 	// run, the remainder if block wouldn't run, debug_assert's pass, and String is
 	// created from empty Vec (empty string, no allocation too). so all is good
 	// functionality wise, and its still a fairly fast exit too, I think.
 
 	// right shift 2 is same as integer divide by 4 (BINARY_FRAME_LEN)
-	let chunks = bytes.len() >> 2;
+	let frames = bytes.len() >> 2;
 
 	// binary AND with 0b11 (3) is the same as modulo 4 (BINARY_FRAME_LEN)
 	let remainder = bytes.len() & 0b11;
 
 	// preallocate exact amount of memory needed.
 	let capacity = if remainder == 0 {
-		chunks * STRING_FRAME_LEN
+		frames * STRING_FRAME_LEN
 	} else {
-		// chunks is number of *whole* chunks so the remainder is not included by default.
-		// adding 1 to allocate a whole new chunk for it.
-		let capacity = (chunks + 1) * STRING_FRAME_LEN;
+		// frames is number of *whole* frames so the remainder is not included by default.
+		// adding 1 to allocate space for a whole frame for it.
+		let capacity = (frames + 1) * STRING_FRAME_LEN;
 		// don't forget that last byte that encodes amount of padding
 		capacity + 1
 	};
 
-	let mut chunks_iter = ChunkSlice::<BINARY_FRAME_LEN> { bytes };
+	let mut frames_iter = ChunkedSlice::<BINARY_FRAME_LEN> { bytes };
 	let mut dest = Vec::with_capacity(capacity);
 
-	for _ in 0..chunks {
+	for _ in 0..frames {
 		unsafe {
 			// SAFETY: everything has been calculated:
-			// - chunks, so we'll always be in bounds of bytes
+			// frames, so we'll have enough bytes left for next full frame
 			// - dest, we preallocated all the capacity we need up front
-			let chunk = chunks_iter.next_chunk_unchecked();
-			encode_chunk(chunk, &mut dest);
+			let frame = frames_iter.next_frame_unchecked();
+			encode_frame(frame, &mut dest);
 		}
 	}
 
 	if remainder > 0 {
 		unsafe {
-			let data_len = chunks_iter.with_remainder_unchecked(|remainder| {
+			let data_len = frames_iter.with_remainder_unchecked(|remainder| {
 				// SAFETY: everything has been calculated:
 				// - remainder, so 0 < remainder < N will be true
 				// - dest, we preallocated enough for the remainder up front
-				encode_chunk(remainder, &mut dest);
+				encode_frame(remainder, &mut dest);
 			});
 			let padding_len = BINARY_FRAME_LEN - data_len;
 
@@ -103,8 +103,9 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 		}
 	}
 
-	debug_assert_eq!(capacity, dest.capacity());
-	debug_assert_eq!(capacity, dest.len());
+	debug_assert_eq!(capacity, dest.capacity(), "allocated enough capacity");
+	debug_assert_eq!(capacity, dest.len(), "all allocated capacity is used");
+	debug_assert!(String::from_utf8(dest.clone()).is_ok(), "output bytes are valid utf-8");
 
 	// SAFETY: we only are pushing in chars in the table, which are all ASCII chars
 	unsafe { String::from_utf8_unchecked(dest) }
@@ -126,13 +127,13 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 	// at this point, bytes.len() >= STRING_FRAME_LEN
 
 	// this is at least 1
-	let chunks = bytes.len() / STRING_FRAME_LEN;
-	debug_assert!(chunks >= 1);
+	let frames = bytes.len() / STRING_FRAME_LEN;
+	debug_assert!(frames >= 1, "condition of \"at least one frame in input\" was checked correctly");
 
 	let remainder = bytes.len() % STRING_FRAME_LEN;
 
 	// left shift 2 is the same as multiply by 4 (BINARY_FRAME_LEN)
-	let capacity = chunks << 2;
+	let capacity = frames << 2;
 
 	let (capacity, added_padding) = match remainder {
 		0 => {
@@ -166,51 +167,47 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 		_n => { return Err(DecodeError::InvalidLength) }
 	};
 
-	// because chunks >= 1, this will be >= 0.
-	let excluding_last_chunk = chunks - 1;
+	// because frames >= 1, this will be >= 0.
+	let excluding_last_frame = frames - 1;
 
-	let mut chunks_iter = ChunkSlice::<STRING_FRAME_LEN> { bytes };
+	let mut frames_iter = ChunkedSlice::<STRING_FRAME_LEN> { bytes };
 	let mut dest = Vec::with_capacity(capacity);
 
-	for _ in 0..excluding_last_chunk {
+	for _ in 0..excluding_last_frame {
 		unsafe {
 			// SAFETY: everything has been calculated:
-			// - excluding_last_chunk, so we'll always be in bounds of bytes
-			//   as well as not touch the last chunk
+			// - excluding_last_frame, so we'll always be in bounds of bytes
+			//   as well as not touch the last frame
 			// - dest, we preallocated all the capacity we need up front
 
-			let chunk = chunks_iter.next_chunk_unchecked();
-			decode_chunk(chunk, |chunk| extend_unchecked_const(&mut dest, chunk))?;
+			let frame = frames_iter.next_frame_unchecked();
+			decode_frame(frame, |frame| extend_unchecked_const(&mut dest, frame))?;
 		}
 	}
 
-	// the last chunk, this is where the padding is handled
+	// the last frame, this is where the padding is handled
 	unsafe {
-		let chunk = chunks_iter.next_chunk_unchecked();
-		decode_chunk(chunk, |chunk| {
-			// - if 0 bytes of padding were added, this is whole chunk and
+		let frame = frames_iter.next_frame_unchecked();
+		decode_frame(frame, |frame| {
+			// - if 0 bytes of padding were added, this is whole frame and
 			//   added_padding would be 0
 			// - if 0 < n < 4 bytes of padding were added, this is correct
-			// - if 4 <= n bytes of "padding" were added, this would either be 0 or
-			//   0 < n < 4
-			debug_assert!(added_padding < BINARY_FRAME_LEN);
+			// - if 4 <= n bytes of "padding" were added, this should have been
+			//   either be 0 or 0 < n < 4
+			// this is checked up at the top, where the padding amount is decoded
 
-			// - 0 bytes of padding were added, this would be 4
-			// - 0 < 4 bytes of padding, this would also be 0 < 4
-			//   - ex. 3 bytes of padding were added, this is 1 non-padding byte,
-			//     which is correct
-			// - if 4 <= n bytes of "padding", they would be the above
+			// so because of all that, this will also be in range of 0 <= n < BINARY_FRAME_LEN
 			let non_padding_bytes = BINARY_FRAME_LEN - added_padding;
-			debug_assert!(non_padding_bytes <= BINARY_FRAME_LEN);
+			debug_assert!(non_padding_bytes <= BINARY_FRAME_LEN, "added padding is less than one full frame");
 
 			// SAFETY: as explained above, this is safe
-			extend_unchecked(&mut dest, chunk as *const u8, non_padding_bytes);
+			extend_unchecked(&mut dest, frame as *const u8, non_padding_bytes);
 		})?;
 	}
 
-	debug_assert!(chunks_iter.bytes.is_empty());
-	debug_assert_eq!(capacity, dest.capacity());
-	debug_assert_eq!(capacity, dest.len());
+	debug_assert!(frames_iter.bytes.is_empty(), "all bytes were consumed");
+	debug_assert_eq!(capacity, dest.capacity(), "allocated enough capacity");
+	debug_assert_eq!(capacity, dest.len(), "all allocated capacity is used");
 
 	Ok(dest)
 }
@@ -224,11 +221,11 @@ pub enum DecodeError {
 }
 
 #[repr(transparent)]
-struct ChunkSlice<'h, const N: usize> {
+struct ChunkedSlice<'h, const N: usize> {
 	bytes: &'h [u8]
 }
 
-impl<'h, const N: usize> ChunkSlice<'h, N> {
+impl<'h, const N: usize> ChunkedSlice<'h, N> {
 	/// Takes N bytes off the front, returning that front slice, and saving the
 	/// rest in `self`.
 	///
@@ -236,8 +233,8 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 	///
 	/// `self.bytes` must have `N` or more bytes left in it,
 	/// otherwise invalid memory will be copied from.
-	unsafe fn next_chunk_unchecked(&mut self) -> &[u8; N] {
-		debug_assert!(self.bytes.len() >= N);
+	unsafe fn next_frame_unchecked(&mut self) -> &[u8; N] {
+		debug_assert!(self.bytes.len() >= N, "enough bytes left to form another whole frame");
 
 		let self_ptr = self.bytes as *const [u8] as *const u8;
 		let self_len = self.bytes.len();
@@ -268,7 +265,7 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 		F: FnMut(&[u8; N])
 	{
 		let len = self.bytes.len();
-		debug_assert!(len < N);
+		debug_assert!(len < N, "less than a whole frame remaining");
 
 		// temp buffer of correct length, to add padding
 		let mut slice = [0u8; N];
@@ -288,8 +285,8 @@ impl<'h, const N: usize> ChunkSlice<'h, N> {
 	}
 }
 
-unsafe fn encode_chunk(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
-	let mut int = u32::from_be_bytes(*chunk) as usize;
+unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
+	let mut int = u32::from_be_bytes(*frame) as usize;
 
 	let byte5 = int % TABLE_ENCODER_LEN;
 	int /= TABLE_ENCODER_LEN;
@@ -305,12 +302,12 @@ unsafe fn encode_chunk(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
 
 	let byte1 = int;
 
-	debug_assert!(int % TABLE_ENCODER_LEN == int);
-	debug_assert!(int / TABLE_ENCODER_LEN == 0);
+	debug_assert!(int % TABLE_ENCODER_LEN == int, "no remaining/unused byte information");
+	debug_assert!(int / TABLE_ENCODER_LEN == 0, "no remaining/unused byte information");
 
 	// SAFETY: these are calculated by modulo TABLE_ENCODER_LEN, which
 	// guarantees the numbers are 0 <= n < TABLE_ENCODER_LEN, which won't overflow
-	let chars: [u8; STRING_FRAME_LEN] = unsafe { [
+	let encoded_frame: [u8; STRING_FRAME_LEN] = unsafe { [
 		*TABLE_ENCODER.get_unchecked(byte1),
 		*TABLE_ENCODER.get_unchecked(byte2),
 		*TABLE_ENCODER.get_unchecked(byte3),
@@ -318,14 +315,14 @@ unsafe fn encode_chunk(chunk: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
 		*TABLE_ENCODER.get_unchecked(byte5),
 	] };
 
-	extend_unchecked_const(dest, &chars);
+	extend_unchecked_const(dest, &encoded_frame);
 }
 
-unsafe fn decode_chunk<F>(chunk: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
+unsafe fn decode_frame<F>(frame: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
 where
 	F: FnOnce(&[u8; BINARY_FRAME_LEN])
 {
-	let [byte1, byte2, byte3, byte4, byte5] = *chunk;
+	let [byte1, byte2, byte3, byte4, byte5] = *frame;
 
 	// SAFETY: 0 <= n < 256 is always true for a u8, and TABLE_DECODER is len 256,
 	// so this is safe.
@@ -361,15 +358,15 @@ where
 	int *= TABLE_ENCODER_LEN as u32;
 	int += byte5 as u32;
 
-	let chunk = u32::to_be_bytes(int);
-	f(&chunk);
+	let decoded_frame = u32::to_be_bytes(int);
+	f(&decoded_frame);
 
 	Ok(())
 }
 
 #[inline(always)]
 unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *const [u8; N]) {
-	debug_assert!(vec.len() + N <= vec.capacity());
+	debug_assert!(vec.len() + N <= vec.capacity(), "enough allocated capacity in vec to manually append to");
 	let len = vec.len();
 	let dest_ptr = vec.as_mut_ptr().add(len);
 	let bytes_ptr = bytes_ptr as *const u8;
@@ -380,7 +377,7 @@ unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *
 
 #[inline(always)]
 unsafe fn extend_unchecked(vec: &mut Vec<u8>, bytes_ptr: *const u8, n: usize) {
-	debug_assert!(vec.len() + n <= vec.capacity());
+	debug_assert!(vec.len() + n <= vec.capacity(), "enough allocated capacity in vec to manually append to");
 
 	let len = vec.len();
 	let dest_ptr = vec.as_mut_ptr().add(len);
@@ -403,7 +400,7 @@ mod tests {
 		let encoded = "HelloWorld";
 
 		assert_eq!(encoded, encode_z85(bytes));
-		assert_eq!(bytes, decode_z85(encoded.as_bytes()).unwrap());
+		assert_eq!(bytes, decode_z85(encoded.as_bytes()).expect("provided test case decodes properly"));
 	}
 
 	#[test]
@@ -451,7 +448,8 @@ mod tests {
 				let encoded = encode_z85(&original_input);
 				assert_eq!(encoded.len(), expected_output_len);
 
-				let decoded = decode_z85(encoded.as_bytes()).expect("decoding failed");
+				let decoded = decode_z85(encoded.as_bytes())
+					.expect("can round trip decode just encoded data");
 				assert_eq!(decoded.len(), expected_input_len);
 
 				assert_eq!(original_input, decoded);
