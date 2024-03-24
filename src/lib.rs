@@ -10,6 +10,11 @@
 use ::cfg_if::cfg_if;
 
 pub mod prelude;
+#[cfg(any(
+	feature = "hex",
+	feature = "z85"
+))]
+mod encoding_utils;
 
 #[cfg(feature = "clock-timer")]
 pub mod clock_timer;
