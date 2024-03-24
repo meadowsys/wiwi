@@ -37,14 +37,36 @@ pub fn encode_hex_upper(bytes: &[u8]) -> String {
 	_encode::<true>(bytes)
 }
 
+// mut is used by cfg(target_arch) which might be inactive
+#[allow(unused_mut)]
 fn _encode<const UPPER: bool>(bytes: &[u8]) -> String {
+
 	let bytes_len = bytes.len();
 	let capacity = bytes_len * 2;
 
-	let bytes_ptr = bytes as *const [u8] as *const u8;
+	let mut bytes_ptr = bytes as *const [u8] as *const u8;
 	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
+	let mut rounds = bytes_len;
 
-	unsafe { encode::generic::<UPPER>(bytes_ptr, &mut dest, bytes_len) };
+	#[cfg(target_arch = "aarch64")] {
+		if ::std::arch::is_aarch64_feature_detected!("neon") {
+			// we handle the big chunks, but leave enough info for the below generic
+			// to continue the uneven chunks
+			// divide by 16
+			let neon_rounds = rounds >> 4;
+			// mod 16
+			let remainder = bytes_len & 0b1111;
+
+			bytes_ptr = unsafe { encode::neon_uint8x16::<UPPER>(bytes_ptr, dest.as_ptr(), neon_rounds) };
+
+			// multiply by 32
+			let amount_written = neon_rounds << (4 + 1);
+			rounds = remainder;
+			unsafe { dest.add_byte_count(amount_written) }
+		}
+	}
+
+	unsafe { encode::generic::<UPPER>(bytes_ptr, &mut dest, rounds) };
 
 	let vec = unsafe { dest.into_full_vec() };
 	debug_assert!(String::from_utf8(vec.clone()).is_ok(), "output bytes are valid utf-8");
