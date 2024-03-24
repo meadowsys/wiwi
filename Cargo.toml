@@ -4,7 +4,7 @@ version = "0.4.0"
 description = "A library, of, Stuff™"
 edition = "2021"
 authors = ["Meadowsys"]
-repository = "https://github.com/Meadowsys/wiwi.git"
+repository = "https://github.com/meadowsys/wiwi.git"
 license = "MIT"
 
 [dependencies]
