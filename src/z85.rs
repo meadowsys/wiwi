@@ -364,6 +364,7 @@ where
 	Ok(())
 }
 
+// maybe this has monomorphisation benefit? dunno
 #[inline(always)]
 unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *const [u8; N]) {
 	debug_assert!(vec.len() + N <= vec.capacity(), "enough allocated capacity in vec to manually append to");

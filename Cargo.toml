@@ -28,7 +28,8 @@ z85 = "3.0.5"
 clock-timer = ["dep:chrono", "dep:thiserror"]
 clock-timer-2 = ["dep:chrono"]
 debounce = ["dep:chrono"]
-h = []
+h = ["dep:thiserror"]
+hex = []
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]
 z85 = ["dep:thiserror"]
@@ -41,7 +42,7 @@ tokio = ["dep:tokio"]
 debounce-dyn-fn = []
 
 [[bench]]
-name = "z85"
+name = "hex-and-z85"
 harness = false
 
 [package.metadata.docs.rs]
@@ -52,6 +53,7 @@ features = [
 	"clock-timer-2",
 	"debounce",
 	"h",
+	"hex",
 	"lazy-wrap",
 	"string-pool",
 	"z85",

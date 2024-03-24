@@ -30,6 +30,9 @@ pub use crate::debounce::{
 #[cfg(feature = "h")]
 pub use crate::h::h;
 
+#[cfg(feature = "hex")]
+pub use crate::hex::{ encode_hex, encode_hex_upper, decode_hex };
+
 #[cfg(feature = "lazy-wrap")]
 pub use crate::lazy_wrap::{
 	LazyWrap,

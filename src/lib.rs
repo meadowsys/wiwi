@@ -24,6 +24,9 @@ feature_cfg_compile_check!("debounce-dyn-fn", cfg of "debounce");
 #[cfg(feature = "h")]
 pub mod h;
 
+#[cfg(feature = "hex")]
+pub mod hex;
+
 #[cfg(feature = "lazy-wrap")]
 pub mod lazy_wrap;
 
