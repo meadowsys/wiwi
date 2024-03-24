@@ -4,7 +4,7 @@ fn main() {
 
 	let mut string = String::new();
 
-	string.push_str("pub const TABLE_DECODER: [u8; 256] = [");
+	string.push_str("pub const TABLE_DECODER: [Option<u8>; 256] = [");
 	for i in 0..=u8::MAX {
 		if i & 0b1111 == 0 { string.push_str("\n\t") }
 
