@@ -1,16 +1,17 @@
-//! Implementation of Z85, but with padding implemented that Z85 does not provide
-//! spec for.
+//! Fast and efficient implementation of Z85, but with nonstandard padding
+//! implemented, as the Z85 spec does not account for padding.
 //!
 //! ## Nonstandard padding implementation
 //!
-//! Encoding: If padding is needed, the amount of padding
-//! that was added in bytes is encoded (ex. 1B padding -> `1` since `TABLE_ENCODER[1] == b'1'`)
-//! and appended to the end of the string.
+//! Encoding: If padding is needed, the amount of padding that was added in bytes
+//! is encoded (ex. 1B padding -> `1` since `TABLE_ENCODER[1] == b'1'`)
+//! and appended to the end of the string. (1 extra byte)
 //!
 //! Decoding: If the len of the slice passed is one more than a multiple of 5
-//! (ie. `(n * 5) + 1`), it is trimmed off the slice, decoded, and held onto.
-//! Then while decoding the last chunk, we take that stored amount of padding,
-//! and remove it from the end of the decoded bytes.
+//! (ie. `(n * 5) + 1`), it is trimmed off the slice, decoded to get amount of
+//! padding needed, and held onto. Then while decoding the last chunk, we take
+//! that stored amount of padding, and remove that amount from the end of the
+//! decoded bytes.
 //!
 //! Original Z85 spec: https://rfc.zeromq.org/spec/32
 
@@ -46,12 +47,14 @@ pub const TABLE_DECODER: [Option<u8>; TABLE_DECODER_LEN] = [
 pub const BINARY_FRAME_LEN: usize = 4;
 pub const STRING_FRAME_LEN: usize = 5;
 
+/// Encodes a slice of bytes into a Z85 string, adding padding if necessary
 pub fn encode_z85(bytes: &[u8]) -> String {
-	// we *don't* fast path out on zero bytes, because in like, 99% of situation
+	// we *don't* fast path out on zero bytes, because in like, 99% of situations,
 	// the input is not 0 length, lol. if it were, chunks and remainder would be 0,
 	// capacity would end up 0 (so no allocation is made), the first loop wouldn't
 	// run, the remainder if block wouldn't run, debug_assert's pass, and String is
-	// created from empty Vec (empty string). so all is good anyways
+	// created from empty Vec (empty string, no allocation too). so all is good
+	// functionality wise, and its still a fairly fast exit too, I think.
 
 	// right shift 2 is same as integer divide by 4 (BINARY_FRAME_LEN)
 	let chunks = bytes.len() >> 2;
@@ -59,9 +62,12 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	// binary AND with 0b11 (3) is the same as modulo 4 (BINARY_FRAME_LEN)
 	let remainder = bytes.len() & 0b11;
 
+	// preallocate exact amount of memory needed.
 	let capacity = if remainder == 0 {
 		chunks * STRING_FRAME_LEN
 	} else {
+		// chunks is number of *whole* chunks so the remainder is not included by default.
+		// adding 1 to allocate a whole new chunk for it.
 		let capacity = (chunks + 1) * STRING_FRAME_LEN;
 		// don't forget that last byte that encodes amount of padding
 		capacity + 1
@@ -104,6 +110,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	unsafe { String::from_utf8_unchecked(dest) }
 }
 
+/// Decodes a slice of of a Z85 string back into the source bytes
 pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 	// this "fast path" isn't here because its beneficial, it's here because
 	// it's needed it gets rid of the zero len, which is helpful for later.
