@@ -29,22 +29,22 @@ mod encode;
 
 #[inline]
 pub fn encode_hex(bytes: &[u8]) -> String {
-	_encode(bytes, &TABLE_ENCODER_LOWER)
+	_encode::<false>(bytes)
 }
 
 #[inline]
 pub fn encode_hex_upper(bytes: &[u8]) -> String {
-	_encode(bytes, &TABLE_ENCODER_UPPER)
+	_encode::<true>(bytes)
 }
 
-fn _encode(bytes: &[u8], table: &[u8; 16]) -> String {
+fn _encode<const UPPER: bool>(bytes: &[u8]) -> String {
 	let bytes_len = bytes.len();
 	let capacity = bytes_len * 2;
 
 	let bytes_ptr = bytes as *const [u8] as *const u8;
 	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
 
-	unsafe { encode::generic(bytes_ptr, &mut dest, bytes_len) };
+	unsafe { encode::generic::<UPPER>(bytes_ptr, &mut dest, bytes_len) };
 
 	let vec = unsafe { dest.into_full_vec() };
 	debug_assert!(String::from_utf8(vec.clone()).is_ok(), "output bytes are valid utf-8");

@@ -1,13 +1,13 @@
 use crate::encoding_utils::UnsafeBufWriteGuard;
 use ::std::{ ptr, slice };
 
-pub(super) unsafe fn generic(
+pub(super) unsafe fn generic<const UPPER: bool>(
 	mut bytes_ptr: *const u8,
 	dest: &mut UnsafeBufWriteGuard,
 	num_rounds: usize
 ) {
-	const CHAR_A: u8 = b'a' - 10;
-	const CHAR_0: u8 = b'0';
+	let char_a = if UPPER { b'A' } else { b'a' } - 10;
+	let char_0 = b'0';
 
 	for _ in 0..num_rounds {
 		let byte = *bytes_ptr;
@@ -17,8 +17,8 @@ pub(super) unsafe fn generic(
 		let char2 = byte & 0xf;
 
 		let chars = [
-			if char1 > 9 { CHAR_A } else { CHAR_0 } + char1,
-			if char2 > 9 { CHAR_A } else { CHAR_0 } + char2
+			if char1 > 9 { char_a } else { char_0 } + char1,
+			if char2 > 9 { char_a } else { char_0 } + char2
 		];
 
 		let chars = &chars as *const [u8] as *const u8;
