@@ -13,7 +13,7 @@ All exposed features are gated behind features, none of which are enabled by def
 - **`h`** - h
 - **`lazy-wrap`** - Wrapper around an initialisation function to lazily initialise a value on first access (can be used in statics)
 - **`string-pool`** - Global immutable string pool and String type
-- **`z85`** - An efficient implementation of [ZeroMQ]'s [z85] format, a format to represent binary data as printable ASCII text. Think base64, but more efficient in encoded size. This implementation is not fully to spec, as it handles padding text to the correct text where the spec says the application code should handle it. (A fully spec compliant version soon&trade;?)
+- **`z85`** - A fast (faster than `z85` crate) and efficient implementation of [ZeroMQ]'s [z85] format, a format to represent binary data as printable ASCII text. Think base64, but more efficient in encoded size. This implementation is not fully to spec, as it handles padding text to the correct text where the spec says the application code should handle it. (A fully spec compliant version soon&trade;?)
 
 ### Async runtime features
 
