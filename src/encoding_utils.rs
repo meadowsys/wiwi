@@ -51,7 +51,8 @@ impl UnsafeBufWriteGuard {
 		self.ptr = self.ptr.add(n);
 	}
 
-	/// In debug, make sure to also call `add_byte_count` function afterwards.
+	/// Make sure to also call `add_byte_count` function afterwards, to keep
+	/// proper track of the ptr inside.
 	#[inline(always)]
 	pub unsafe fn as_ptr(&mut self) -> *mut u8 {
 		self.ptr
