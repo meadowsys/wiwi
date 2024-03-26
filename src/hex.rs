@@ -5,27 +5,8 @@ pub const TABLE_ENCODER_LEN: usize = 16;
 pub const TABLE_ENCODER_LOWER: [u8; TABLE_ENCODER_LEN] = *b"0123456789abcdef";
 pub const TABLE_ENCODER_UPPER: [u8; TABLE_ENCODER_LEN] = *b"0123456789ABCDEF";
 
-pub const TABLE_DECODER_LEN: usize = 256;
-pub const TABLE_DECODER: [Option<u8>; TABLE_DECODER_LEN] = [
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	Some(0x00), Some(0x01), Some(0x02), Some(0x03), Some(0x04), Some(0x05), Some(0x06), Some(0x07), Some(0x08), Some(0x09), None,       None,       None,       None,       None,       None,
-	None,       Some(0x0a), Some(0x0b), Some(0x0c), Some(0x0d), Some(0x0e), Some(0x0f), None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       Some(0x0a), Some(0x0b), Some(0x0c), Some(0x0d), Some(0x0e), Some(0x0f), None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,
-	None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None,       None
-];
-
 mod encode;
+mod decode;
 
 #[inline]
 pub fn encode_hex(bytes: &[u8]) -> String {
@@ -40,7 +21,6 @@ pub fn encode_hex_upper(bytes: &[u8]) -> String {
 // mut is used by cfg(target_arch) which might be inactive
 #[allow(unused_mut)]
 fn _encode<const UPPER: bool>(bytes: &[u8]) -> String {
-
 	let bytes_len = bytes.len();
 	let capacity = bytes_len * 2;
 
@@ -60,7 +40,8 @@ fn _encode<const UPPER: bool>(bytes: &[u8]) -> String {
 			bytes_ptr = unsafe { encode::neon_uint8x16::<UPPER>(bytes_ptr, dest.as_ptr(), neon_rounds) };
 
 			// multiply by 32
-			let amount_written = neon_rounds << (4 + 1);
+			// multiply by num rounds (^) times two, which is shift one more
+			let amount_written = neon_rounds << 5;
 			rounds = remainder;
 			unsafe { dest.add_byte_count(amount_written) }
 		}
@@ -74,38 +55,20 @@ fn _encode<const UPPER: bool>(bytes: &[u8]) -> String {
 }
 
 pub fn decode_hex(bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
+	// AND 0b1 is chopping off all the other bits; last bit will
+	// always be 0 or 1, depending on odd or even
 	if bytes.len() & 0b1 != 0 { return Err(DecodeError::InvalidLength) }
 
-	// shift right 1 is same as dividing by 2
+	// shr 1 is same as div 2
 	let capacity = bytes.len() >> 1;
-	let mut dest = Vec::with_capacity(capacity);
-	debug_assert!(dest.capacity() == capacity, "it didn't allocate???");
+	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
+	// num rounds is same as capacity, since each round outputs one byte.
 
-	let mut bytes_ptr = bytes as *const [u8] as *const u8;
-	let mut dest_ptr = dest.as_mut_ptr();
+	let bytes_ptr = bytes as *const [u8] as *const u8;
 
-	// chunks of 2, so we take the half len, aka the capacity
-	for _ in 0..capacity {
-		unsafe {
-			let byte1 = (*bytes_ptr) as usize;
-			let byte2 = (*bytes_ptr.add(1)) as usize;
+	unsafe { decode::generic(bytes_ptr, &mut dest, capacity)? }
 
-			let Some(byte1) = *TABLE_DECODER.get_unchecked(byte1) else {
-				return Err(DecodeError::InvalidChar)
-			};
-			let Some(byte2) = *TABLE_DECODER.get_unchecked(byte2) else {
-				return Err(DecodeError::InvalidChar)
-			};
-
-			*dest_ptr = (byte1 << 4) | byte2;
-
-			bytes_ptr = bytes_ptr.add(2);
-			dest_ptr = dest_ptr.add(1);
-		}
-	}
-
-	unsafe { dest.set_len(capacity) }
-	Ok(dest)
+	Ok(unsafe { dest.into_full_vec() })
 }
 
 #[derive(Debug, ::thiserror::Error)]
