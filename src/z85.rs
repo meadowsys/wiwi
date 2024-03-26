@@ -15,6 +15,7 @@
 //!
 //! Original Z85 spec: https://rfc.zeromq.org/spec/32
 
+use crate::encoding_utils::UnsafeBufWriteGuard;
 use ::std::{ ptr, slice };
 
 pub const TABLE_ENCODER_LEN: usize = 85;
@@ -74,7 +75,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	};
 
 	let mut frames_iter = ChunkedSlice::<BINARY_FRAME_LEN> { bytes };
-	let mut dest = Vec::with_capacity(capacity);
+	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
 
 	for _ in 0..frames {
 		unsafe {
@@ -88,27 +89,26 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 
 	if remainder > 0 {
 		unsafe {
-			let data_len = frames_iter.with_remainder_unchecked(|remainder| {
+			frames_iter.with_remainder_unchecked(|remainder| {
 				// SAFETY: everything has been calculated:
 				// - remainder, so 0 < remainder < N will be true
 				// - dest, we preallocated enough for the remainder up front
 				encode_frame(remainder, &mut dest);
 			});
-			let padding_len = BINARY_FRAME_LEN - data_len;
+			let padding_len = BINARY_FRAME_LEN - remainder;
 
 			// SAFETY: 0 < padding_len < 4 will always be true, which
 			// fits in TABLE_ENCODER_LEN
 			let padding_char = *TABLE_ENCODER.get_unchecked(padding_len);
-			dest.push(padding_char);
+			dest.write_bytes_const::<1>(&padding_char);
 		}
 	}
 
-	debug_assert_eq!(capacity, dest.capacity(), "allocated enough capacity");
-	debug_assert_eq!(capacity, dest.len(), "all allocated capacity is used");
-	debug_assert!(String::from_utf8(dest.clone()).is_ok(), "output bytes are valid utf-8");
+	let vec = unsafe { dest.into_full_vec() };
+	debug_assert!(String::from_utf8(vec.clone()).is_ok(), "output bytes are valid utf-8");
 
 	// SAFETY: we only are pushing in chars in the table, which are all ASCII chars
-	unsafe { String::from_utf8_unchecked(dest) }
+	unsafe { String::from_utf8_unchecked(vec) }
 }
 
 /// Decodes a slice of of a Z85 string back into the source bytes
@@ -171,7 +171,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 	let excluding_last_frame = frames - 1;
 
 	let mut frames_iter = ChunkedSlice::<STRING_FRAME_LEN> { bytes };
-	let mut dest = Vec::with_capacity(capacity);
+	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
 
 	for _ in 0..excluding_last_frame {
 		unsafe {
@@ -181,7 +181,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			// - dest, we preallocated all the capacity we need up front
 
 			let frame = frames_iter.next_frame_unchecked();
-			decode_frame(frame, |frame| extend_unchecked_const(&mut dest, frame))?;
+			decode_frame(frame, |frame| dest.write_bytes_const::<BINARY_FRAME_LEN>(frame as *const u8))?;
 		}
 	}
 
@@ -201,15 +201,12 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			debug_assert!(non_padding_bytes <= BINARY_FRAME_LEN, "added padding is less than one full frame");
 
 			// SAFETY: as explained above, this is safe
-			extend_unchecked(&mut dest, frame as *const u8, non_padding_bytes);
+			dest.write_bytes(frame as *const u8, non_padding_bytes);
 		})?;
 	}
 
 	debug_assert!(frames_iter.bytes.is_empty(), "all bytes were consumed");
-	debug_assert_eq!(capacity, dest.capacity(), "allocated enough capacity");
-	debug_assert_eq!(capacity, dest.len(), "all allocated capacity is used");
-
-	Ok(dest)
+	Ok(unsafe { dest.into_full_vec() })
 }
 
 #[derive(Debug, ::thiserror::Error)]
@@ -260,7 +257,7 @@ impl<'h, const N: usize> ChunkedSlice<'h, N> {
 	///
 	/// `self.bytes` must have N or less bytes left in it,
 	/// otherwise invalid memory will be written to.
-	unsafe fn with_remainder_unchecked<F>(self, mut f: F) -> usize
+	unsafe fn with_remainder_unchecked<F>(self, mut f: F)
 	where
 		F: FnMut(&[u8; N])
 	{
@@ -281,11 +278,10 @@ impl<'h, const N: usize> ChunkedSlice<'h, N> {
 		ptr::copy_nonoverlapping(self_ptr, slice_ptr, len);
 
 		f(&slice);
-		len
 	}
 }
 
-unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
+unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut UnsafeBufWriteGuard) {
 	let mut int = u32::from_be_bytes(*frame) as usize;
 
 	let byte5 = int % TABLE_ENCODER_LEN;
@@ -315,7 +311,7 @@ unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut Vec<u8>) {
 		*TABLE_ENCODER.get_unchecked(byte5),
 	] };
 
-	extend_unchecked_const(dest, &encoded_frame);
+	dest.write_bytes_const::<STRING_FRAME_LEN>(&encoded_frame as *const u8);
 }
 
 unsafe fn decode_frame<F>(frame: &[u8; STRING_FRAME_LEN], f: F) -> Result<(), DecodeError>
@@ -362,30 +358,6 @@ where
 	f(&decoded_frame);
 
 	Ok(())
-}
-
-// maybe this has monomorphisation benefit? dunno
-#[inline(always)]
-unsafe fn extend_unchecked_const<const N: usize>(vec: &mut Vec<u8>, bytes_ptr: *const [u8; N]) {
-	debug_assert!(vec.len() + N <= vec.capacity(), "enough allocated capacity in vec to manually append to");
-
-	let len = vec.len();
-	let dest_ptr = vec.as_mut_ptr().add(len);
-	let bytes_ptr = bytes_ptr as *const u8;
-
-	ptr::copy_nonoverlapping(bytes_ptr, dest_ptr, N);
-	vec.set_len(len + N);
-}
-
-#[inline(always)]
-unsafe fn extend_unchecked(vec: &mut Vec<u8>, bytes_ptr: *const u8, n: usize) {
-	debug_assert!(vec.len() + n <= vec.capacity(), "enough allocated capacity in vec to manually append to");
-
-	let len = vec.len();
-	let dest_ptr = vec.as_mut_ptr().add(len);
-
-	ptr::copy_nonoverlapping(bytes_ptr, dest_ptr, n);
-	vec.set_len(len + n);
 }
 
 #[cfg(test)]
