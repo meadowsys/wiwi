@@ -15,7 +15,7 @@
 //!
 //! Original Z85 spec: https://rfc.zeromq.org/spec/32
 
-use crate::encoding_utils::UnsafeBufWriteGuard;
+use crate::encoding_utils::{ ChunkedSlice, UnsafeBufWriteGuard};
 use ::std::{ ptr, slice };
 
 pub const TABLE_ENCODER_LEN: usize = 85;
@@ -74,7 +74,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 		capacity + 1
 	};
 
-	let mut frames_iter = ChunkedSlice::<BINARY_FRAME_LEN> { bytes };
+	let mut frames_iter = ChunkedSlice::<BINARY_FRAME_LEN>::new(bytes);
 	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
 
 	for _ in 0..frames {
@@ -170,7 +170,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 	// because frames >= 1, this will be >= 0.
 	let excluding_last_frame = frames - 1;
 
-	let mut frames_iter = ChunkedSlice::<STRING_FRAME_LEN> { bytes };
+	let mut frames_iter = ChunkedSlice::<STRING_FRAME_LEN>::new(bytes);
 	let mut dest = UnsafeBufWriteGuard::with_capacity(capacity);
 
 	for _ in 0..excluding_last_frame {
@@ -205,7 +205,7 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 		})?;
 	}
 
-	debug_assert!(frames_iter.bytes.is_empty(), "all bytes were consumed");
+	frames_iter.debug_assert_is_empty();
 	Ok(unsafe { dest.into_full_vec() })
 }
 
@@ -215,70 +215,6 @@ pub enum DecodeError {
 	InvalidLength,
 	#[error("invalid character")]
 	InvalidChar
-}
-
-#[repr(transparent)]
-struct ChunkedSlice<'h, const N: usize> {
-	bytes: &'h [u8]
-}
-
-impl<'h, const N: usize> ChunkedSlice<'h, N> {
-	/// Takes N bytes off the front, returning that front slice, and saving the
-	/// rest in `self`.
-	///
-	/// # Safety
-	///
-	/// `self.bytes` must have `N` or more bytes left in it,
-	/// otherwise invalid memory will be copied from.
-	unsafe fn next_frame_unchecked(&mut self) -> &[u8; N] {
-		debug_assert!(self.bytes.len() >= N, "enough bytes left to form another whole frame");
-
-		let self_ptr = self.bytes as *const [u8] as *const u8;
-		let self_len = self.bytes.len();
-
-		// new slice
-		let new_slice = &*(self_ptr as *const [u8; N]);
-
-		// new ptr to self (with N bytes removed from front)
-		// SAFETY: see function doc comment. Caller asserts self has at least N bytes and
-		// `self_len - N` and `self_ptr.add(N)` is correct because we just took N bytes out above.
-		let slice_ptr = slice::from_raw_parts(self_ptr.add(N), self_len - N);
-		self.bytes = slice_ptr;
-
-		new_slice
-	}
-
-	/// Consumes self, takes the remainder slice, copies it into a temporary
-	/// buffer of length `N`, and calls the function with this buffer. Returns
-	/// the amount of bytes in that buffer that aren't padding (ie. the amount of
-	/// bytes that are actual data bytes).
-	///
-	/// # Safety
-	///
-	/// `self.bytes` must have N or less bytes left in it,
-	/// otherwise invalid memory will be written to.
-	unsafe fn with_remainder_unchecked<F>(self, mut f: F)
-	where
-		F: FnMut(&[u8; N])
-	{
-		let len = self.bytes.len();
-		debug_assert!(len < N, "less than a whole frame remaining");
-
-		// temp buffer of correct length, to add padding
-		let mut slice = [0u8; N];
-
-		// ptr to self
-		let self_ptr = self.bytes as *const [u8] as *const u8;
-		// ptr to temp buffer
-		let slice_ptr = &mut slice as *mut [u8] as *mut u8;
-
-		// SAFETY: slice in self has n bytes remaining (match branch condition),
-		// and we've tested that n is less than N. therefore, the amount of
-		// bytes copied will be the correct amount, and always fit in the temp buffer.
-		ptr::copy_nonoverlapping(self_ptr, slice_ptr, len);
-
-		f(&slice);
-	}
 }
 
 unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut UnsafeBufWriteGuard) {

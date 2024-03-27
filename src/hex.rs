@@ -85,6 +85,24 @@ mod tests {
 	use ::rand::{ Rng, thread_rng };
 
 	#[test]
+	fn rfc_provided_examples() {
+		let examples = [
+			("", ""),
+			("f", "66"),
+			("fo", "666F"),
+			("foo", "666F6F"),
+			("foob", "666F6F62"),
+			("fooba", "666F6F6261"),
+			("foobar", "666F6F626172")
+		];
+
+		for (bytes, encoded) in examples {
+			assert_eq!(encoded, encode_hex_upper(bytes.as_bytes()));
+			assert_eq!(encoded.to_lowercase(), encode_hex(bytes.as_bytes()));
+		}
+	}
+
+	#[test]
 	fn randomised() {
 		// (bytes_len, encoded_len)
 		// (expected_input_len, expected_output_len)

@@ -31,6 +31,11 @@ z85 = "3.0.5"
 # Make sure to check README and workflow files too
 # Also check below, docs.rs config
 
+default = ["base16", "base32", "base64", "z85"]
+
+base16 = ["dep:thiserror", "hex"]
+base32 = ["dep:thiserror"]
+base64 = ["dep:thiserror"]
 clock-timer = ["dep:chrono", "dep:thiserror"]
 clock-timer-2 = ["dep:chrono"]
 debounce = ["dep:chrono"]

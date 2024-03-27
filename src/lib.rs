@@ -10,11 +10,25 @@
 use ::cfg_if::cfg_if;
 
 pub mod prelude;
+
+// TODO: expose this?
 #[cfg(any(
+	feature = "base16",
+	feature = "base32",
+	feature = "base64",
 	feature = "hex",
 	feature = "z85"
 ))]
 mod encoding_utils;
+
+#[cfg(feature = "base16")]
+pub mod base16;
+
+#[cfg(feature = "base32")]
+pub mod base32;
+
+#[cfg(feature = "base64")]
+pub mod base64;
 
 #[cfg(feature = "clock-timer")]
 pub mod clock_timer;

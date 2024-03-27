@@ -1,4 +1,4 @@
-use ::std::ptr;
+use ::std::{ slice, ptr };
 
 /// In debug mode, keeps track of the amount of bytes written, and asserts
 /// preconditions like not writing over capacity and having all preallocated
@@ -75,5 +75,82 @@ impl UnsafeBufWriteGuard {
 
 		self.vec.set_len(self.vec.capacity());
 		self.vec
+	}
+}
+
+// TODO: refactor this to use a raw ptr and do debug only assertions
+// like UnsafeBufWriteGuard above
+#[repr(transparent)]
+pub struct ChunkedSlice<'h, const N: usize> {
+	bytes: &'h [u8]
+}
+
+impl<'h, const N: usize> ChunkedSlice<'h, N> {
+	#[inline(always)]
+	pub fn new(bytes: &'h [u8]) -> Self {
+		Self { bytes }
+	}
+
+	/// Takes N bytes off the front, returning that front slice, and saving the
+	/// rest in `self`.
+	///
+	/// # Safety
+	///
+	/// `self.bytes` must have `N` or more bytes left in it,
+	/// otherwise invalid memory will be copied from.
+	pub unsafe fn next_frame_unchecked(&mut self) -> &[u8; N] {
+		debug_assert!(self.bytes.len() >= N, "enough bytes left to form another whole frame");
+
+		let self_ptr = self.bytes as *const [u8] as *const u8;
+		let self_len = self.bytes.len();
+
+		// new slice
+		let new_slice = &*(self_ptr as *const [u8; N]);
+
+		// new ptr to self (with N bytes removed from front)
+		// SAFETY: see function doc comment. Caller asserts self has at least N bytes and
+		// `self_len - N` and `self_ptr.add(N)` is correct because we just took N bytes out above.
+		let slice_ptr = slice::from_raw_parts(self_ptr.add(N), self_len - N);
+		self.bytes = slice_ptr;
+
+		new_slice
+	}
+
+	/// Consumes self, takes the remainder slice, copies it into a temporary
+	/// buffer of length `N`, and calls the function with this buffer. Returns
+	/// the amount of bytes in that buffer that aren't padding (ie. the amount of
+	/// bytes that are actual data bytes).
+	///
+	/// # Safety
+	///
+	/// `self.bytes` must have N or less bytes left in it,
+	/// otherwise invalid memory will be written to.
+	pub unsafe fn with_remainder_unchecked<F>(self, mut f: F)
+	where
+		F: FnMut(&[u8; N])
+	{
+		let len = self.bytes.len();
+		debug_assert!(len < N, "less than a whole frame remaining");
+
+		// temp buffer of correct length, to add padding
+		let mut slice = [0u8; N];
+
+		// ptr to self
+		let self_ptr = self.bytes as *const [u8] as *const u8;
+		// ptr to temp buffer
+		let slice_ptr = &mut slice as *mut [u8] as *mut u8;
+
+		// SAFETY: slice in self has n bytes remaining as guaranteed by caller.
+		// therefore, the amount of bytes copied will be the correct amount, and
+		// always fit in the temp buffer.
+		ptr::copy_nonoverlapping(self_ptr, slice_ptr, len);
+
+		f(&slice);
+	}
+
+	#[inline(always)]
+	pub fn debug_assert_is_empty(&self) {
+		#[cfg(debug_assertions)]
+		assert!(self.bytes.is_empty(), "all bytes were consumed");
 	}
 }
