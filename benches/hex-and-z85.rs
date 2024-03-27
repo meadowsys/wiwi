@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_imports, unused_variables)]
+
 use ::criterion::{ black_box, criterion_group, criterion_main, Criterion };
 use ::rand::{ Rng, thread_rng };
 

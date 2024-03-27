@@ -51,6 +51,9 @@ debounce-dyn-fn = []
 name = "hex-and-z85"
 harness = false
 
+[profile.bench]
+lto = "thin"
+
 [package.metadata.docs.rs]
 # https://docs.rs/about/metadata
 
