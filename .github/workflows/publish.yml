@@ -13,8 +13,8 @@ jobs:
       matrix:
         featureflags:
         # Make sure to check README and Cargo.toml too
-        - clock-timer-2,debounce,h,hex,lazy-wrap,string-pool,z85
-        - clock-timer-2,debounce,h,hex,lazy-wrap,string-pool,z85,debounce-dyn-fn
+        - base16,base32,base64,clock-timer-2,debounce,h,hex,lazy-wrap,string-pool,z85
+        - base16,base32,base64,clock-timer-2,debounce,h,hex,lazy-wrap,string-pool,z85,debounce-dyn-fn
 
         runtimes:
         - tokio
