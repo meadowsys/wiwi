@@ -33,7 +33,7 @@ pub fn encode_base32hex(bytes: &[u8]) -> String {
 ///   (ie. the lowest in the range)
 /// - `UPPER_ADJUSTED`: the amount to add to a section when it is gte `BREAKPOINT`.
 ///   "Adjusted" means that `BREAKPOINT` should be subtracted from the UPPER
-///   char value, so no subtraction needs to be dune in runtime.
+///   char value, so no subtraction needs to be done in runtime.
 fn _encode<
 	const BREAKPOINT: u8,
 	const LOWER: u8,
