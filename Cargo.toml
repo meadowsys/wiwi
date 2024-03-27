@@ -38,6 +38,7 @@ h = ["dep:thiserror"]
 hex = ["dep:thiserror"]
 lazy-wrap = ["dep:parking_lot"]
 string-pool = ["dep:hashbrown", "lazy-wrap"]
+ws = []
 z85 = ["dep:thiserror"]
 
 # runtime selection features

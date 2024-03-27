@@ -38,6 +38,9 @@ pub mod lazy_wrap;
 #[cfg(feature = "string-pool")]
 pub mod string_pool;
 
+#[cfg(feature = "ws")]
+pub mod ws;
+
 #[cfg(feature = "z85")]
 pub mod z85;
 
