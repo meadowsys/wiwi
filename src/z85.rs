@@ -3,11 +3,14 @@
 //!
 //! ## Nonstandard padding implementation
 //!
-//! Encoding: If padding is needed, the amount of padding that was added in bytes
+//! It may be worth noting that no extra bytes are added if the given input is
+//! to the correct length (multiple of 4).
+//!
+//! **Encoding**: If padding is needed, the amount of padding that was added in bytes
 //! is encoded (ex. 1B padding -> `1` since `TABLE_ENCODER[1] == b'1'`)
 //! and appended to the end of the string. (1 extra byte)
 //!
-//! Decoding: If the len of the slice passed is one more than a multiple of 5
+//! **Decoding**: If the len of the slice passed is one more than a multiple of 5
 //! (ie. `(n * 5) + 1`), it is trimmed off the slice, decoded to get amount of
 //! padding needed, and held onto. Then while decoding the last frame, we take
 //! that stored amount of padding, and remove that amount from the end of the
@@ -16,7 +19,7 @@
 //! Original Z85 spec: https://rfc.zeromq.org/spec/32
 
 use crate::encoding_utils::{ ChunkedSlice, UnsafeBufWriteGuard};
-use ::std::{ ptr, slice };
+use ::std::slice;
 
 pub const TABLE_ENCODER_LEN: usize = 85;
 pub const TABLE_ENCODER: [u8; TABLE_ENCODER_LEN] = *b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-:+=^!/*?&<>()[]{}@%$#";
@@ -63,7 +66,7 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	// binary AND with 0b11 (3) is the same as modulo 4 (BINARY_FRAME_LEN)
 	let remainder = bytes.len() & 0b11;
 
-	// preallocate exact amount of memory needed.
+	// preallocate exact amount of memory needed
 	let capacity = if remainder == 0 {
 		frames * STRING_FRAME_LEN
 	} else {
@@ -80,8 +83,8 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 	for _ in 0..frames {
 		unsafe {
 			// SAFETY: everything has been calculated:
-			// frames, so we'll have enough bytes left for next full frame
-			// - dest, we preallocated all the capacity we need up front
+			// - amount of frames, so we'll have enough bytes left for next full frame
+			// - dest, we preallocated enough memory up front
 			let frame = frames_iter.next_frame_unchecked();
 			encode_frame(frame, &mut dest);
 		}
@@ -92,7 +95,8 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 			frames_iter.with_remainder_unchecked(|remainder| {
 				// SAFETY: everything has been calculated:
 				// - remainder, so 0 < remainder < N will be true
-				// - dest, we preallocated enough for the remainder up front
+				//   (which is what `with_remainder_unchecked` requires)
+				// - dest, we preallocated enough memory up front
 				encode_frame(remainder, &mut dest);
 			});
 			let padding_len = BINARY_FRAME_LEN - remainder;
@@ -113,20 +117,22 @@ pub fn encode_z85(bytes: &[u8]) -> String {
 
 /// Decodes a slice of of a Z85 string back into the source bytes
 pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
-	// this "fast path" isn't here because its beneficial, it's here because
-	// it's needed it gets rid of the zero len, which is helpful for later.
-	if bytes.is_empty() { return Ok(Vec::new()) }
+	if bytes.len() < STRING_FRAME_LEN {
+		return if bytes.is_empty() {
+			Ok(Vec::new())
+		} else {
+			// in here, bytes len is 0 < n < STRING_FRAME_LEN. we already returned
+			// on empty input. (empty bytes <-> empty string) at lengths 1-3, the
+			// single frame would have been padded to a full frame and then the
+			// amount of padding appended as one more byte, for a total lenght of 6.
+			// At length 4, it would just be the frame without any extra bytes added.
+			// so therefore the smallest valid non-zero len is 5, with one full frame
+			// or more.
+			Err(DecodeError::InvalidLength)
+		}
+	}
 
-	// we already returned on empty input. (empty bytes <-> empty string)
-	// the next smallest byte len is 1, which would be padded to a full frame
-	// and had the amount of padding appended as one more byte. At one frame, it
-	// would just be the frame without any padding amount byte added. so therefore
-	// the smallest non-zero len is 5.
-	if bytes.len() < STRING_FRAME_LEN { return Err(DecodeError::InvalidLength) }
-
-	// at this point, bytes.len() >= STRING_FRAME_LEN
-
-	// this is at least 1
+	// this will at least 1 (see comment above)
 	let frames = bytes.len() / STRING_FRAME_LEN;
 	debug_assert!(frames >= 1, "condition of \"at least one frame in input\" was checked correctly");
 
@@ -143,31 +149,37 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 		1 => {
 			// the singular padding byte (there will never be more)
 			let added_padding = unsafe {
-				// SAFETY: remainder is at least 1, so there
-				// will be at least 1 byte in the slice
-				let len = bytes.len() - 1;
+				// SAFETY: remainder is 1, so there will be at least 1 byte in the
+				// slice, because duh. so this will not underflow
+				let one_shorter = bytes.len() - 1;
 
 				let ptr = bytes as *const [u8] as *const u8;
-				let byte = *(ptr.add(len));
+				// end byte
+				let byte = *(ptr.add(one_shorter));
 
-				bytes = slice::from_raw_parts(ptr, len);
+				bytes = slice::from_raw_parts(ptr, one_shorter);
 
 				// SAFETY: 0 <= n < 256 is always true for a u8, and TABLE_DECODER is len 256,
 				// so this is safe
 				let decoded = *TABLE_DECODER.get_unchecked(byte as usize);
 
 				match decoded {
+					// having that last byte as a 0 is not something we generate,
+					// as its just a waste of a perfectly good byte, but it doesn't
+					// break this system (added a unit test for it).
 					Some(val) if (val as usize) < BINARY_FRAME_LEN => { val }
 					Some(_) | None => { return Err(DecodeError::InvalidChar) }
 				}
 			} as usize;
 
+			// if added_padding is 0, this returns
+			// the same values as the above.
 			(capacity - added_padding, added_padding)
 		}
 		_n => { return Err(DecodeError::InvalidLength) }
 	};
 
-	// because frames >= 1, this will be >= 0.
+	// because frames >= 1, this will be >= 0 (ie. will not underflow).
 	let excluding_last_frame = frames - 1;
 
 	let mut frames_iter = ChunkedSlice::<STRING_FRAME_LEN>::new(bytes);
@@ -394,5 +406,29 @@ mod tests {
 			.expect("z85 can decode wiwi");
 
 		assert_eq!(wiwi_decoded_z85, z85_decoded_wiwi);
+	}
+
+	#[test]
+	fn extra_zero_padding_byte() {
+		// for the case where theres an extra padding marker byte that encodes
+		// zero padding, which we don't emit because that's just a waste of space.
+		// but it doesn't break the parser, so we don't check for it.
+
+		let strs = [
+			("adfeg", "adfeg0"),
+			(
+				// len 45
+				"abcdefafuehirugehdbfntkvdneoiwr4htrugitdfkwwu",
+				"abcdefafuehirugehdbfntkvdneoiwr4htrugitdfkwwu0"
+			)
+		];
+
+		for (str1, str2) in strs {
+			let str1 = decode_z85(str1.as_bytes())
+				.expect("nonpadded z85 parses successfully");
+			let str2 = decode_z85(str2.as_bytes())
+				.expect("padded-with-0 z85 parses successfully");
+			assert_eq!(str1, str2);
+		}
 	}
 }

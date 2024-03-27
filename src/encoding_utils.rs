@@ -78,8 +78,6 @@ impl UnsafeBufWriteGuard {
 	}
 }
 
-// TODO: refactor this to use a raw ptr and do debug only assertions
-// like UnsafeBufWriteGuard above
 #[repr(transparent)]
 pub struct ChunkedSlice<'h, const N: usize> {
 	bytes: &'h [u8]
@@ -91,13 +89,13 @@ impl<'h, const N: usize> ChunkedSlice<'h, N> {
 		Self { bytes }
 	}
 
-	/// Takes N bytes off the front, returning that front slice, and saving the
-	/// rest in `self`.
+	/// Takes N bytes off the front of the internal slice, returning that slice,
+	/// and saving the rest for future calls.
 	///
 	/// # Safety
 	///
 	/// `self.bytes` must have `N` or more bytes left in it,
-	/// otherwise invalid memory will be copied from.
+	/// otherwise invalid memory will be read from.
 	pub unsafe fn next_frame_unchecked(&mut self) -> &[u8; N] {
 		debug_assert!(self.bytes.len() >= N, "enough bytes left to form another whole frame");
 
@@ -117,9 +115,9 @@ impl<'h, const N: usize> ChunkedSlice<'h, N> {
 	}
 
 	/// Consumes self, takes the remainder slice, copies it into a temporary
-	/// buffer of length `N`, and calls the function with this buffer. Returns
-	/// the amount of bytes in that buffer that aren't padding (ie. the amount of
-	/// bytes that are actual data bytes).
+	/// buffer of length `N`, and calls the provided function with this buffer.
+	/// Returns the amount of bytes in that buffer that aren't padding (ie. the
+	/// amount of bytes that are actual data bytes).
 	///
 	/// # Safety
 	///
@@ -140,14 +138,20 @@ impl<'h, const N: usize> ChunkedSlice<'h, N> {
 		// ptr to temp buffer
 		let slice_ptr = &mut slice as *mut [u8] as *mut u8;
 
-		// SAFETY: slice in self has n bytes remaining as guaranteed by caller.
-		// therefore, the amount of bytes copied will be the correct amount, and
-		// always fit in the temp buffer.
+		// SAFETY: slice in self has less than N bytes remaining as guaranteed by
+		// caller. therefore, the amount of bytes copied will be the correct
+		// amount, and always fit in the temp buffer.
 		ptr::copy_nonoverlapping(self_ptr, slice_ptr, len);
 
 		f(&slice);
 	}
 
+	/// If debug assertions are enabled, this asserts that the slice contained in
+	/// `self` is empty (ie. len 0), and panics if not. Otherwise, this does nothing.
+	///
+	/// When building with debug assertions off (ie. release mode), no assert
+	/// happens, and ideally (hopefully?) this function call just gets optimised
+	/// away into nothing (since its empty without that assertion).
 	#[inline(always)]
 	pub fn debug_assert_is_empty(&self) {
 		#[cfg(debug_assertions)]

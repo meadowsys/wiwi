@@ -1,5 +1,4 @@
 use crate::encoding_utils::UnsafeBufWriteGuard;
-use ::std::{ ptr, slice };
 
 pub const TABLE_ENCODER_LEN: usize = 16;
 pub const TABLE_ENCODER_LOWER: [u8; TABLE_ENCODER_LEN] = *b"0123456789abcdef";
@@ -104,8 +103,7 @@ mod tests {
 
 	#[test]
 	fn randomised() {
-		// (bytes_len, encoded_len)
-		// (expected_input_len, expected_output_len)
+		// (in_len, out_len)
 		let expected_lengths = [
 			(0usize, 0usize),
 			(1, 2),
@@ -188,31 +186,4 @@ mod tests {
 
 		assert_eq!(wiwi_decoded_hex, hex_decoded_wiwi);
 	}
-
-	// #[test]
-	// fn test_neon_impl() {
-	// 	const IN_SIZE: usize = 1024 * 1024;
-	// 	const NUM_ROUNDS: usize = IN_SIZE / 8;
-
-	// 	let mut rng = thread_rng();
-
-	// 	let mut bytes = vec![0u8; IN_SIZE];
-	// 	rng.fill(&mut *bytes);
-	// 	let bytes = &*bytes;
-
-	// 	let regular_encoded = encode_hex(bytes);
-	// 	let neon_encoded = unsafe {
-	// 		let capacity = bytes.len() * 2;
-	// 		let mut dest = Vec::with_capacity(capacity);
-	// 		_encode_neon_uint8x8(
-	// 			bytes as *const [u8] as *const u8,
-	// 			dest.as_mut_ptr(),
-	// 			NUM_ROUNDS
-	// 		);
-	// 		dest.set_len(capacity);
-	// 		unsafe { String::from_utf8_unchecked(dest) }
-	// 	};
-
-	// 	assert_eq!(regular_encoded, neon_encoded);
-	// }
 }

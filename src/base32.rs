@@ -1,19 +1,27 @@
 use crate::encoding_utils::{ ChunkedSlice, UnsafeBufWriteGuard };
 use ::std::{ hint, ptr };
 
-pub const TABLE_ENCODER_LEN: usize = 32;
-// table unused, for ref only, cause it can be calculated
-pub static TABLE_ENCODER: &[u8; TABLE_ENCODER_LEN] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-pub static TABLE_ENCODER_BASE32HEX: &[u8; TABLE_ENCODER_LEN] = b"0123456789ABCDEFGHIJKLMNOPQRSTUV";
+// // table unused, for ref only, cause it can be calculated
+// pub const TABLE_ENCODER_LEN: usize = 32;
+// pub static TABLE_ENCODER: &[u8; TABLE_ENCODER_LEN] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+// pub static TABLE_ENCODER_BASE32HEX: &[u8; TABLE_ENCODER_LEN] = b"0123456789ABCDEFGHIJKLMNOPQRSTUV";
 
 pub const BINARY_FRAME_LEN: usize = 5;
 pub const STRING_FRAME_LEN: usize = 8;
 
+/// Encodes the given bytes into a base32 [`String`], as specified in
+/// [RFC 4648].
+///
+/// [RFC 4648]: https://datatracker.ietf.org/doc/html/rfc4648#section-6
 #[inline]
 pub fn encode_base32(bytes: &[u8]) -> String {
 	_encode::<25, b'A', { b'2' - 26 }>(bytes)
 }
 
+/// Encodes the given bytes into a base32 [`String`], using
+/// the [hex encoding alphabet variant as defined in RFC 4648].
+///
+/// [hex encoding alphabet variant as defined in RFC 4648]: https://datatracker.ietf.org/doc/html/rfc4648#section-7
 #[inline]
 pub fn encode_base32hex(bytes: &[u8]) -> String {
 	_encode::<9, b'0', { b'A' - 10 }>(bytes)

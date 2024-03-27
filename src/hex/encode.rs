@@ -1,5 +1,4 @@
 use crate::encoding_utils::UnsafeBufWriteGuard;
-use ::std::{ ptr, slice };
 
 pub(super) unsafe fn generic<const UPPER: bool>(
 	mut bytes_ptr: *const u8,
@@ -56,11 +55,11 @@ pub(super) unsafe fn neon_uint8x16<const UPPER: bool>(
 		let upper_cmp = vcgtq_u8(upper_vals, nine);
 		let lower_cmp = vcgtq_u8(lower_vals, nine);
 
-		// add A or 0 to base depending on if gt 9 or not
+		// make comparison of if gt 9
 		let upper = vbslq_u8(upper_cmp, char_a, char_0);
 		let lower = vbslq_u8(lower_cmp, char_a, char_0);
 
-		// add values to base
+		// add A or 0 to base depending on if gt 9 or not
 		let upper = vaddq_u8(upper_vals, upper);
 		let lower = vaddq_u8(lower_vals, lower);
 
