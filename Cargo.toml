@@ -1,0 +1,13 @@
+[package]
+name = "js-builders"
+description = "Builders for JavaScript objects and methods in Rust (WASM)"
+version = "0.0.0-reserved"
+authors = ["Meadow Liu <meadowsys@kiwin.gay>"]
+repository = "https://github.com/meadowsys/wasm-builders"
+license = "MIT"
+edition = "2024"
+rust-version = "1.85"
+exclude = [
+	".gitignore",
+	"rust-toolchain.toml"
+]
