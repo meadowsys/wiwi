@@ -7,7 +7,7 @@
 pub use std::marker::PhantomData;
 pub use std::mem::{ ManuallyDrop, MaybeUninit };
 
-pub use js_sys::JsString;
+pub use js_sys::{ Array as JsArray, JsString };
 pub use wasm_bindgen::JsValue;
 
 pub fn uninit<T>() -> MaybeUninit<T> {
