@@ -15,8 +15,6 @@
 /// - impl blocks for finished ones with `call` or `build` fns
 /// - impl block for builder fns, `change_state`, internal functions etc
 
-use crate::internal_prelude::*;
-
 pub struct Init {
 	__private: ()
 }
@@ -58,4 +56,4 @@ impl InitStatus for Uninit {
 	const IS_INIT: bool = false;
 }
 
-pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
+pub type PhantomDataInvariant<T> = std::marker::PhantomData<fn(T) -> T>;

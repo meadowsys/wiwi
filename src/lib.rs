@@ -1,6 +1,5 @@
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
-mod internal_prelude;
 mod internal_prelude_raw;
 
 pub mod builder_api;
