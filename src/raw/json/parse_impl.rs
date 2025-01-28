@@ -1,6 +1,11 @@
 use crate::internal_prelude_raw::*;
 use crate::builder_api::*;
-use super::parse;
+
+#[expect(
+	non_camel_case_types,
+	reason = "mimicking method name"
+)]
+pub struct parse;
 
 impl parse {
 	#[inline(always)]
@@ -62,7 +67,8 @@ impl Builder<'static, StateUninit> {
 	}
 }
 
-impl Builder<'_, StateTextInit> {
+impl Builder<'_, StateContainer<Init, Uninit>> {
+	/// Calls `JSON.parse(text)`
 	#[inline(always)]
 	pub fn call(self) -> Result<JsValue, JsValue> {
 		let text = unsafe { self.inner.text.assume_init() };

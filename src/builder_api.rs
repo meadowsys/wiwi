@@ -2,7 +2,7 @@
 ///
 /// # Checklist™
 ///
-/// - struct definition (outside the impl mod) mimicing the function call name
+/// - struct definition mimicing the function call name
 /// - use statements
 /// - impl block on the struct for "starting" builder methods
 /// - builder struct (with repr(transparent), `inner`, `__marker`)
