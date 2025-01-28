@@ -28,8 +28,8 @@ pub struct Uninit {
 // todo ???
 #[diagnostic::on_unimplemented(
 	message = "a required field is not initialised",
-	label = "this field is not initialised",
-	note = "call a builder method for this field before building"
+	// label = "this field is not initialised",
+	note = "call a builder method for the missing required field before building"
 )]
 pub trait IsInit {}
 
