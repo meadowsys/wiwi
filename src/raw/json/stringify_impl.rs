@@ -134,7 +134,8 @@ where
 	#[inline(always)]
 	pub fn value<'h2>(mut self, value: &'h2 JsValue) -> Builder<'h2, S::ValueInit>
 	where
-		'h: 'h2
+		'h: 'h2,
+		S::Value: IsUninit
 	{
 		unsafe {
 			self.value_ptr().write(value);
@@ -145,7 +146,8 @@ where
 	#[inline(always)]
 	pub fn replacer<'h2>(mut self, replacer: &'h2 JsValue) -> Builder<'h2, S::ReplacerInit>
 	where
-		'h: 'h2
+		'h: 'h2,
+		S::Replacer: IsUninit
 	{
 		unsafe {
 			self.replacer_ptr().write(replacer);
@@ -156,7 +158,8 @@ where
 	#[inline(always)]
 	pub fn space<'h2>(mut self, space: &'h2 JsValue) -> Builder<'h2, S::SpaceInit>
 	where
-		'h: 'h2
+		'h: 'h2,
+		S::Space: IsUninit
 	{
 		unsafe {
 			self.space_ptr().write(space);

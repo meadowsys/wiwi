@@ -83,7 +83,8 @@ where
 	#[inline(always)]
 	pub fn text<'h2>(mut self, text: &'h2 str) -> Builder<'h2, S::TextInit>
 	where
-		'h: 'h2
+		'h: 'h2,
+		S::Text: IsUninit
 	{
 		unsafe {
 			self.text_ptr().write(text);
