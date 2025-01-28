@@ -1,19 +1,21 @@
-use crate::internal_prelude::*;
+/// Common builder API stuffs
+///
+/// # Checklist™
+///
+/// - struct definition (outside the impl mod) mimicing the function call name
+/// - use statements
+/// - impl block on the struct for "starting" builder methods
+/// - builder struct (with repr(transparent), `inner`, `__marker`)
+/// - builder inner struct
+/// - state trait
+/// - state container struct
+/// - type definitions for important states
+/// - impl state for statecontainer
+/// - impl builder uninit
+/// - impl blocks for finished ones with `call` or `build` fns
+/// - impl block for builder fns, `change_state`, internal functions etc
 
-// checklist™
-// - struct definition
-// - impl struct with `builder()` and `finish_init(..)`
-// - submodule for builder impl details
-//   - imports
-//   - pub type for init/uninit
-//   - builder struct def
-//   - builder state trait def
-//   - builder state container struct def
-//   - impl builder state trait
-//   - impl uninit for `new()` fn
-//   - impl<S> where S: builder state trait for all the fns including `build()`
-//     (`build()` calls `finish_init(..)`)
-//   - impl block, same as previous one in headers and stuffs, for the internal fns
+use crate::internal_prelude::*;
 
 pub struct Init {
 	__private: ()
