@@ -1,19 +1,19 @@
-/// Common builder API stuffs
-///
-/// # Checklist™
-///
-/// - struct definition mimicing the function call name
-/// - use statements
-/// - impl block on the struct for "starting" builder methods
-/// - builder struct (with repr(transparent), `inner`, `__marker`)
-/// - builder inner struct
-/// - state trait
-/// - state container struct
-/// - type definitions for important states
-/// - impl state for statecontainer
-/// - impl builder uninit
-/// - impl blocks for finished ones with `call` or `build` fns
-/// - impl block for builder fns, `change_state`, internal functions etc
+//! Common builder API stuffs
+//!
+//! # Checklist™
+//!
+//! - struct definition mimicing the function call name
+//! - use statements
+//! - impl block on the struct for "starting" builder methods
+//! - builder struct (with repr(transparent), `inner`, `__marker`)
+//! - builder inner struct
+//! - state trait
+//! - state container struct
+//! - type definitions for important states
+//! - impl state for statecontainer
+//! - impl builder uninit
+//! - impl blocks for finished ones with `call` or `build` fns
+//! - impl block for builder fns, `change_state`, internal functions etc
 
 pub struct Init {
 	__private: ()
