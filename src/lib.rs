@@ -6,3 +6,6 @@ pub mod builder_api;
 pub mod extern_crates;
 
 pub mod raw;
+
+mod number;
+pub use number::ExternNumber;
