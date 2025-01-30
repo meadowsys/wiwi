@@ -35,7 +35,7 @@ impl IsInit for Init {}
 
 // todo ???
 #[diagnostic::on_unimplemented(
-	message = "a field is already initialised",
+	message = "this field is already initialised",
 	label = "this field is already initialised",
 	note = "omit this builder method call, or a previous builder method call that has set this field, or call a builder method to erase this field"
 )]
