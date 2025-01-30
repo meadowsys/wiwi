@@ -1,5 +1,7 @@
+use crate::prelude_internal::*;
+
 pub struct ExternNumber {
-	inner: wasm_bindgen::JsValue
+	inner: ExternAny
 }
 
 impl ExternNumber {

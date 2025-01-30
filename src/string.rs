@@ -1,3 +1,5 @@
+use crate::prelude_internal::*;
+
 pub struct ExternString {
-	inner: wasm_bindgen::JsValue
+	inner: ExternAny
 }
