@@ -1,1 +1,1 @@
-pub use { js_sys, wasm_bindgen };
+pub use wasm_bindgen;

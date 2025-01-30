@@ -13,7 +13,7 @@ exclude = [
 ]
 
 [dependencies]
-js-sys = { version = "0.3.77", default-features = false }
+# js-sys = { version = "0.3.77", default-features = false }
 wasm-bindgen = { version = "0.2.100", default-features = false, features = ["msrv"] }
 
 [features]
@@ -21,6 +21,5 @@ default = [
 	"std"
 ]
 std = [
-	"js-sys/std",
 	"wasm-bindgen/std"
 ]
