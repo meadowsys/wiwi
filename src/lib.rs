@@ -8,7 +8,7 @@ pub use wasm_bindgen::prelude::wasm_bindgen;
 pub mod builder_api;
 pub mod extern_crates;
 mod prelude_internal;
-mod reflect_raw;
+mod reflect;
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
