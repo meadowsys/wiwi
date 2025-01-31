@@ -19,7 +19,7 @@ mod raw {
 	use super::*;
 
 	#[wasm_bindgen]
-	extern "C" {
+	extern {
 		#[wasm_bindgen(
 			js_namespace = Reflect,
 			catch
