@@ -21,6 +21,7 @@ wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 pub mod builder_api;
 pub mod extern_crates;
 mod prelude_internal;
+mod sealed;
 
 mod any;
 mod bigint;
@@ -32,9 +33,3 @@ mod reflect;
 mod string;
 mod symbol;
 mod undefined;
-
-/// notouchie
-mod private {
-	/// notouchie
-	pub trait Sealed {}
-}
