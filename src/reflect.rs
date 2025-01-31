@@ -1,8 +1,18 @@
 use crate::prelude_internal::*;
+use crate::ExternObject;
 use wasm_bindgen::JsValue;
 
 pub struct ExternReflect {
-	inner: ExternAny
+	inner: ExternObject
+}
+
+impl Deref for ExternReflect {
+	type Target = ExternObject;
+
+	#[inline(always)]
+	fn deref(&self) -> &ExternObject {
+		&self.inner
+	}
 }
 
 mod raw {

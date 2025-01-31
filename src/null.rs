@@ -1,11 +1,11 @@
 use crate::prelude_internal::*;
 
 #[repr(transparent)]
-pub struct ExternObject {
+pub struct ExternNull {
 	inner: ExternAny
 }
 
-impl Deref for ExternObject {
+impl Deref for ExternNull {
 	type Target = ExternAny;
 
 	#[inline(always)]

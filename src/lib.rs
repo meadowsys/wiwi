@@ -26,8 +26,10 @@ do_export! {
 	any::ExternAny
 	bigint::ExternBigint
 	boolean::ExternBoolean
+	null::ExternNull
 	number::ExternNumber
 	object::ExternObject
 	string::ExternString
 	symbol::ExternSymbol
+	undefined::ExternUndefined
 }

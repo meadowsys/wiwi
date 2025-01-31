@@ -4,3 +4,12 @@ use crate::prelude_internal::*;
 pub struct ExternSymbol {
 	inner: ExternAny
 }
+
+impl Deref for ExternSymbol {
+	type Target = ExternAny;
+
+	#[inline(always)]
+	fn deref(&self) -> &ExternAny {
+		&self.inner
+	}
+}

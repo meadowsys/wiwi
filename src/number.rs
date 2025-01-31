@@ -30,3 +30,12 @@ impl ExternNumber {
 		todo!()
 	}
 }
+
+impl Deref for ExternNumber {
+	type Target = ExternAny;
+
+	#[inline(always)]
+	fn deref(&self) -> &ExternAny {
+		&self.inner
+	}
+}
