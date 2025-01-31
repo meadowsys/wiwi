@@ -27,6 +27,7 @@ do_export! {
 	bigint::ExternBigint
 	boolean::ExternBoolean
 	number::ExternNumber
+	object::ExternObject
 	string::ExternString
 	symbol::ExternSymbol
 }
