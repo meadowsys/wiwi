@@ -41,4 +41,4 @@ jobs:
       run: cargo build --verbose
 
     - name: test
-      run: cargo test --verbose --target wasm32-unknown-unknown
+      run: cargo test --verbose --target wasm32-unknown-unknown -Zdoctest-xcompile
