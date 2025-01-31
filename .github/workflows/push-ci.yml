@@ -5,6 +5,10 @@ on:
     - "**"
   workflow_dispatch:
 
+concurrency:
+  cancel-in-progress: true
+  group: push-ci-${{ github.event.ref }}
+
 jobs:
   test:
     runs-on: ${{ matrix.env.runs-on }}
