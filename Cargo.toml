@@ -1,9 +1,9 @@
 [package]
 name = "wiwi-wasm"
 description = "Nicer, higher level APIs for working with JavaScript from Rust (WASM)"
-version = "0.0.0-reserved"
+version = "0.1.0"
 authors = ["Meadow Liu <meadowsys@kiwin.gay>"]
-repository = "https://github.com/meadowsys/wasm-builders"
+repository = "https://github.com/meadowsys/wiwi-wasm"
 license = "MIT"
 edition = "2024"
 rust-version = "1.85"
