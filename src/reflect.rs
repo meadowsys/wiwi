@@ -232,15 +232,15 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 	}
+}
 
-	#[cfg(test)]
-	mod tests {
-		use super::*;
-		use wasm_bindgen_test::wasm_bindgen_test;
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use wasm_bindgen_test::wasm_bindgen_test;
 
-		#[wasm_bindgen_test]
-		fn test() {
-			wasm_bindgen_test::console_log!("uwu");
-		}
+	#[wasm_bindgen_test]
+	fn test() {
+		wasm_bindgen_test::console_log!("uwu");
 	}
 }
