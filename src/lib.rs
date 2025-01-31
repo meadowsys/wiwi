@@ -17,7 +17,6 @@ pub use wasm_bindgen::prelude::wasm_bindgen;
 
 pub mod builder_api;
 pub mod extern_crates;
-mod prelude_internal;
 mod sealed;
 
 mod any;
@@ -31,8 +30,30 @@ mod string;
 mod symbol;
 mod undefined;
 
-#[cfg(test)]
-mod prelude_test;
+#[allow(
+	dead_code,
+	unused_imports,
+	reason = "prelude"
+)]
+mod prelude_internal {
+	pub use crate::{ ExternAny, wasm_bindgen };
+	pub use crate::builder_api::*;
+	pub use crate::sealed::Sealed;
+	pub use std::marker::PhantomData;
+	pub use std::ops::{ Deref, DerefMut };
+	pub use wasm_bindgen::JsValue;
+}
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
+#[allow(
+	dead_code,
+	unused_imports,
+	reason = "prelude"
+)]
+#[cfg(test)]
+mod prelude_test {
+	pub use std::hint::black_box;
+	pub use wasm_bindgen_test::wasm_bindgen_test;
+}
