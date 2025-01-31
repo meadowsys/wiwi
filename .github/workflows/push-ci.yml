@@ -26,6 +26,13 @@ jobs:
     - name: setup rust
       run: rustc --version
 
+    - name: install wasm-bindgen-cli
+      run: cargo install wasm-bindgen-cli
+      env:
+        # for CI use, optimise more for compilation speed rather than runtime speed
+        # could probably be made more optimal
+        RUSTFLAGS: -Clto=off -Copt-level=1 -Ccodegen-units=1024 -Cpanic=unwind
+
     - name: build
       run: cargo build --verbose
 

@@ -1,2 +1,5 @@
 [registries.crates-io]
 protocol = "sparse"
+
+[target."cfg(target_arch = \"wasm32\""]
+runner = "wasm-bindgen-test-runner"
