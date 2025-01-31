@@ -16,6 +16,9 @@ exclude = [
 # js-sys = { version = "0.3.77", default-features = false }
 wasm-bindgen = { version = "0.2.100", default-features = false, features = ["msrv"] }
 
+[dev-dependencies]
+wasm-bindgen-test = "0.3.50"
+
 [features]
 default = [
 	"std"

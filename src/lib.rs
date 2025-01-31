@@ -10,6 +10,9 @@ pub mod extern_crates;
 mod prelude_internal;
 mod reflect_raw;
 
+#[cfg(test)]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
 macro_rules! do_export {
 	{ $($vis:vis $mod:ident::$ident:ident)* } => {
 		$(
