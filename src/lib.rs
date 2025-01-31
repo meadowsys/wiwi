@@ -15,9 +15,6 @@ pub use self::symbol::ExternSymbol;
 pub use self::undefined::ExternUndefined;
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
-#[cfg(test)]
-wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
-
 pub mod builder_api;
 pub mod extern_crates;
 mod prelude_internal;
@@ -33,3 +30,9 @@ mod reflect;
 mod string;
 mod symbol;
 mod undefined;
+
+#[cfg(test)]
+mod prelude_test;
+
+#[cfg(test)]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
