@@ -3,33 +3,38 @@
 	reason = "wip"
 )]
 
+pub use self::any::ExternAny;
+pub use self::bigint::ExternBigint;
+pub use self::boolean::ExternBoolean;
+pub use self::null::ExternNull;
+pub use self::number::ExternNumber;
+pub use self::object::ExternObject;
+pub use self::reflect::ExternReflect;
+pub use self::string::ExternString;
+pub use self::symbol::ExternSymbol;
+pub use self::undefined::ExternUndefined;
 pub use wasm_bindgen::prelude::wasm_bindgen;
+
+#[cfg(test)]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
 pub mod builder_api;
 pub mod extern_crates;
 mod prelude_internal;
 
-#[cfg(test)]
-wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+mod any;
+mod bigint;
+mod boolean;
+mod null;
+mod number;
+mod object;
+mod reflect;
+mod string;
+mod symbol;
+mod undefined;
 
-macro_rules! do_export {
-	{ $($vis:vis $mod:ident::$ident:ident)* } => {
-		$(
-			$vis mod $mod;
-			pub use self::$mod::$ident;
-		)*
-	}
-}
-
-do_export! {
-	any::ExternAny
-	bigint::ExternBigint
-	boolean::ExternBoolean
-	null::ExternNull
-	number::ExternNumber
-	object::ExternObject
-	reflect::ExternReflect
-	string::ExternString
-	symbol::ExternSymbol
-	undefined::ExternUndefined
+/// notouchie
+mod private {
+	/// notouchie
+	pub trait Sealed {}
 }
