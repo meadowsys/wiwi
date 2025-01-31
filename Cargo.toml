@@ -8,6 +8,8 @@ license = "MIT"
 edition = "2024"
 rust-version = "1.85"
 exclude = [
+	".cargo",
+	".github",
 	".gitignore",
 	"rust-toolchain.toml"
 ]
