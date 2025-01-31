@@ -15,7 +15,6 @@ exclude = [
 ]
 
 [dependencies]
-# js-sys = { version = "0.3.77", default-features = false }
 wasm-bindgen = { version = "0.2.100", default-features = false, features = ["msrv"] }
 
 [dev-dependencies]
@@ -27,4 +26,20 @@ default = [
 ]
 std = [
 	"wasm-bindgen/std"
+]
+
+[package.metadata.docs.rs]
+# https://docs.rs/about/metadata
+
+rustdoc-args = [
+	"--cfg",
+	"docsrs"
+]
+features = [
+	"std"
+]
+targets = [
+	"wasm32-unknown-unknown",
+	"wasm32-wasip2",
+	"aarch64-apple-darwin"
 ]
