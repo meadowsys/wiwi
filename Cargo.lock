@@ -24,14 +24,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "js-builders"
-version = "0.0.0-reserved"
-dependencies = [
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -315,3 +307,11 @@ name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
+
+[[package]]
+name = "wiwi-wasm"
+version = "0.0.0-reserved"
+dependencies = [
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+]

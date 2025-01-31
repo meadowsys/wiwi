@@ -1,6 +1,6 @@
 [package]
-name = "js-builders"
-description = "Builders for JavaScript objects and methods in Rust (WASM)"
+name = "wiwi-wasm"
+description = "Nicer, higher level APIs for working with JavaScript from Rust (WASM)"
 version = "0.0.0-reserved"
 authors = ["Meadow Liu <meadowsys@kiwin.gay>"]
 repository = "https://github.com/meadowsys/wasm-builders"

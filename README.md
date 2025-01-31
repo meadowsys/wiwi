@@ -1,6 +1,6 @@
-# js-builders
+# wiwi-wasm
 
-Builders for JavaScript objects and methods in Rust (WASM)
+Nicer, higher level APIs for working with JavaScript from Rust (WASM)
 
 ## MSRV
 
