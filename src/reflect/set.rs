@@ -125,8 +125,7 @@ where
 		unsafe {
 			self.inner.target
 				.as_mut_ptr()
-				.cast::<&'h2 JsValue>()
-				.write(target);
+				.cast_write(target);
 			self.change_state()
 		}
 	}
@@ -144,8 +143,7 @@ where
 		unsafe {
 			self.inner.property_key
 				.as_mut_ptr()
-				.cast::<&'h2 JsValue>()
-				.write(property_key);
+				.cast_write(property_key);
 			self.change_state()
 		}
 	}
@@ -163,8 +161,7 @@ where
 		unsafe {
 			self.inner.value
 				.as_mut_ptr()
-				.cast::<&'h2 JsValue>()
-				.write(value);
+				.cast_write(value);
 			self.change_state()
 		}
 	}
@@ -182,8 +179,7 @@ where
 		unsafe {
 			self.inner.receiver
 				.as_mut_ptr()
-				.cast::<&'h2 JsValue>()
-				.write(receiver);
+				.cast_write(receiver);
 			self.change_state()
 		}
 	}

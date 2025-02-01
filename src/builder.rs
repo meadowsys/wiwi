@@ -61,3 +61,20 @@ pub unsafe trait IsInit: InitStatus {}
 unsafe impl IsInit for Init {}
 
 pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
+
+pub trait PtrWriteCastExt<T> {
+	/// Convenience method to cast the pointer, then call `write` on the casted pointer
+	///
+	/// # Safety
+	///
+	/// You must ensure the type the pointer is cast to is a valid cast, and follow
+	/// safety requirements of [`ptr::write`](std::ptr::write).
+	unsafe fn cast_write<T2>(self, value: T2);
+}
+
+impl<T> PtrWriteCastExt<T> for *mut T {
+	#[inline(always)]
+	unsafe fn cast_write<T2>(self, value: T2) {
+		unsafe { self.cast::<T2>().write(value) }
+	}
+}
