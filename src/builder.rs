@@ -1,4 +1,4 @@
-//! Common builder API stuffs
+//! Common builder API utilities and stuffs
 
 // Checklist™
 // - use statements

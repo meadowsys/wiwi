@@ -27,7 +27,7 @@ mod prelude_internal {
 	pub use crate::{ ExternAny, wasm_bindgen };
 	pub use crate::builder::*;
 	pub use crate::sealed::Sealed;
-	pub use std::mem::MaybeUninit;
+	pub use std::mem::{ ManuallyDrop, MaybeUninit };
 	pub use std::ops::Deref;
 	pub use wasm_bindgen::JsValue;
 

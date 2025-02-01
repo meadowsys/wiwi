@@ -1,6 +1,8 @@
 use crate::prelude_internal::*;
 use crate::ExternObject;
 
+pub mod set;
+
 #[inline]
 pub fn reflect() -> ExternReflectNs {
 	let inner = raw::REFLECT.with(Clone::clone);
@@ -14,6 +16,11 @@ pub struct ExternReflectNs {
 
 impl ExternReflectNs {
 	// pub fn apply(&self, ..) -> buildersomething
+
+	#[inline(always)]
+	pub fn set(&self) -> set::Builder<'static, set::StateUninit> {
+		set::Builder::new()
+	}
 }
 
 impl Deref for ExternReflectNs {
@@ -205,35 +212,35 @@ mod raw {
 		// 	// throws TypeError
 		// ) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = set,
-		// 	catch
-		// )]
-		// pub(crate) fn set3(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue,
-		// 	// value to set
-		// 	value: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = set,
+			catch
+		)]
+		pub(crate) fn set3(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue,
+			// value to set
+			value: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = set,
-		// 	catch
-		// )]
-		// pub(crate) fn set4(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue,
-		// 	value: &JsValue,
-		// 	receiver: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = set,
+			catch
+		)]
+		pub(crate) fn set4(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue,
+			value: &JsValue,
+			receiver: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
