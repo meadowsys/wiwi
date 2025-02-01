@@ -1,9 +1,7 @@
 //! Common builder API stuffs
 
 // Checklist™
-// - struct definition mimicing the function call name
 // - use statements
-// - impl block on the struct for "starting" builder methods
 // - builder struct (with repr(transparent), `inner`, `__marker`)
 // - builder inner struct
 // - state trait
