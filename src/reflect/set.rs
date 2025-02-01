@@ -84,7 +84,7 @@ impl Builder<'_, StateContainer<
 	#[inline(always)]
 	pub fn call(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value }
-		raw::set3(target, property_key, value)
+		unsafe { raw::set3(target, property_key, value) }
 	}
 }
 
@@ -99,7 +99,7 @@ impl Builder<'_, StateContainer<
 	#[inline(always)]
 	pub fn call(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value receiver }
-		raw::set4(target, property_key, value, receiver)
+		unsafe { raw::set4(target, property_key, value, receiver) }
 	}
 }
 

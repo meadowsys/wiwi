@@ -10,7 +10,7 @@ pub mod set;
 #[inline]
 pub fn reflect() -> ExternReflectNs {
 	let inner = raw::REFLECT.with(Clone::clone);
-	let inner = ExternObject::from_js_value_unchecked(inner);
+	let inner = unsafe { ExternObject::from_js_value_unchecked(inner) };
 	ExternReflectNs { inner }
 }
 
@@ -51,7 +51,7 @@ mod raw {
 		// 	js_namespace = Reflect,
 		// 	catch
 		// )]
-		// pub(crate) fn apply(
+		// pub(crate) unsafe fn apply(
 		// 	target: &JsValue,
 		// 	this_argument: &JsValue,
 		// 	// array-like
@@ -65,7 +65,7 @@ mod raw {
 		// 	js_name = construct,
 		// 	catch
 		// )]
-		// pub(crate) fn construct2(
+		// pub(crate) unsafe fn construct2(
 		// 	// function
 		// 	target: &JsValue,
 		// 	// array-like
@@ -80,7 +80,7 @@ mod raw {
 		// 	js_name = construct,
 		// 	catch
 		// )]
-		// pub(crate) fn construct3(
+		// pub(crate) unsafe fn construct3(
 		// 	// function
 		// 	target: &JsValue,
 		// 	// array-like
@@ -96,7 +96,7 @@ mod raw {
 		// 	js_name = defineProperty,
 		// 	catch
 		// )]
-		// pub(crate) fn define_property(
+		// pub(crate) unsafe fn define_property(
 		// 	// object
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
@@ -111,7 +111,7 @@ mod raw {
 		// 	js_name = deleteProperty,
 		// 	catch
 		// )]
-		// pub(crate) fn delete_property(
+		// pub(crate) unsafe fn delete_property(
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
 		// 	property_key: &JsValue
@@ -124,7 +124,7 @@ mod raw {
 		// 	js_name = get,
 		// 	catch
 		// )]
-		// pub(crate) fn get2(
+		// pub(crate) unsafe fn get2(
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
 		// 	property_key: &JsValue
@@ -137,7 +137,7 @@ mod raw {
 		// 	js_name = get,
 		// 	catch
 		// )]
-		// pub(crate) fn get3(
+		// pub(crate) unsafe fn get3(
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
 		// 	property_key: &JsValue,
@@ -151,7 +151,7 @@ mod raw {
 		// 	js_name = getOwnPropertyDescriptor,
 		// 	catch
 		// )]
-		// pub(crate) fn get_own_property_descriptor(
+		// pub(crate) unsafe fn get_own_property_descriptor(
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
 		// 	property_key: &JsValue
@@ -164,7 +164,7 @@ mod raw {
 		// 	js_name = getPrototypeOf,
 		// 	catch
 		// )]
-		// pub(crate) fn get_prototype_of(
+		// pub(crate) unsafe fn get_prototype_of(
 		// 	target: &JsValue
 		// 	// returns prototype (obj or null)
 		// 	// throws TypeError
@@ -174,7 +174,7 @@ mod raw {
 		// 	js_namespace = Reflect,
 		// 	catch
 		// )]
-		// pub(crate) fn has(
+		// pub(crate) unsafe fn has(
 		// 	target: &JsValue,
 		// 	// name of property (string? or autocast?)
 		// 	property_key: &JsValue
@@ -187,7 +187,7 @@ mod raw {
 		// 	js_name = isExtensible,
 		// 	catch
 		// )]
-		// pub(crate) fn is_extensible(
+		// pub(crate) unsafe fn is_extensible(
 		// 	target: &JsValue
 		// 	// returns bool
 		// 	// throws TypeError
@@ -198,7 +198,7 @@ mod raw {
 		// 	js_name = ownKeys,
 		// 	catch
 		// )]
-		// pub(crate) fn own_keys(
+		// pub(crate) unsafe fn own_keys(
 		// 	target: &JsValue
 		// 	// returns array of target's own property keys
 		// 	// (incl strings and symbols)
@@ -210,7 +210,7 @@ mod raw {
 		// 	js_name = preventExtensions,
 		// 	catch
 		// )]
-		// pub(crate) fn prevent_extensions(
+		// pub(crate) unsafe fn prevent_extensions(
 		// 	target: &JsValue
 		// 	// returns bool
 		// 	// throws TypeError
@@ -221,7 +221,7 @@ mod raw {
 			js_name = set,
 			catch
 		)]
-		pub(crate) fn set3(
+		pub(crate) unsafe fn set3(
 			target: &JsValue,
 			// name of property (string? or autocast?)
 			property_key: &JsValue,
@@ -236,7 +236,7 @@ mod raw {
 			js_name = set,
 			catch
 		)]
-		pub(crate) fn set4(
+		pub(crate) unsafe fn set4(
 			target: &JsValue,
 			// name of property (string? or autocast?)
 			property_key: &JsValue,
@@ -251,7 +251,7 @@ mod raw {
 		// 	js_name = setPrototypeOf,
 		// 	catch
 		// )]
-		// pub(crate) fn set_prototype_of(
+		// pub(crate) unsafe fn set_prototype_of(
 		// 	target: &JsValue,
 		// 	// new prototype (object or null)
 		// 	prototype: &JsValue
