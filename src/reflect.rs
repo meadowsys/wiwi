@@ -1,6 +1,10 @@
 use crate::prelude_internal::*;
 use crate::ExternObject;
 
+pub use acceptable_target::AcceptableTarget;
+
+mod acceptable_target;
+
 pub mod set;
 
 #[inline]

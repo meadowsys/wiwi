@@ -1,5 +1,5 @@
 use crate::prelude_internal::*;
-use super::raw;
+use super::{ AcceptableTarget, raw };
 
 #[repr(transparent)]
 pub struct Builder<'h, S> {
@@ -108,15 +108,18 @@ where
 	S: State
 {
 	#[inline(always)]
-	pub fn target<'h2>(
+	pub fn target<'h2, T>(
 		mut self,
 		// todo do the type for target properly
-		target: &'h2 JsValue
+		target: &'h2 T
 	) -> Builder<'h2, S::TargetInit>
 	where
 		'h: 'h2,
-		S::Target: IsUninit
+		S::Target: IsUninit,
+		T: AcceptableTarget
 	{
+		let target = target.as_target().as_js_value();
+
 		unsafe {
 			self.inner.target
 				.as_mut_ptr()
