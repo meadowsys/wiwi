@@ -8,6 +8,7 @@
 )]
 
 pub use self::any::ExternAny;
+pub use self::object::ExternObject;
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 mod any;

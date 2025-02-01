@@ -1,4 +1,29 @@
 use crate::prelude_internal::*;
+use crate::ExternObject;
+
+#[inline]
+pub fn reflect() -> ExternReflectNs {
+	let inner = raw::REFLECT.with(Clone::clone);
+	let inner = ExternObject::from_js_value_unchecked(inner);
+	ExternReflectNs { inner }
+}
+
+pub struct ExternReflectNs {
+	inner: ExternObject
+}
+
+impl ExternReflectNs {
+	// pub fn apply(&self, ..) -> buildersomething
+}
+
+impl Deref for ExternReflectNs {
+	type Target = ExternObject;
+
+	#[inline(always)]
+	fn deref(&self) -> &ExternObject {
+		&self.inner
+	}
+}
 
 mod raw {
 	use super::*;
