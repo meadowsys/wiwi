@@ -60,4 +60,48 @@ pub unsafe trait IsInit: InitStatus {}
 
 unsafe impl IsInit for Init {}
 
+/// Items that can act as initialisers for a specific field marked by `F`
+///
+/// # Safety
+///
+/// Implementations of this trait [`Initialiser<F, S>`] must be paired with a
+/// correct implementation of [`InitState<F, S>`] as well, and the corresponding
+/// [store] and [retrieve] functions must store and retrieve from the same location
+/// in `slot`, for memory safety.
+pub unsafe trait Initialiser<F, S>: Sized {
+	/// Type to use to mark the initialised state
+	type Init: InitState<Self, F, S, Result = Self::Result>;
+
+	/// End result of retrieving the value and processing it,
+	/// usually bound by some trait
+	type Result;
+
+	/// Store `self` in the given slot
+	///
+	/// # Safety
+	///
+	/// The item stored must be read from the same spot
+	/// by the corresponding [`InitState`] impl.
+	unsafe fn store_in_slot(self, slot: &mut S);
+}
+
+/// Type state marking initialised state for a [`Initialiser`]
+///
+/// # Safety
+///
+/// See safety section on [`Initialiser`].
+pub unsafe trait InitState<T, F, S>: Sized + IsInit {
+	/// End result of retrieving the value and processing it,
+	/// usually bound by some trait
+	type Result;
+
+	/// Retrieve the item from the given slot, and process it to [`Result`]
+	///
+	/// # Safety
+	///
+	/// The item read must be the same spot that the
+	/// corresponding [`Initialiser`] impl stored to.
+	unsafe fn retrieve_from_slot(slot: S) -> Self::Result;
+}
+
 pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
