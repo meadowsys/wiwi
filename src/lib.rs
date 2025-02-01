@@ -11,6 +11,9 @@ pub use self::any::ExternAny;
 pub use self::object::ExternObject;
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
+pub mod builder;
+mod sealed;
+
 mod any;
 mod object;
 mod reflect;
@@ -22,6 +25,8 @@ mod reflect;
 )]
 mod prelude_internal {
 	pub use crate::{ ExternAny, wasm_bindgen };
+	pub use crate::builder::*;
+	pub use crate::sealed::Sealed;
 	pub use std::mem::MaybeUninit;
 	pub use std::ops::Deref;
 	pub use wasm_bindgen::JsValue;
