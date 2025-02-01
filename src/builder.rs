@@ -69,13 +69,13 @@ pub trait PtrWriteCastLifetimeExt<T> {
 	///
 	/// You must ensure the type the pointer is cast to is a valid cast, and follow
 	/// safety requirements of [`ptr::write`](std::ptr::write).
-	unsafe fn cast_lifetime_write<'h2>(self, value: &'h2 T);
+	unsafe fn cast_lifetime_write(self, value: &T);
 }
 
-impl<'h, T> PtrWriteCastLifetimeExt<T> for *mut &'h T {
+impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 	#[inline(always)]
-	unsafe fn cast_lifetime_write<'h2>(self, value: &'h2 T) {
-		unsafe { self.cast::<&'h2 T>().write(value) }
+	unsafe fn cast_lifetime_write(self, value: &T) {
+		unsafe { self.cast::<&T>().write(value) }
 	}
 }
 
