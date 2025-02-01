@@ -22,12 +22,6 @@ pub struct Init {
 	__private: ()
 }
 
-pub trait IsUninit {}
-impl IsUninit for Uninit {}
-
-pub trait IsInit {}
-impl IsInit for Init {}
-
 /// Trait for marker structs to hold state about if a field in
 /// a builder is initialised or not
 ///
@@ -47,5 +41,23 @@ unsafe impl InitStatus for Uninit {
 unsafe impl InitStatus for Init {
 	const IS_INIT: bool = true;
 }
+
+/// Marker trait for marker structs that represent uninitialised state
+///
+/// # Safety
+///
+/// Marker struct must actually represent an uninitialised state.
+pub unsafe trait IsUninit: InitStatus {}
+
+unsafe impl IsUninit for Uninit {}
+
+/// Marker trait for marker structs that represent initialised state
+///
+/// # Safety
+///
+/// Marker struct must actually represent an initialised state.
+pub unsafe trait IsInit: InitStatus {}
+
+unsafe impl IsInit for Init {}
 
 pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
