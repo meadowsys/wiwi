@@ -120,7 +120,7 @@ where
 		unsafe {
 			self.inner.target
 				.as_mut_ptr()
-				.cast_write(target);
+				.cast_lifetime_write(target);
 			self.change_state()
 		}
 	}
@@ -138,7 +138,7 @@ where
 		unsafe {
 			self.inner.property_key
 				.as_mut_ptr()
-				.cast_write(property_key);
+				.cast_lifetime_write(property_key);
 			self.change_state()
 		}
 	}
@@ -156,7 +156,7 @@ where
 		unsafe {
 			self.inner.value
 				.as_mut_ptr()
-				.cast_write(value);
+				.cast_lifetime_write(value);
 			self.change_state()
 		}
 	}
@@ -174,7 +174,7 @@ where
 		unsafe {
 			self.inner.receiver
 				.as_mut_ptr()
-				.cast_write(receiver);
+				.cast_lifetime_write(receiver);
 			self.change_state()
 		}
 	}
