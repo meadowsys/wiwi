@@ -83,9 +83,7 @@ impl Builder<'_, StateContainer<
 	// todo make the return types better
 	#[inline(always)]
 	pub fn call(self) -> Result<JsValue, JsValue> {
-		let target = unsafe { self.inner.target.assume_init() };
-		let property_key = unsafe { self.inner.property_key.assume_init() };
-		let value = unsafe { self.inner.value.assume_init() };
+		unsafe_assume_init! { self target property_key value }
 		raw::set3(target, property_key, value)
 	}
 }
@@ -100,10 +98,7 @@ impl Builder<'_, StateContainer<
 	// todo make the return types better
 	#[inline(always)]
 	pub fn call(self) -> Result<JsValue, JsValue> {
-		let target = unsafe { self.inner.target.assume_init() };
-		let property_key = unsafe { self.inner.property_key.assume_init() };
-		let value = unsafe { self.inner.value.assume_init() };
-		let receiver = unsafe { self.inner.receiver.assume_init() };
+		unsafe_assume_init! { self target property_key value receiver }
 		raw::set4(target, property_key, value, receiver)
 	}
 }

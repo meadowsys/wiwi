@@ -78,3 +78,29 @@ impl<T> PtrWriteCastExt<T> for *mut T {
 		unsafe { self.cast::<T2>().write(value) }
 	}
 }
+
+/// macro for the boilerplate of `let value = unsafe { self.inner.value.assume_init() };`
+///
+/// # Examples
+///
+/// ```no_run
+/// unsafe_assume_init! { self value value2 cheese }
+/// ```
+///
+/// Expands to:
+///
+/// ```no_run
+/// let value = unsafe { self.inner.value.assume_init() };
+/// let value2 = unsafe { self.inner.value2.assume_init() };
+/// let cheese = unsafe { self.inner.cheese.assume_init() };
+/// ```
+macro_rules! unsafe_assume_init {
+	{ $self:ident $($ident:ident)* } => {
+		$(
+			let $ident = unsafe {
+				$self.inner.$ident.assume_init()
+			};
+		)*
+	}
+}
+pub(crate) use unsafe_assume_init;
