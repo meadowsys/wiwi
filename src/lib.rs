@@ -12,6 +12,7 @@ pub use wasm_bindgen::prelude::wasm_bindgen;
 
 mod any;
 mod object;
+mod reflect;
 
 #[allow(
 	dead_code,
