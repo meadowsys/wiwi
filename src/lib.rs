@@ -11,6 +11,7 @@ pub use self::any::ExternAny;
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 mod any;
+mod object;
 
 #[allow(
 	dead_code,
@@ -18,8 +19,9 @@ mod any;
 	reason = "prelude"
 )]
 mod prelude_internal {
-	pub use crate::wasm_bindgen;
+	pub use crate::{ ExternAny, wasm_bindgen };
 	pub use std::mem::MaybeUninit;
+	pub use std::ops::Deref;
 	pub use wasm_bindgen::JsValue;
 
 	#[inline(always)]
