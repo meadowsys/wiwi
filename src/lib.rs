@@ -9,9 +9,12 @@
 )]
 
 pub use self::any::ExternAny;
+pub use self::bigint::{ ExternBigint, ExternBigintNs };
 pub use self::object::ExternObject;
+pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject };
 #[doc(inline)]
 pub use self::reflect::{ ExternReflectNs, reflect };
+pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 pub mod builder;
