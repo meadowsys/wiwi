@@ -20,6 +20,11 @@ pub struct ExternReflectNs {
 }
 
 impl ExternReflectNs {
+	#[inline]
+	pub fn as_object(&self) -> &ExternObject {
+		&self.inner
+	}
+
 	// pub fn apply(&self, ..) -> buildersomething
 
 	#[inline]
@@ -33,7 +38,7 @@ impl Deref for ExternReflectNs {
 
 	#[inline]
 	fn deref(&self) -> &ExternObject {
-		&self.inner
+		self.as_object()
 	}
 }
 

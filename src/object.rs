@@ -30,6 +30,11 @@ impl ExternObject {
 		// SAFETY: caller promises provided `value` is actually an object
 		unsafe { Self::from_any_ref_unchecked(value) }
 	}
+
+	#[inline]
+	pub fn as_any(&self) -> &ExternAny {
+		&self.inner
+	}
 }
 
 impl Deref for ExternObject {
@@ -37,6 +42,6 @@ impl Deref for ExternObject {
 
 	#[inline]
 	fn deref(&self) -> &ExternAny {
-		&self.inner
+		self.as_any()
 	}
 }
