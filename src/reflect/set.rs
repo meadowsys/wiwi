@@ -59,7 +59,7 @@ impl<
 }
 
 impl Builder<'static, StateUninit> {
-	#[inline(always)]
+	#[inline]
 	pub(super) fn new() -> Self {
 		Self {
 			inner: BuilderInner {
@@ -81,7 +81,7 @@ impl Builder<'_, StateContainer<
 >> {
 	/// Executes `Reflect.set(target, property_key, value)`
 	// todo make the return types better
-	#[inline(always)]
+	#[inline]
 	pub fn executes(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value }
 		unsafe { raw::set3(target, property_key, value) }
@@ -96,7 +96,7 @@ impl Builder<'_, StateContainer<
 >> {
 	/// Executes `Reflect.set(target, property_key, value, receiver)`
 	// todo make the return types better
-	#[inline(always)]
+	#[inline]
 	pub fn executes(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value receiver }
 		unsafe { raw::set4(target, property_key, value, receiver) }
@@ -107,7 +107,7 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	#[inline(always)]
+	#[inline]
 	pub fn target<'h2, T>(
 		mut self,
 		// todo do the type for target properly
@@ -128,7 +128,7 @@ where
 		}
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub fn property_key<'h2>(
 		mut self,
 		// todo do the type for property_key properly
@@ -146,7 +146,7 @@ where
 		}
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub fn value<'h2>(
 		mut self,
 		// todo do the type for value properly
@@ -164,7 +164,7 @@ where
 		}
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub fn receiver<'h2>(
 		mut self,
 		// todo do the type for receiver properly
@@ -182,7 +182,7 @@ where
 		}
 	}
 
-	#[inline(always)]
+	#[inline]
 	unsafe fn change_state<'h2, S2>(self) -> Builder<'h2, S2>
 	where
 		'h: 'h2

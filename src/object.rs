@@ -6,25 +6,25 @@ pub struct ExternObject {
 }
 
 impl ExternObject {
-	#[inline(always)]
+	#[inline]
 	pub unsafe fn from_any_unchecked(value: ExternAny) -> Self {
 		Self { inner: value }
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub unsafe fn from_any_ref_unchecked(value: &ExternAny) -> &Self {
 		// SAFETY: ExternObject is repr(transparent) over ExternAny
 		unsafe { &*(&raw const value as *const ExternObject) }
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub unsafe fn from_js_value_unchecked(value: JsValue) -> Self {
 		let value = ExternAny::from_js_value(value);
 		// SAFETY: caller promises provided `value` is actually an object
 		unsafe { Self::from_any_unchecked(value) }
 	}
 
-	#[inline(always)]
+	#[inline]
 	pub unsafe fn from_js_value_ref_unchecked(value: &JsValue) -> &Self {
 		let value = ExternAny::from_js_value_ref(value);
 		// SAFETY: caller promises provided `value` is actually an object
@@ -35,7 +35,7 @@ impl ExternObject {
 impl Deref for ExternObject {
 	type Target = ExternAny;
 
-	#[inline(always)]
+	#[inline]
 	fn deref(&self) -> &ExternAny {
 		&self.inner
 	}

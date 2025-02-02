@@ -22,7 +22,7 @@ pub struct ExternReflectNs {
 impl ExternReflectNs {
 	// pub fn apply(&self, ..) -> buildersomething
 
-	#[inline(always)]
+	#[inline]
 	pub fn set(&self) -> set::Builder<'static, set::StateUninit> {
 		set::Builder::new()
 	}
@@ -31,7 +31,7 @@ impl ExternReflectNs {
 impl Deref for ExternReflectNs {
 	type Target = ExternObject;
 
-	#[inline(always)]
+	#[inline]
 	fn deref(&self) -> &ExternObject {
 		&self.inner
 	}

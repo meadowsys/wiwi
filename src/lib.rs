@@ -40,7 +40,7 @@ mod prelude_internal {
 	pub use std::ops::Deref;
 	pub use wasm_bindgen::JsValue;
 
-	#[inline(always)]
+	#[inline]
 	pub fn uninit<T>() -> MaybeUninit<T> {
 		MaybeUninit::uninit()
 	}

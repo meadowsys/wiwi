@@ -73,7 +73,7 @@ pub(crate) trait PtrWriteCastLifetimeExt<T> {
 }
 
 impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
-	#[inline(always)]
+	#[inline]
 	unsafe fn cast_lifetime_write(self, value: &T) {
 		unsafe { self.cast::<&T>().write(value) }
 	}
