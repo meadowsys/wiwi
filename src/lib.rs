@@ -23,6 +23,7 @@ mod sealed;
 
 mod any;
 mod bigint;
+mod boolean;
 mod object;
 mod number;
 pub mod reflect;
@@ -55,4 +56,5 @@ mod prelude_internal {
 #[cfg(test)]
 mod prelude_test {
 	pub use wasm_bindgen_test::wasm_bindgen_test;
+	pub use std::hint::black_box;
 }
