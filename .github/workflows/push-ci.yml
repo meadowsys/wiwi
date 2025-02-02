@@ -17,8 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         env:
-        - runs-on: macos-15
-        - runs-on: macos-14
+        # - runs-on: macos-15
+        # - runs-on: macos-14
         - runs-on: ubuntu-24.04
         # these are disabled for now because they are so
         # extremely slow to run compared to macos and ubuntu
