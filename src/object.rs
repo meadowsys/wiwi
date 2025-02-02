@@ -99,6 +99,6 @@ mod tests {
 	// todo remove me maybe?
 	#[wasm_bindgen_test]
 	fn object_creation_doesnt_die() {
-		std::hint::black_box(object().new())
+		black_box(object().new());
 	}
 }
