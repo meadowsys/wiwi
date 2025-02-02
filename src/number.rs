@@ -16,6 +16,22 @@ pub struct ExternNumber {
 	inner: ExternAny
 }
 
+impl ExternNumber {
+	#[inline]
+	pub fn as_any(&self) -> &ExternAny {
+		&self.inner
+	}
+}
+
+impl Deref for ExternNumber {
+	type Target = ExternAny;
+
+	#[inline]
+	fn deref(&self) -> &ExternAny {
+		self.as_any()
+	}
+}
+
 #[repr(transparent)]
 pub struct ExternNumberObject {
 	inner: ExternObject

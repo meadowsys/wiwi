@@ -17,6 +17,22 @@ pub struct ExternBigint {
 	inner: ExternAny
 }
 
+impl ExternBigint {
+	#[inline]
+	pub fn as_any(&self) -> &ExternAny {
+		&self.inner
+	}
+}
+
+impl Deref for ExternBigint {
+	type Target = ExternAny;
+
+	#[inline]
+	fn deref(&self) -> &ExternAny {
+		self.as_any()
+	}
+}
+
 // todo ??
 // pub struct ExternBigintObject {}
 
