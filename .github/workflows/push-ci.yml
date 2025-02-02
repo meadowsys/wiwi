@@ -66,7 +66,7 @@ jobs:
     - name: generate docs
       shell: fish {0}
       run: |
-        set -gx RUSTDOCFLAGS "--cfg docsrs --cfg kiwingay"
+        set -gx RUSTDOCFLAGS "--cfg docsrs --cfg kiwingay -Z unstable-options --enable-index-page"
         set -gx KIWINGAY_DEPLOY_COMMIT_SHORT (string sub --length 8 $KIWINGAY_DEPLOY_COMMIT)
         cargo doc --verbose --no-deps --lib
       env:
