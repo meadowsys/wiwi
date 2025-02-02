@@ -9,9 +9,9 @@
 )]
 
 pub use self::any::ExternAny;
-pub use self::bigint::{ ExternBigint, ExternBigintNs };
+pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 pub use self::object::ExternObject;
-pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject };
+pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
 #[doc(inline)]
 pub use self::reflect::{ ExternReflectNs, reflect };
 pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
