@@ -5,6 +5,7 @@
 )]
 #![deny(
 	unconditional_recursion,
+	clippy::missing_inline_in_public_items,
 	reason = "yes"
 )]
 

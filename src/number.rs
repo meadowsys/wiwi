@@ -1,5 +1,6 @@
 use crate::prelude_internal::*;
 
+#[inline]
 pub fn number() -> ExternNumberNs {
 	let inner = raw::NUMBER.with(Clone::clone);
 	let inner = unsafe { ExternObject::from_js_value_unchecked(inner) };
