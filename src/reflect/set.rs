@@ -82,7 +82,7 @@ impl Builder<'_, StateContainer<
 	/// Executes `Reflect.set(target, property_key, value)`
 	// todo make the return types better
 	#[inline]
-	pub fn executes(self) -> Result<JsValue, JsValue> {
+	pub fn execute(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value }
 		unsafe { raw::set3(target, property_key, value) }
 	}
@@ -97,7 +97,7 @@ impl Builder<'_, StateContainer<
 	/// Executes `Reflect.set(target, property_key, value, receiver)`
 	// todo make the return types better
 	#[inline]
-	pub fn executes(self) -> Result<JsValue, JsValue> {
+	pub fn execute(self) -> Result<JsValue, JsValue> {
 		unsafe_assume_init! { self target property_key value receiver }
 		unsafe { raw::set4(target, property_key, value, receiver) }
 	}
