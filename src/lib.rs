@@ -9,6 +9,18 @@
 	reason = "yes"
 )]
 
+#![cfg_attr(all(docsrs, kiwingay), doc = "")]
+#![cfg_attr(
+	all(docsrs, kiwingay),
+	doc = concat!(
+		"These docs have been built from commit [",
+		env!("KIWINGAY_DEPLOY_COMMIT_SHORT"),
+		"](https://github.com/meadowsys/wiwi-wasm/commit/",
+		env!("KIWINGAY_DEPLOY_COMMIT"),
+		")."
+	)
+)]
+
 pub use self::any::ExternAny;
 pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 pub use self::object::ExternObject;
