@@ -60,9 +60,9 @@ pub unsafe trait IsInit: InitStatus {}
 
 unsafe impl IsInit for Init {}
 
-pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
+pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
-pub trait PtrWriteCastLifetimeExt<T> {
+pub(crate) trait PtrWriteCastLifetimeExt<T> {
 	/// Convenience method to cast the pointer, then call `write` on the casted pointer
 	///
 	/// # Safety
