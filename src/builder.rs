@@ -83,13 +83,13 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 ///
 /// # Examples
 ///
-/// ```no_run
+/// ```ignore
 /// unsafe_assume_init! { self value value2 cheese }
 /// ```
 ///
 /// Expands to:
 ///
-/// ```no_run
+/// ```ignore
 /// let value = unsafe { self.inner.value.assume_init() };
 /// let value2 = unsafe { self.inner.value2.assume_init() };
 /// let cheese = unsafe { self.inner.cheese.assume_init() };
