@@ -20,12 +20,14 @@ impl ExternObject {
 	#[inline(always)]
 	pub unsafe fn from_js_value_unchecked(value: JsValue) -> Self {
 		let value = ExternAny::from_js_value(value);
+		// SAFETY: caller promises provided `value` is actually an object
 		unsafe { Self::from_any_unchecked(value) }
 	}
 
 	#[inline(always)]
 	pub unsafe fn from_js_value_ref_unchecked(value: &JsValue) -> &Self {
 		let value = ExternAny::from_js_value_ref(value);
+		// SAFETY: caller promises provided `value` is actually an object
 		unsafe { Self::from_any_ref_unchecked(value) }
 	}
 }

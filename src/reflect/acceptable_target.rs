@@ -1,3 +1,5 @@
+use crate::prelude_internal::*;
+
 pub trait AcceptableTarget {
-	fn as_target(&self) -> &crate::ExternObject;
+	fn as_target(&self) -> &ExternObject;
 }

@@ -7,12 +7,12 @@ pub struct ExternAny {
 
 impl ExternAny {
 	#[inline(always)]
-	pub(crate) fn from_js_value(value: JsValue) -> Self {
+	pub fn from_js_value(value: JsValue) -> Self {
 		Self { inner: value }
 	}
 
 	#[inline(always)]
-	pub(crate) fn from_js_value_ref(value: &JsValue) -> &Self {
+	pub fn from_js_value_ref(value: &JsValue) -> &Self {
 		// SAFETY: ExternAny is repr(transparent) over JsValue
 		unsafe { &*(&raw const *value as *const ExternAny) }
 	}
@@ -20,5 +20,10 @@ impl ExternAny {
 	#[inline(always)]
 	pub fn as_js_value(&self) -> &JsValue {
 		&self.inner
+	}
+
+	#[inline(always)]
+	pub fn into_js_value(self) -> JsValue {
+		self.inner
 	}
 }

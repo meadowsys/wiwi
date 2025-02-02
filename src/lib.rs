@@ -10,14 +10,18 @@
 
 pub use self::any::ExternAny;
 pub use self::object::ExternObject;
+#[doc(inline)]
+pub use self::reflect::{ ExternReflectNs, reflect };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 pub mod builder;
 mod sealed;
 
 mod any;
+mod bigint;
 mod object;
-mod reflect;
+mod number;
+pub mod reflect;
 
 #[allow(
 	dead_code,
@@ -25,7 +29,7 @@ mod reflect;
 	reason = "prelude"
 )]
 mod prelude_internal {
-	pub use crate::{ ExternAny, wasm_bindgen };
+	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
 	pub use crate::builder::*;
 	pub use crate::sealed::Sealed;
 	pub use std::mem::{ ManuallyDrop, MaybeUninit };
