@@ -22,6 +22,7 @@ mod bigint;
 mod object;
 mod number;
 pub mod reflect;
+mod string;
 
 #[allow(
 	dead_code,
