@@ -2,7 +2,10 @@ use crate::prelude_internal::*;
 use super::{ AcceptableTarget, raw };
 
 #[repr(transparent)]
-pub struct Builder<'h, S> {
+pub struct Builder<'h, S>
+where
+	S: State
+{
 	inner: BuilderInner<'h>,
 	__marker: PhantomDataInvariant<S>
 }
@@ -56,6 +59,29 @@ impl<
 
 	type Receiver = Receiver;
 	type ReceiverInit = StateContainer<Target, PropertyKey, Value, Init>;
+}
+
+impl<S> Drop for Builder<'_, S>
+where
+	S: State
+{
+	#[inline]
+	fn drop(&mut self) {
+		unsafe {
+			if S::Target::IS_INIT {
+				self.inner.target.assume_init_drop()
+			}
+			if S::PropertyKey::IS_INIT {
+				self.inner.property_key.assume_init_drop()
+			}
+			if S::Value::IS_INIT {
+				self.inner.value.assume_init_drop()
+			}
+			if S::Receiver::IS_INIT {
+				self.inner.receiver.assume_init_drop()
+			}
+		}
+	}
 }
 
 impl Builder<'static, StateUninit> {
@@ -185,11 +211,10 @@ where
 	#[inline]
 	unsafe fn change_state<'h2, S2>(self) -> Builder<'h2, S2>
 	where
-		'h: 'h2
+		'h: 'h2,
+		S2: State
 	{
-		Builder {
-			inner: self.inner,
-			__marker: PhantomData
-		}
+		// SAFETY: `Builder` is repr(transparent) over `BuilderInner`
+		unsafe { std::mem::transmute(self) }
 	}
 }
