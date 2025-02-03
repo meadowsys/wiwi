@@ -63,11 +63,12 @@ unsafe impl IsInit for Init {}
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
 pub(crate) trait PtrWriteCastLifetimeExt<T> {
-	/// Convenience method to cast the pointer, then call `write` on the casted pointer
+	/// Convenience method to change the lifetime of the reference type of the
+	/// pointer, then call `write` on the casted pointer
 	///
 	/// # Safety
 	///
-	/// You must ensure the type the pointer is cast to is a valid cast, and follow
+	/// You must ensure that your lifetimes are correct, as well as follow
 	/// safety requirements of [`ptr::write`](std::ptr::write).
 	unsafe fn cast_lifetime_write(self, value: &T);
 }
