@@ -126,6 +126,19 @@ where
 	}
 
 	#[inline]
+	pub unsafe fn target_unchecked<'h2, T>(
+		self,
+		target: T
+	) -> Builder<'h2, S::TargetInitWith<T>>
+	where
+		'h: 'h2,
+		S::Target: IsUninit,
+		T: AcceptableInSlotUnchecked<TargetSlot<'h2>, Result: AsRef<JsValue>>
+	{
+		unsafe { self.change_state(|b| target.write_unchecked(&mut b.inner.target)) }
+	}
+
+	#[inline]
 	pub fn property_key<'h2, T>(
 		self,
 		property_key: T
@@ -136,6 +149,19 @@ where
 		T: AcceptableInSlot<PropertyKeySlot<'h2>, Result: AsRef<JsValue>>
 	{
 		unsafe { self.change_state(|b| property_key.write(&mut b.inner.property_key)) }
+	}
+
+	#[inline]
+	pub unsafe fn property_key_unchecked<'h2, T>(
+		self,
+		property_key: T
+	) -> Builder<'h2, S::PropertyKeyInitWith<T>>
+	where
+		'h: 'h2,
+		S::PropertyKey: IsUninit,
+		T: AcceptableInSlotUnchecked<PropertyKeySlot<'h2>, Result: AsRef<JsValue>>
+	{
+		unsafe { self.change_state(|b| property_key.write_unchecked(&mut b.inner.property_key)) }
 	}
 
 	#[inline]
@@ -152,6 +178,19 @@ where
 	}
 
 	#[inline]
+	pub unsafe fn value_unchecked<'h2, T>(
+		self,
+		value: T
+	) -> Builder<'h2, S::ValueInitWith<T>>
+	where
+		'h: 'h2,
+		S::Value: IsUninit,
+		T: AcceptableInSlotUnchecked<ValueSlot<'h2>, Result: AsRef<JsValue>>
+	{
+		unsafe { self.change_state(|b| value.write_unchecked(&mut b.inner.value)) }
+	}
+
+	#[inline]
 	pub fn receiver<'h2, T>(
 		self,
 		receiver: T
@@ -162,6 +201,19 @@ where
 		T: AcceptableInSlot<ReceiverSlot<'h2>, Result: AsRef<JsValue>>
 	{
 		unsafe { self.change_state(|b| receiver.write(&mut b.inner.receiver)) }
+	}
+
+	#[inline]
+	pub unsafe fn receiver_unchecked<'h2, T>(
+		self,
+		receiver: T
+	) -> Builder<'h2, S::ReceiverInitWith<T>>
+	where
+		'h: 'h2,
+		S::Receiver: IsUninit,
+		T: AcceptableInSlotUnchecked<ReceiverSlot<'h2>, Result: AsRef<JsValue>>
+	{
+		unsafe { self.change_state(|b| receiver.write_unchecked(&mut b.inner.receiver)) }
 	}
 
 	#[inline]
@@ -186,10 +238,38 @@ pub union TargetSlot<'h> {
 	extern_any: &'h ExternAny
 }
 
+unsafe impl<'h> AcceptableInSlotUnchecked<TargetSlot<'h>> for &'h JsValue {
+	type Result = &'h JsValue;
+
+	#[inline]
+	unsafe fn write_unchecked(self, slot: &mut TargetSlot<'h>) {
+		*slot = TargetSlot { extern_any: ExternAny::from_js_value_ref(self) }
+	}
+
+	#[inline]
+	unsafe fn read_unchecked(slot: TargetSlot<'h>) -> &'h JsValue {
+		unsafe { slot.extern_any.as_js_value() }
+	}
+}
+
 pub union PropertyKeySlot<'h> {
 	uninit: (),
 	extern_any: &'h ExternAny,
 	str: &'h str
+}
+
+unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h JsValue {
+	type Result = &'h JsValue;
+
+	#[inline]
+	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
+		*slot = PropertyKeySlot { extern_any: ExternAny::from_js_value_ref(self) }
+	}
+
+	#[inline]
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> &'h JsValue {
+		unsafe { slot.extern_any.as_js_value() }
+	}
 }
 
 unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {
@@ -225,7 +305,35 @@ pub union ValueSlot<'h> {
 	extern_any: &'h ExternAny
 }
 
+unsafe impl<'h> AcceptableInSlotUnchecked<ValueSlot<'h>> for &'h JsValue {
+	type Result = &'h JsValue;
+
+	#[inline]
+	unsafe fn write_unchecked(self, slot: &mut ValueSlot<'h>) {
+		*slot = ValueSlot { extern_any: ExternAny::from_js_value_ref(self) }
+	}
+
+	#[inline]
+	unsafe fn read_unchecked(slot: ValueSlot<'h>) -> &'h JsValue {
+		unsafe { slot.extern_any.as_js_value() }
+	}
+}
+
 pub union ReceiverSlot<'h> {
 	uninit: (),
 	extern_any: &'h ExternAny
+}
+
+unsafe impl<'h> AcceptableInSlotUnchecked<ReceiverSlot<'h>> for &'h JsValue {
+	type Result = &'h JsValue;
+
+	#[inline]
+	unsafe fn write_unchecked(self, slot: &mut ReceiverSlot<'h>) {
+		*slot = ReceiverSlot { extern_any: ExternAny::from_js_value_ref(self) }
+	}
+
+	#[inline]
+	unsafe fn read_unchecked(slot: ReceiverSlot<'h>) -> &'h JsValue {
+		unsafe { slot.extern_any.as_js_value() }
+	}
 }
