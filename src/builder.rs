@@ -95,32 +95,6 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 	}
 }
 
-/// macro for the boilerplate of `let value = unsafe { self.inner.value.assume_init() };`
-///
-/// # Examples
-///
-/// ```ignore
-/// unsafe_assume_init! { self value value2 cheese }
-/// ```
-///
-/// Expands to:
-///
-/// ```ignore
-/// let value = unsafe { self.inner.value.assume_init() };
-/// let value2 = unsafe { self.inner.value2.assume_init() };
-/// let cheese = unsafe { self.inner.cheese.assume_init() };
-/// ```
-macro_rules! unsafe_assume_init {
-	{ $self:ident $($ident:ident)* } => {
-		$(
-			let $ident = unsafe {
-				$self.inner.$ident.assume_init()
-			};
-		)*
-	}
-}
-pub(crate) use unsafe_assume_init;
-
 /// macro for the boilerplate of `let value = unsafe { Value::read(self.inner.value) };`
 ///
 /// # Examples
