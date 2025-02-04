@@ -69,6 +69,12 @@ where
 	T: ?Sized
 {}
 
+pub unsafe trait AcceptableInSlot<T> {
+	type Result: Sized;
+	unsafe fn write(self, slot: &mut T);
+	unsafe fn read(slot: T) -> Self::Result;
+}
+
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
 pub(crate) trait PtrWriteCastLifetimeExt<T> {
@@ -114,6 +120,39 @@ macro_rules! unsafe_assume_init {
 	}
 }
 pub(crate) use unsafe_assume_init;
+
+/// macro for the boilerplate of `let value = unsafe { Value::read(self.inner.value) };`
+///
+/// # Examples
+///
+/// ```ignore
+/// read_slots! {
+///    self
+///    value: Value
+///    value2: Value2
+///    cheese: Cheese
+/// }
+/// ```
+///
+/// Expands to:
+///
+/// ```ignore
+/// let value = unsafe { Value::read(self.inner.value) };
+/// let value2 = unsafe { Value2::read(self.inner.value2) };
+/// let cheese = unsafe { Cheese::read(self.inner.cheese) };
+/// ```
+macro_rules! read_slots {
+	{
+		$self:ident
+		$($ident:ident: $ty:ident)*
+	} => {
+		$(
+			let $ident = unsafe { $ty::read($self.inner.$ident) };
+			let $ident = $ident.as_ref();
+		)*
+	}
+}
+pub(crate) use read_slots;
 
 macro_rules! gen_state {
 	{
