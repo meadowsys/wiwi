@@ -111,12 +111,17 @@ macro_rules! gen_state {
 		$state:ident
 		$state_container:ident
 		$state_uninit:ident
-		$($field:ident $field_init:ident)*
+		$(
+			$field:ident
+			$field_init:ident
+			$field_init_with:ident
+		)*
 	} => {
 		pub trait $state {
 			$(
 				type $field: $crate::builder::InitStatus;
 				type $field_init: $state;
+				type $field_init_with<S: $crate::builder::IsInit>: $state;
 			)*
 		}
 
@@ -146,7 +151,11 @@ macro_rules! gen_state {
 				$state_container
 				{}
 				{}
-				{ $($field $field_init)* }
+				{ $(
+					$field
+					$field_init
+					$field_init_with
+				)* }
 			}
 		}
 	};
@@ -157,27 +166,55 @@ macro_rules! gen_state {
 		{}
 		{}
 		{
-			$field_next:ident $field_init_next:ident
-			$($field_rest:ident $field_init_rest:ident)*
+			$field_next:ident
+			$field_init_next:ident
+			$field_init_with_next:ident
+			$(
+				$field_rest:ident
+				$field_init_rest:ident
+				$field_init_with_rest:ident
+			)*
 		}
 	} => {
 		$crate::builder::gen_state! {
 			@impl state_init_types
 			$state_container
 			{}
-			{ $field_next $field_init_next }
-			{ $($field_rest $field_init_rest)* }
+			{
+				$field_next
+				$field_init_next
+				$field_init_with_next
+			}
+			{ $(
+				$field_rest
+				$field_init_rest
+				$field_init_with_rest
+			)* }
 		}
 	};
 
 	{
 		@impl state_init_types
 		$state_container:ident
-		{ $($field_prev:ident $field_init_prev:ident)* }
-		{ $field:ident $field_init:ident }
+		{ $(
+			$field_prev:ident
+			$field_init_prev:ident
+			$field_init_with_prev:ident
+		)* }
 		{
-			$field_next:ident $field_init_next:ident
-			$($field_rest:ident $field_init_rest:ident)*
+			$field:ident
+			$field_init:ident
+			$field_init_with:ident
+		}
+		{
+			$field_next:ident
+			$field_init_next:ident
+			$field_init_with_next:ident
+			$(
+				$field_rest:ident
+				$field_init_rest:ident
+				$field_init_with_rest:ident
+			)*
 		}
 	} => {
 		type $field = $field;
@@ -187,30 +224,63 @@ macro_rules! gen_state {
 			$field_next,
 			$($field_rest,)*
 		>;
+		type $field_init_with<S: $crate::builder::IsInit> = $state_container<
+			$($field_prev,)*
+			S,
+			$field_next,
+			$($field_rest,)*
+		>;
 
 		$crate::builder::gen_state! {
 			@impl state_init_types
 			$state_container
 			{
-				$($field_prev $field_init_prev)*
-				$field $field_init
+				$(
+					$field_prev
+					$field_init_prev
+					$field_init_with_prev
+				)*
+
+				$field
+				$field_init
+				$field_init_with
 			}
-			{ $field_next $field_init_next }
-			{ $($field_rest $field_init_rest)* }
+			{
+				$field_next
+				$field_init_next
+				$field_init_with_next
+			}
+			{ $(
+				$field_rest
+				$field_init_rest
+				$field_init_with_rest
+			)* }
 		}
 	};
 
 	{
 		@impl state_init_types
 		$state_container:ident
-		{ $($field_prev:ident $field_init_prev:ident)* }
-		{ $field:ident $field_init:ident }
+		{ $(
+			$field_prev:ident
+			$field_init_prev:ident
+			$field_init_with_prev:ident
+		)* }
+		{
+			$field:ident
+			$field_init:ident
+			$field_init_with:ident
+		}
 		{}
 	} => {
 		type $field = $field;
 		type $field_init = $state_container<
 			$($field_prev,)*
 			$crate::builder::Init
+		>;
+		type $field_init_with<S: $crate::builder::IsInit> = $state_container<
+			$($field_prev,)*
+			S
 		>;
 	};
 
