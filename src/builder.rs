@@ -120,23 +120,27 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 /// # Examples
 ///
 /// ```ignore
-/// read_slots! {
-///    self
-///    value: Value
-///    value2: Value2
-///    cheese: Cheese
+/// unsafe {
+///    read_slots! {
+///       self
+///       value: Value
+///       value2: Value2
+///       cheese: Cheese
+///    }
 /// }
 /// ```
 ///
 /// Expands to:
 ///
 /// ```ignore
-/// let value = unsafe { Value::read(self.inner.value) };
-/// let value = value.as_ref().as_js_value();
-/// let value2 = unsafe { Value2::read(self.inner.value2) };
-/// let value2 = value2.as_ref().as_js_value();
-/// let cheese = unsafe { Cheese::read(self.inner.cheese) };
-/// let cheese = cheese.as_ref().as_js_value();
+/// unsafe {
+///    let value = Value::read(self.inner.value);
+///    let value = value.as_ref().as_js_value();
+///    let value2 = Value2::read(self.inner.value2);
+///    let value2 = value2.as_ref().as_js_value();
+///    let cheese = Cheese::read(self.inner.cheese);
+///    let cheese = cheese.as_ref().as_js_value();
+/// }
 /// ```
 ///
 /// Well... not quite, but, good enough for purposes of demonstration.
@@ -146,7 +150,7 @@ macro_rules! read_slots {
 		$($ident:ident: $ty:ident)*
 	} => {
 		$(
-			let $ident = unsafe { $ty::read($self.inner.$ident) };
+			let $ident = $ty::read($self.inner.$ident);
 			let $ident = AsRef::<ExternAny>::as_ref(&$ident).as_js_value();
 		)*
 	}

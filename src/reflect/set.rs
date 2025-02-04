@@ -69,14 +69,14 @@ impl<
 	// todo make the return types better
 	#[inline]
 	pub fn execute(self) -> Result<ExternAny, ExternAny> {
-		read_slots! {
-			self
-			target: Target
-			property_key: PropertyKey
-			value: Value
-		}
-
 		unsafe {
+			read_slots! {
+				self
+				target: Target
+				property_key: PropertyKey
+				value: Value
+			}
+
 			raw::set3(target, property_key, value)
 				.map(ExternAny::from_js_value)
 				.map_err(ExternAny::from_js_value)
@@ -100,15 +100,15 @@ impl<
 	// todo make the return types better
 	#[inline]
 	pub fn execute(self) -> Result<ExternAny, ExternAny> {
-		read_slots! {
-			self
-			target: Target
-			property_key: PropertyKey
-			value: Value
-			receiver: Receiver
-		}
-
 		unsafe {
+			read_slots! {
+				self
+				target: Target
+				property_key: PropertyKey
+				value: Value
+				receiver: Receiver
+			}
+
 			raw::set4(target, property_key, value, receiver)
 				.map(ExternAny::from_js_value)
 				.map_err(ExternAny::from_js_value)
