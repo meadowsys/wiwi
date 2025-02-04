@@ -4,7 +4,6 @@ pub use acceptable_target::AcceptableTarget;
 
 mod acceptable_target;
 
-#[path = "reflect/set2.rs"]
 pub mod set;
 
 /// Get the global `Reflect` namespace object
