@@ -31,6 +31,7 @@ pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 pub mod builder;
+pub mod extern_crates;
 mod sealed;
 
 mod any;
