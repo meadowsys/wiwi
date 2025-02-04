@@ -105,3 +105,103 @@ macro_rules! unsafe_assume_init {
 	}
 }
 pub(crate) use unsafe_assume_init;
+
+macro_rules! gen_state {
+	{
+		$state:ident $state_container:ident
+		$($field:ident $field_init:ident)*
+	} => {
+		pub trait $state {
+			$(
+				type $field: $crate::builder::InitStatus;
+				type $field_init: $state;
+			)*
+		}
+
+		#[allow(
+			unused_parens,
+			reason = "automatically generated"
+		)]
+		pub struct $state_container<$($field),*> {
+			__marker: $crate::prelude_internal::PhantomDataInvariant<(
+				$($field),*
+			)>
+		}
+
+		impl<$(
+			$field: $crate::builder::InitStatus
+		),*> $state for $state_container<$($field),*> {
+			$crate::builder::gen_state! {
+				@impl state_init_types
+				$state_container
+				{}
+				{}
+				{ $($field $field_init)* }
+			}
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{}
+		{}
+		{
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
+		}
+	} => {
+		$crate::builder::gen_state! {
+			@impl state_init_types
+			$state_container
+			{}
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
+		{
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
+		}
+	} => {
+		type $field = $field;
+		type $field_init = $state_container<
+			$($field_prev,)*
+			$crate::builder::Init,
+			$field_next,
+			$($field_rest,)*
+		>;
+
+		$crate::builder::gen_state! {
+			@impl state_init_types
+			$state_container
+			{
+				$($field_prev $field_init_prev)*
+				$field $field_init
+			}
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
+		{}
+	} => {
+		type $field = $field;
+		type $field_init = $state_container<
+			$($field_prev,)*
+			$crate::builder::Init
+		>;
+	};
+}
+pub(crate) use gen_state;
