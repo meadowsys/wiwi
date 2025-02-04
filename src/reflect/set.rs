@@ -122,7 +122,7 @@ where
 		S::Target: IsUninit,
 		T: AcceptableInSlot<TargetSlot<'h2>, Result: AsRef<JsValue>>
 	{
-		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
+		unsafe { self.target_unchecked(target) }
 	}
 
 	#[inline]
@@ -148,7 +148,7 @@ where
 		S::PropertyKey: IsUninit,
 		T: AcceptableInSlot<PropertyKeySlot<'h2>, Result: AsRef<JsValue>>
 	{
-		unsafe { self.change_state(|b| property_key.write(&mut b.inner.property_key)) }
+		unsafe { self.property_key_unchecked(property_key) }
 	}
 
 	#[inline]
@@ -174,7 +174,7 @@ where
 		S::Value: IsUninit,
 		T: AcceptableInSlot<ValueSlot<'h2>, Result: AsRef<JsValue>>
 	{
-		unsafe { self.change_state(|b| value.write(&mut b.inner.value)) }
+		unsafe { self.value_unchecked(value) }
 	}
 
 	#[inline]
@@ -200,7 +200,7 @@ where
 		S::Receiver: IsUninit,
 		T: AcceptableInSlot<ReceiverSlot<'h2>, Result: AsRef<JsValue>>
 	{
-		unsafe { self.change_state(|b| receiver.write(&mut b.inner.receiver)) }
+		unsafe { self.receiver_unchecked(receiver) }
 	}
 
 	#[inline]
