@@ -130,7 +130,7 @@ macro_rules! gen_state {
 			$(
 				type $field: $crate::builder::InitStatus;
 				type $field_init: $state;
-				type $field_init_with<S: $crate::builder::IsInit>: $state;
+				type $field_init_with<S: ?Sized>: $state;
 			)*
 		}
 
@@ -233,9 +233,9 @@ macro_rules! gen_state {
 			$field_next,
 			$($field_rest,)*
 		>;
-		type $field_init_with<S: $crate::builder::IsInit> = $state_container<
+		type $field_init_with<S: ?Sized> = $state_container<
 			$($field_prev,)*
-			S,
+			crate::builder::Init<S>,
 			$field_next,
 			$($field_rest,)*
 		>;
@@ -287,9 +287,9 @@ macro_rules! gen_state {
 			$($field_prev,)*
 			$crate::builder::Init
 		>;
-		type $field_init_with<S: $crate::builder::IsInit> = $state_container<
+		type $field_init_with<S: ?Sized> = $state_container<
 			$($field_prev,)*
-			S
+			crate::builder::Init<S>,
 		>;
 	};
 
