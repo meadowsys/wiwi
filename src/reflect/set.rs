@@ -56,9 +56,9 @@ impl Builder<'static, StateUninit> {
 
 impl<
 	'h,
-	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<JsValue>>,
-	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<JsValue>>,
-	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<JsValue>>
+	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<ExternAny>>,
+	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<ExternAny>>,
+	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<ExternAny>>
 > Builder<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
@@ -82,10 +82,10 @@ impl<
 
 impl<
 	'h,
-	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<JsValue>>,
-	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<JsValue>>,
-	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<JsValue>>,
-	Receiver: AcceptableInSlot<ReceiverSlot<'h>, Result: AsRef<JsValue>>
+	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<ExternAny>>,
+	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<ExternAny>>,
+	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<ExternAny>>,
+	Receiver: AcceptableInSlot<ReceiverSlot<'h>, Result: AsRef<ExternAny>>
 > Builder<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
@@ -120,7 +120,7 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: AcceptableInSlot<TargetSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlot<TargetSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.target_unchecked(target) }
 	}
@@ -133,7 +133,7 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: AcceptableInSlotUnchecked<TargetSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlotUnchecked<TargetSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.change_state(|b| target.write_unchecked(&mut b.inner.target)) }
 	}
@@ -146,7 +146,7 @@ where
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
-		T: AcceptableInSlot<PropertyKeySlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlot<PropertyKeySlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.property_key_unchecked(property_key) }
 	}
@@ -159,7 +159,7 @@ where
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
-		T: AcceptableInSlotUnchecked<PropertyKeySlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlotUnchecked<PropertyKeySlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.change_state(|b| property_key.write_unchecked(&mut b.inner.property_key)) }
 	}
@@ -172,7 +172,7 @@ where
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
-		T: AcceptableInSlot<ValueSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlot<ValueSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.value_unchecked(value) }
 	}
@@ -185,7 +185,7 @@ where
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
-		T: AcceptableInSlotUnchecked<ValueSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlotUnchecked<ValueSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.change_state(|b| value.write_unchecked(&mut b.inner.value)) }
 	}
@@ -198,7 +198,7 @@ where
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,
-		T: AcceptableInSlot<ReceiverSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlot<ReceiverSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.receiver_unchecked(receiver) }
 	}
@@ -211,7 +211,7 @@ where
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,
-		T: AcceptableInSlotUnchecked<ReceiverSlot<'h2>, Result: AsRef<JsValue>>
+		T: AcceptableInSlotUnchecked<ReceiverSlot<'h2>, Result: AsRef<ExternAny>>
 	{
 		unsafe { self.change_state(|b| receiver.write_unchecked(&mut b.inner.receiver)) }
 	}

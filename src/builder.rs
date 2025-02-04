@@ -114,7 +114,8 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 	}
 }
 
-/// macro for the boilerplate of `let value = unsafe { Value::read(self.inner.value) };`
+/// macro for the boilerplate of calling `AcceptableInSlotUnchecked::read_unchecked`
+/// followed by conversion to JsValue
 ///
 /// # Examples
 ///
@@ -131,9 +132,14 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 ///
 /// ```ignore
 /// let value = unsafe { Value::read(self.inner.value) };
+/// let value = value.as_ref().as_js_value();
 /// let value2 = unsafe { Value2::read(self.inner.value2) };
+/// let value2 = value2.as_ref().as_js_value();
 /// let cheese = unsafe { Cheese::read(self.inner.cheese) };
+/// let cheese = cheese.as_ref().as_js_value();
 /// ```
+///
+/// Well... not quite, but, good enough for purposes of demonstration.
 macro_rules! read_slots {
 	{
 		$self:ident
@@ -141,7 +147,7 @@ macro_rules! read_slots {
 	} => {
 		$(
 			let $ident = unsafe { $ty::read($self.inner.$ident) };
-			let $ident = $ident.as_ref();
+			let $ident = AsRef::<ExternAny>::as_ref(&$ident).as_js_value();
 		)*
 	}
 }
