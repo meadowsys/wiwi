@@ -3,7 +3,9 @@ use crate::prelude_internal::*;
 #[inline]
 pub fn object() -> ExternObjectNs {
 	let inner = raw::OBJECT.with(Clone::clone);
-	unsafe { ExternObjectNs::from_js_value_unchecked(inner) }
+	let inner = ExternAny::from_js_value(inner);
+	let inner = unsafe { ExternObject::from_any_unchecked(inner) };
+	ExternObjectNs { inner }
 }
 
 #[repr(transparent)]
@@ -12,12 +14,6 @@ pub struct ExternObjectNs {
 }
 
 impl ExternObjectNs {
-	#[inline]
-	unsafe fn from_js_value_unchecked(value: JsValue) -> Self {
-		let inner = unsafe { ExternObject::from_js_value_unchecked(value) };
-		Self { inner }
-	}
-
 	#[expect(
 		clippy::new_ret_no_self,
 		clippy::wrong_self_convention,
@@ -25,7 +21,7 @@ impl ExternObjectNs {
 	)]
 	#[inline]
 	pub fn new(&self) -> ExternObject {
-		unsafe { ExternObject::from_js_value_unchecked(raw::new_object()) }
+		unsafe { ExternObject::from_any_unchecked(ExternAny::from_js_value(raw::new_object())) }
 	}
 }
 
@@ -47,20 +43,6 @@ impl ExternObject {
 	}
 
 	#[inline]
-	pub unsafe fn from_js_value_unchecked(value: JsValue) -> Self {
-		let value = ExternAny::from_js_value(value);
-		// SAFETY: caller promises provided `value` is actually an object
-		unsafe { Self::from_any_unchecked(value) }
-	}
-
-	#[inline]
-	pub unsafe fn from_js_value_ref_unchecked(value: &JsValue) -> &Self {
-		let value = ExternAny::from_js_value_ref(value);
-		// SAFETY: caller promises provided `value` is actually an object
-		unsafe { Self::from_any_ref_unchecked(value) }
-	}
-
-	#[inline]
 	pub fn as_any(&self) -> &ExternAny {
 		&self.inner
 	}
@@ -77,6 +59,7 @@ impl Deref for ExternObject {
 
 mod raw {
 	use super::*;
+	use wasm_bindgen::JsValue;
 
 	#[wasm_bindgen]
 	extern {

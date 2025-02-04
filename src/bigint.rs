@@ -3,7 +3,8 @@ use crate::prelude_internal::*;
 #[inline]
 pub fn bigint() -> ExternBigintNs {
 	let inner = raw::BIGINT.with(Clone::clone);
-	let inner = unsafe { ExternObject::from_js_value_unchecked(inner) };
+	let inner = ExternAny::from_js_value(inner);
+	let inner = unsafe { ExternObject::from_any_unchecked(inner) };
 	ExternBigintNs { inner }
 }
 
@@ -38,6 +39,7 @@ impl Deref for ExternBigint {
 
 mod raw {
 	use super::*;
+	use wasm_bindgen::JsValue;
 
 	#[wasm_bindgen]
 	extern {

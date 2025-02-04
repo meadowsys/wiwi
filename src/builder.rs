@@ -115,7 +115,7 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 }
 
 /// macro for the boilerplate of calling `AcceptableInSlotUnchecked::read_unchecked`
-/// followed by conversion to JsValue
+/// followed by conversion to `&JsValue`
 ///
 /// # Examples
 ///

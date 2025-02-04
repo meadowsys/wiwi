@@ -3,9 +3,11 @@ use crate::prelude_internal::*;
 #[inline]
 pub fn number() -> ExternNumberNs {
 	let inner = raw::NUMBER.with(Clone::clone);
-	let inner = unsafe { ExternObject::from_js_value_unchecked(inner) };
+	let inner = ExternAny::from_js_value(inner);
+	let inner = unsafe { ExternObject::from_any_unchecked(inner) };
 	ExternNumberNs { inner }
 }
+
 #[repr(transparent)]
 pub struct ExternNumberNs {
 	inner: ExternObject
@@ -39,6 +41,7 @@ pub struct ExternNumberObject {
 
 mod raw {
 	use super::*;
+	use wasm_bindgen::JsValue;
 
 	#[wasm_bindgen]
 	extern {

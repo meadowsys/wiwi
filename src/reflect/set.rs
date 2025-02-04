@@ -68,7 +68,7 @@ impl<
 	/// Executes `Reflect.set(target, property_key, value)`
 	// todo make the return types better
 	#[inline]
-	pub fn execute(self) -> Result<JsValue, JsValue> {
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
 		read_slots! {
 			self
 			target: Target
@@ -76,7 +76,11 @@ impl<
 			value: Value
 		}
 
-		unsafe { raw::set3(target, property_key, value) }
+		unsafe {
+			raw::set3(target, property_key, value)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
 	}
 }
 
@@ -95,7 +99,7 @@ impl<
 	/// Executes `Reflect.set(target, property_key, value, receiver)`
 	// todo make the return types better
 	#[inline]
-	pub fn execute(self) -> Result<JsValue, JsValue> {
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
 		read_slots! {
 			self
 			target: Target
@@ -104,7 +108,11 @@ impl<
 			receiver: Receiver
 		}
 
-		unsafe { raw::set4(target, property_key, value, receiver) }
+		unsafe {
+			raw::set4(target, property_key, value, receiver)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
 	}
 }
 
@@ -235,46 +243,46 @@ where
 
 pub union TargetSlot<'h> {
 	uninit: (),
-	extern_any: &'h ExternAny
+	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<TargetSlot<'h>> for &'h JsValue {
-	type Result = &'h JsValue;
+unsafe impl<'h> AcceptableInSlotUnchecked<TargetSlot<'h>> for &'h ExternAny {
+	type Result = &'h ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut TargetSlot<'h>) {
-		*slot = TargetSlot { extern_any: ExternAny::from_js_value_ref(self) }
+		*slot = TargetSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: TargetSlot<'h>) -> &'h JsValue {
-		unsafe { slot.extern_any.as_js_value() }
+	unsafe fn read_unchecked(slot: TargetSlot<'h>) -> &'h ExternAny {
+		unsafe { slot.any }
 	}
 }
 
 pub union PropertyKeySlot<'h> {
 	uninit: (),
-	extern_any: &'h ExternAny,
+	any: &'h ExternAny,
 	str: &'h str
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h JsValue {
-	type Result = &'h JsValue;
+unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h ExternAny {
+	type Result = &'h ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
-		*slot = PropertyKeySlot { extern_any: ExternAny::from_js_value_ref(self) }
+		*slot = PropertyKeySlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> &'h JsValue {
-		unsafe { slot.extern_any.as_js_value() }
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> &'h ExternAny {
+		unsafe { slot.any }
 	}
 }
 
 unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {}
 unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h str {
-	type Result = JsValue;
+	type Result = ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
@@ -282,14 +290,14 @@ unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h str {
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> JsValue {
-		unsafe { JsValue::from_str(slot.str) }
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> ExternAny {
+		unsafe { ExternAny::from_str(slot.str) }
 	}
 }
 
 unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h String {}
 unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h String {
-	type Result = JsValue;
+	type Result = ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
@@ -297,45 +305,45 @@ unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h String {
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> JsValue {
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> ExternAny {
 		unsafe { <&str>::read_unchecked(slot) }
 	}
 }
 
 pub union ValueSlot<'h> {
 	uninit: (),
-	extern_any: &'h ExternAny
+	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<ValueSlot<'h>> for &'h JsValue {
-	type Result = &'h JsValue;
+unsafe impl<'h> AcceptableInSlotUnchecked<ValueSlot<'h>> for &'h ExternAny {
+	type Result = &'h ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut ValueSlot<'h>) {
-		*slot = ValueSlot { extern_any: ExternAny::from_js_value_ref(self) }
+		*slot = ValueSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: ValueSlot<'h>) -> &'h JsValue {
-		unsafe { slot.extern_any.as_js_value() }
+	unsafe fn read_unchecked(slot: ValueSlot<'h>) -> &'h ExternAny {
+		unsafe { slot.any }
 	}
 }
 
 pub union ReceiverSlot<'h> {
 	uninit: (),
-	extern_any: &'h ExternAny
+	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<ReceiverSlot<'h>> for &'h JsValue {
-	type Result = &'h JsValue;
+unsafe impl<'h> AcceptableInSlotUnchecked<ReceiverSlot<'h>> for &'h ExternAny {
+	type Result = &'h ExternAny;
 
 	#[inline]
 	unsafe fn write_unchecked(self, slot: &mut ReceiverSlot<'h>) {
-		*slot = ReceiverSlot { extern_any: ExternAny::from_js_value_ref(self) }
+		*slot = ReceiverSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: ReceiverSlot<'h>) -> &'h JsValue {
-		unsafe { slot.extern_any.as_js_value() }
+	unsafe fn read_unchecked(slot: ReceiverSlot<'h>) -> &'h ExternAny {
+		unsafe { slot.any }
 	}
 }

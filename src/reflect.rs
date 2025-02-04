@@ -1,16 +1,13 @@
 use crate::prelude_internal::*;
 
-pub use acceptable_target::AcceptableTarget;
-
-mod acceptable_target;
-
 pub mod set;
 
 /// Get the global `Reflect` namespace object
 #[inline]
 pub fn reflect() -> ExternReflectNs {
 	let inner = raw::REFLECT.with(Clone::clone);
-	let inner = unsafe { ExternObject::from_js_value_unchecked(inner) };
+	let inner = ExternAny::from_js_value(inner);
+	let inner = unsafe { ExternObject::from_any_unchecked(inner) };
 	ExternReflectNs { inner }
 }
 
@@ -44,6 +41,7 @@ impl Deref for ExternReflectNs {
 
 mod raw {
 	use super::*;
+	use wasm_bindgen::JsValue;
 
 	#[wasm_bindgen]
 	extern {

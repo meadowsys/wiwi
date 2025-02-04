@@ -53,7 +53,6 @@ mod prelude_internal {
 	pub use crate::sealed::Sealed;
 	pub use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
 	pub use std::ops::Deref;
-	pub use wasm_bindgen::JsValue;
 
 	#[deprecated(note = "nei")]
 	#[inline]

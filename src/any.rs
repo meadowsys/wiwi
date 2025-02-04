@@ -1,4 +1,4 @@
-use crate::prelude_internal::*;
+use wasm_bindgen::JsValue;
 
 #[repr(transparent)]
 pub struct ExternAny {
@@ -25,5 +25,14 @@ impl ExternAny {
 	#[inline]
 	pub fn into_js_value(self) -> JsValue {
 		self.inner
+	}
+
+	#[inline]
+	#[expect(
+		clippy::should_implement_trait,
+		reason = "shshshhshhshhshsh"
+	)]
+	pub fn from_str(s: &str) -> Self {
+		Self::from_js_value(JsValue::from_str(s))
 	}
 }
