@@ -272,31 +272,33 @@ unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h JsValue {
 	}
 }
 
-unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {
+unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {}
+unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h str {
 	type Result = JsValue;
 
 	#[inline]
-	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
+	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
 		*slot = PropertyKeySlot { str: self }
 	}
 
 	#[inline]
-	unsafe fn read(slot: PropertyKeySlot<'h>) -> JsValue {
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> JsValue {
 		unsafe { JsValue::from_str(slot.str) }
 	}
 }
 
-unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h String {
+unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h String {}
+unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h String {
 	type Result = JsValue;
 
 	#[inline]
-	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
-		unsafe { (**self).write(slot) }
+	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
+		unsafe { (**self).write_unchecked(slot) }
 	}
 
 	#[inline]
-	unsafe fn read(slot: PropertyKeySlot<'h>) -> JsValue {
-		unsafe { <&str>::read(slot) }
+	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> JsValue {
+		unsafe { <&str>::read_unchecked(slot) }
 	}
 }
 

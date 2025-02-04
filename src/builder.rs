@@ -69,33 +69,29 @@ where
 	T: ?Sized
 {}
 
-pub unsafe trait AcceptableInSlot<T> {
-	type Result: Sized;
-	unsafe fn write(self, slot: &mut T);
-	unsafe fn read(slot: T) -> Self::Result;
+pub unsafe trait AcceptableInSlot<T>
+where
+	Self: AcceptableInSlotUnchecked<T>
+{
+
+	#[inline]
+	unsafe fn write(self, slot: &mut T) {
+		unsafe { self.write_unchecked(slot) }
+	}
+
+	#[inline]
+	unsafe fn read(slot: T) -> Self::Result {
+		unsafe { Self::read_unchecked(slot) }
+	}
 }
 
-pub unsafe trait AcceptableInSlotUnchecked<T> {
+pub unsafe trait AcceptableInSlotUnchecked<T>
+where
+	Self: Sized
+{
 	type Result: Sized;
 	unsafe fn write_unchecked(self, slot: &mut T);
 	unsafe fn read_unchecked(slot: T) -> Self::Result;
-}
-
-unsafe impl<T, T2> AcceptableInSlotUnchecked<T2> for T
-where
-	T: AcceptableInSlot<T2>
-{
-	type Result = <Self as AcceptableInSlot<T2>>::Result;
-
-	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut T2) {
-		unsafe { self.write(slot) }
-	}
-
-	#[inline]
-	unsafe fn read_unchecked(slot: T2) -> Self::Result {
-		unsafe { T::read(slot) }
-	}
 }
 
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
