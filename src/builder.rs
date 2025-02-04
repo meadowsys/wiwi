@@ -108,7 +108,9 @@ pub(crate) use unsafe_assume_init;
 
 macro_rules! gen_state {
 	{
-		$state:ident $state_container:ident
+		$state:ident
+		$state_container:ident
+		$state_uninit:ident
 		$($field:ident $field_init:ident)*
 	} => {
 		pub trait $state {
@@ -126,6 +128,14 @@ macro_rules! gen_state {
 			__marker: $crate::prelude_internal::PhantomDataInvariant<(
 				$($field),*
 			)>
+		}
+
+		$crate::builder::gen_state! {
+			@impl gen_uninit
+			$state_container
+			$state_uninit
+			{}
+			{ $($field)* }
 		}
 
 		impl<$(
@@ -201,6 +211,40 @@ macro_rules! gen_state {
 		type $field_init = $state_container<
 			$($field_prev,)*
 			$crate::builder::Init
+		>;
+	};
+
+	{
+		@impl gen_uninit
+		$state_container:ident
+		$state_uninit:ident
+		{ $(($($uninit_ty:tt)*))* }
+		{
+			$field:ident
+			$($field_rest:ident)*
+		}
+	} => {
+		$crate::builder::gen_state! {
+			@impl gen_uninit
+			$state_container
+			$state_uninit
+			{
+				$(($($uninit_ty)*))*
+				(crate::builder::Uninit)
+			}
+			{ $($field_rest)* }
+		}
+	};
+
+	{
+		@impl gen_uninit
+		$state_container:ident
+		$state_uninit:ident
+		{ $(($($uninit_ty:tt)*))* }
+		{}
+	} => {
+		pub type $state_uninit = $state_container<
+			$($($uninit_ty)*),*
 		>;
 	};
 }

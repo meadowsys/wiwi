@@ -1,7 +1,7 @@
 use crate::prelude_internal::*;
 
 gen_state! {
-	State StateContainer
+	State StateContainer StateUninit
 
 	Target TargetInit
 	PropertyKey PropertyKeyInit
