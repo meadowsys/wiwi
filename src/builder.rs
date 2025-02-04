@@ -18,8 +18,11 @@ pub struct Uninit {
 	__private: ()
 }
 
-pub struct Init {
-	__private: ()
+pub struct Init<T = ()>
+where
+	T: ?Sized
+{
+	__marker: PhantomDataInvariant<T>
 }
 
 /// Trait for marker structs to hold state about if a field in
@@ -38,7 +41,10 @@ unsafe impl InitStatus for Uninit {
 	const IS_INIT: bool = false;
 }
 
-unsafe impl InitStatus for Init {
+unsafe impl<T> InitStatus for Init<T>
+where
+	T: ?Sized
+{
 	const IS_INIT: bool = true;
 }
 
@@ -58,7 +64,10 @@ unsafe impl IsUninit for Uninit {}
 /// Marker struct must actually represent an initialised state.
 pub unsafe trait IsInit: InitStatus {}
 
-unsafe impl IsInit for Init {}
+unsafe impl<T> IsInit for Init<T>
+where
+	T: ?Sized
+{}
 
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
