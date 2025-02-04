@@ -188,7 +188,36 @@ pub union TargetSlot<'h> {
 
 pub union PropertyKeySlot<'h> {
 	uninit: (),
-	extern_any: &'h ExternAny
+	extern_any: &'h ExternAny,
+	str: &'h str
+}
+
+unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {
+	type Result = JsValue;
+
+	#[inline]
+	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
+		*slot = PropertyKeySlot { str: self }
+	}
+
+	#[inline]
+	unsafe fn read(slot: PropertyKeySlot<'h>) -> JsValue {
+		unsafe { JsValue::from_str(slot.str) }
+	}
+}
+
+unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h String {
+	type Result = JsValue;
+
+	#[inline]
+	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
+		unsafe { (**self).write(slot) }
+	}
+
+	#[inline]
+	unsafe fn read(slot: PropertyKeySlot<'h>) -> JsValue {
+		unsafe { <&str>::read(slot) }
+	}
 }
 
 pub union ValueSlot<'h> {
