@@ -215,6 +215,6 @@ where
 		S2: State
 	{
 		// SAFETY: `Builder` is repr(transparent) over `BuilderInner`
-		unsafe { std::mem::transmute(self) }
+		unsafe { transmute(self) }
 	}
 }
