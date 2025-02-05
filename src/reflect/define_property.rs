@@ -1,4 +1,4 @@
-//! Builder for `reflect.define_property()` and supporting elements
+//! Builder for `Reflect.define_property()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;
@@ -13,6 +13,7 @@ use super::raw;
 // - todo impl builder uninit
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
+//   Reflect.defineProperty(target, propertyKey, attributes)
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 

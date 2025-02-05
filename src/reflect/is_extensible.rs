@@ -1,4 +1,4 @@
-//! Builder for `reflect.is_extensible()` and supporting elements
+//! Builder for `Reflect.is_extensible()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;
@@ -13,6 +13,7 @@ use super::raw;
 // - todo impl builder uninit
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
+//   Reflect.isExtensible(target)
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 
