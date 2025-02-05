@@ -29,3 +29,8 @@ gen_state! {
 // - todo target slot union definitions (will want `uninit`, likely will
 //   want `any`, and whatever other incompatible types in there), and
 //   associated impls (`Slot` and `SlotUnchecked` impls etc)
+
+pub union TargetSlot<'h> {
+	uninit: (),
+	any: &'h ExternAny
+}
