@@ -1,7 +1,18 @@
 use crate::prelude_internal::*;
 
+pub mod apply;
+pub mod construct;
+pub mod define_property;
+pub mod delete_property;
+pub mod get;
+pub mod get_own_property_descriptor;
+pub mod get_prototype_of;
+pub mod has;
+pub mod is_extensible;
+pub mod own_keys;
 pub mod prevent_extensions;
 pub mod set;
+pub mod set_prototype_of;
 
 /// Get the global `Reflect` namespace object
 #[inline]
