@@ -1,5 +1,6 @@
 use crate::prelude_internal::*;
 
+/// Get the global `Number` namespace object
 #[inline]
 pub fn number() -> ExternNumberNs {
 	let inner = raw::NUMBER.with(Clone::clone);
@@ -8,11 +9,13 @@ pub fn number() -> ExternNumberNs {
 	ExternNumberNs { inner }
 }
 
+/// Global `Number` namespace
 #[repr(transparent)]
 pub struct ExternNumberNs {
 	inner: ExternObject
 }
 
+/// `number` primitive type
 #[repr(transparent)]
 pub struct ExternNumber {
 	inner: ExternAny
@@ -34,6 +37,7 @@ impl Deref for ExternNumber {
 	}
 }
 
+/// `Number` wrapper object
 #[repr(transparent)]
 pub struct ExternNumberObject {
 	inner: ExternObject

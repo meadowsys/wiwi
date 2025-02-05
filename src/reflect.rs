@@ -23,6 +23,7 @@ pub fn reflect() -> ExternReflectNs {
 	ExternReflectNs { inner }
 }
 
+/// Global `Reflect` namespace
 #[repr(transparent)]
 pub struct ExternReflectNs {
 	inner: ExternObject

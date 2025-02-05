@@ -8,6 +8,7 @@ pub fn object() -> ExternObjectNs {
 	ExternObjectNs { inner }
 }
 
+/// Global `Object` namespace
 #[repr(transparent)]
 pub struct ExternObjectNs {
 	inner: ExternObject
@@ -25,6 +26,7 @@ impl ExternObjectNs {
 	}
 }
 
+/// `object` type
 #[repr(transparent)]
 pub struct ExternObject {
 	inner: ExternAny

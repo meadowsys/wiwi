@@ -1,5 +1,6 @@
 use crate::prelude_internal::*;
 
+/// Get the global `BigInt` namespace object
 #[inline]
 pub fn bigint() -> ExternBigintNs {
 	let inner = raw::BIGINT.with(Clone::clone);
@@ -8,11 +9,13 @@ pub fn bigint() -> ExternBigintNs {
 	ExternBigintNs { inner }
 }
 
+/// Global `BigInt` namespace
 #[repr(transparent)]
 pub struct ExternBigintNs {
 	inner: ExternObject
 }
 
+/// `bigint` primitive type
 #[repr(transparent)]
 pub struct ExternBigint {
 	inner: ExternAny
