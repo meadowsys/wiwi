@@ -56,9 +56,9 @@ impl Builder<'static, StateUninit> {
 
 impl<
 	'h,
-	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<ExternAny>>,
-	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<ExternAny>>,
-	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<ExternAny>>
+	Target: SlotUnchecked<TargetSlot<'h>>,
+	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
+	Value: SlotUnchecked<ValueSlot<'h>>
 > Builder<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
@@ -86,10 +86,10 @@ impl<
 
 impl<
 	'h,
-	Target: AcceptableInSlot<TargetSlot<'h>, Result: AsRef<ExternAny>>,
-	PropertyKey: AcceptableInSlot<PropertyKeySlot<'h>, Result: AsRef<ExternAny>>,
-	Value: AcceptableInSlot<ValueSlot<'h>, Result: AsRef<ExternAny>>,
-	Receiver: AcceptableInSlot<ReceiverSlot<'h>, Result: AsRef<ExternAny>>
+	Target: SlotUnchecked<TargetSlot<'h>>,
+	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
+	Value: SlotUnchecked<ValueSlot<'h>>,
+	Receiver: SlotUnchecked<ReceiverSlot<'h>>
 > Builder<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
@@ -128,7 +128,7 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: AcceptableInSlot<TargetSlot<'h2>, Result: AsRef<ExternAny>>
+		T: Slot<TargetSlot<'h2>>
 	{
 		unsafe { self.target_unchecked(target) }
 	}
@@ -141,9 +141,9 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: AcceptableInSlotUnchecked<TargetSlot<'h2>, Result: AsRef<ExternAny>>
+		T: SlotUnchecked<TargetSlot<'h2>>
 	{
-		unsafe { self.change_state(|b| target.write_unchecked(&mut b.inner.target)) }
+		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
 	}
 
 	#[inline]
@@ -154,7 +154,7 @@ where
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
-		T: AcceptableInSlot<PropertyKeySlot<'h2>, Result: AsRef<ExternAny>>
+		T: Slot<PropertyKeySlot<'h2>>
 	{
 		unsafe { self.property_key_unchecked(property_key) }
 	}
@@ -167,9 +167,9 @@ where
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
-		T: AcceptableInSlotUnchecked<PropertyKeySlot<'h2>, Result: AsRef<ExternAny>>
+		T: SlotUnchecked<PropertyKeySlot<'h2>>
 	{
-		unsafe { self.change_state(|b| property_key.write_unchecked(&mut b.inner.property_key)) }
+		unsafe { self.change_state(|b| property_key.write(&mut b.inner.property_key)) }
 	}
 
 	#[inline]
@@ -180,7 +180,7 @@ where
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
-		T: AcceptableInSlot<ValueSlot<'h2>, Result: AsRef<ExternAny>>
+		T: Slot<ValueSlot<'h2>>
 	{
 		unsafe { self.value_unchecked(value) }
 	}
@@ -193,9 +193,9 @@ where
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
-		T: AcceptableInSlotUnchecked<ValueSlot<'h2>, Result: AsRef<ExternAny>>
+		T: SlotUnchecked<ValueSlot<'h2>>
 	{
-		unsafe { self.change_state(|b| value.write_unchecked(&mut b.inner.value)) }
+		unsafe { self.change_state(|b| value.write(&mut b.inner.value)) }
 	}
 
 	#[inline]
@@ -206,7 +206,7 @@ where
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,
-		T: AcceptableInSlot<ReceiverSlot<'h2>, Result: AsRef<ExternAny>>
+		T: Slot<ReceiverSlot<'h2>>
 	{
 		unsafe { self.receiver_unchecked(receiver) }
 	}
@@ -219,9 +219,9 @@ where
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,
-		T: AcceptableInSlotUnchecked<ReceiverSlot<'h2>, Result: AsRef<ExternAny>>
+		T: SlotUnchecked<ReceiverSlot<'h2>>
 	{
-		unsafe { self.change_state(|b| receiver.write_unchecked(&mut b.inner.receiver)) }
+		unsafe { self.change_state(|b| receiver.write(&mut b.inner.receiver)) }
 	}
 
 	#[inline]
@@ -246,17 +246,22 @@ pub union TargetSlot<'h> {
 	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<TargetSlot<'h>> for &'h ExternAny {
+unsafe impl<'h> SlotUnchecked<TargetSlot<'h>> for &'h ExternAny {
 	type Result = &'h ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut TargetSlot<'h>) {
+	unsafe fn write(self, slot: &mut TargetSlot<'h>) {
 		*slot = TargetSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: TargetSlot<'h>) -> &'h ExternAny {
+	unsafe fn read(slot: TargetSlot<'h>) -> &'h ExternAny {
 		unsafe { slot.any }
+	}
+
+	#[inline]
+	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
+		result
 	}
 }
 
@@ -266,47 +271,62 @@ pub union PropertyKeySlot<'h> {
 	str: &'h str
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h ExternAny {
+unsafe impl<'h> SlotUnchecked<PropertyKeySlot<'h>> for &'h ExternAny {
 	type Result = &'h ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
+	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
 		*slot = PropertyKeySlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> &'h ExternAny {
+	unsafe fn read(slot: PropertyKeySlot<'h>) -> &'h ExternAny {
 		unsafe { slot.any }
+	}
+
+	#[inline]
+	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
+		result
 	}
 }
 
-unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h str {}
-unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h str {
+unsafe impl<'h> Slot<PropertyKeySlot<'h>> for &'h str {}
+unsafe impl<'h> SlotUnchecked<PropertyKeySlot<'h>> for &'h str {
 	type Result = ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
+	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
 		*slot = PropertyKeySlot { str: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> ExternAny {
+	unsafe fn read(slot: PropertyKeySlot<'h>) -> ExternAny {
 		unsafe { ExternAny::from_str(slot.str) }
+	}
+
+	#[inline]
+	fn as_ref(result: &ExternAny) -> &ExternAny {
+		result
 	}
 }
 
-unsafe impl<'h> AcceptableInSlot<PropertyKeySlot<'h>> for &'h String {}
-unsafe impl<'h> AcceptableInSlotUnchecked<PropertyKeySlot<'h>> for &'h String {
+unsafe impl<'h> Slot<PropertyKeySlot<'h>> for &'h String {}
+unsafe impl<'h> SlotUnchecked<PropertyKeySlot<'h>> for &'h String {
 	type Result = ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut PropertyKeySlot<'h>) {
-		unsafe { (**self).write_unchecked(slot) }
+	unsafe fn write(self, slot: &mut PropertyKeySlot<'h>) {
+		unsafe { <&str>::write(self, slot) }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: PropertyKeySlot<'h>) -> ExternAny {
-		unsafe { <&str>::read_unchecked(slot) }
+	unsafe fn read(slot: PropertyKeySlot<'h>) -> ExternAny {
+		unsafe { <&str>::read(slot) }
+	}
+
+	#[inline]
+	fn as_ref(result: &ExternAny) -> &ExternAny {
+		result
 	}
 }
 
@@ -315,17 +335,22 @@ pub union ValueSlot<'h> {
 	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<ValueSlot<'h>> for &'h ExternAny {
+unsafe impl<'h> SlotUnchecked<ValueSlot<'h>> for &'h ExternAny {
 	type Result = &'h ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut ValueSlot<'h>) {
+	unsafe fn write(self, slot: &mut ValueSlot<'h>) {
 		*slot = ValueSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: ValueSlot<'h>) -> &'h ExternAny {
+	unsafe fn read(slot: ValueSlot<'h>) -> &'h ExternAny {
 		unsafe { slot.any }
+	}
+
+	#[inline]
+	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
+		result
 	}
 }
 
@@ -334,16 +359,21 @@ pub union ReceiverSlot<'h> {
 	any: &'h ExternAny
 }
 
-unsafe impl<'h> AcceptableInSlotUnchecked<ReceiverSlot<'h>> for &'h ExternAny {
+unsafe impl<'h> SlotUnchecked<ReceiverSlot<'h>> for &'h ExternAny {
 	type Result = &'h ExternAny;
 
 	#[inline]
-	unsafe fn write_unchecked(self, slot: &mut ReceiverSlot<'h>) {
+	unsafe fn write(self, slot: &mut ReceiverSlot<'h>) {
 		*slot = ReceiverSlot { any: self }
 	}
 
 	#[inline]
-	unsafe fn read_unchecked(slot: ReceiverSlot<'h>) -> &'h ExternAny {
+	unsafe fn read(slot: ReceiverSlot<'h>) -> &'h ExternAny {
 		unsafe { slot.any }
+	}
+
+	#[inline]
+	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
+		result
 	}
 }

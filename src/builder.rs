@@ -69,29 +69,19 @@ where
 	T: ?Sized
 {}
 
-pub unsafe trait AcceptableInSlot<T>
+pub unsafe trait Slot<T>
 where
-	Self: AcceptableInSlotUnchecked<T>
-{
+	Self: SlotUnchecked<T>
+{}
 
-	#[inline]
-	unsafe fn write(self, slot: &mut T) {
-		unsafe { self.write_unchecked(slot) }
-	}
-
-	#[inline]
-	unsafe fn read(slot: T) -> Self::Result {
-		unsafe { Self::read_unchecked(slot) }
-	}
-}
-
-pub unsafe trait AcceptableInSlotUnchecked<T>
+pub unsafe trait SlotUnchecked<T>
 where
 	Self: Sized
 {
 	type Result: Sized;
-	unsafe fn write_unchecked(self, slot: &mut T);
-	unsafe fn read_unchecked(slot: T) -> Self::Result;
+	unsafe fn write(self, slot: &mut T);
+	unsafe fn read(slot: T) -> Self::Result;
+	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
 
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
@@ -151,7 +141,7 @@ macro_rules! read_slots {
 	} => {
 		$(
 			let $ident = $ty::read($self.inner.$ident);
-			let $ident = AsRef::<ExternAny>::as_ref(&$ident).as_js_value();
+			let $ident = $ty::as_ref(&$ident).as_js_value();
 		)*
 	}
 }
