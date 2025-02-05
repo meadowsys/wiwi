@@ -1,3 +1,5 @@
+//! Builder for `reflect.get_prototype_of()` and supporting elements
+
 use crate::prelude_internal::*;
 use super::raw;
 

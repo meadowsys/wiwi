@@ -1,3 +1,5 @@
+//! Builder for `reflect.prevent_extensions()` and supporting elements
+
 use crate::prelude_internal::*;
 use super::raw;
 

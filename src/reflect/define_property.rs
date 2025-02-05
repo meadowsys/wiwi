@@ -1,3 +1,5 @@
+//! Builder for `reflect.define_property()` and supporting elements
+
 use crate::prelude_internal::*;
 use super::raw;
 

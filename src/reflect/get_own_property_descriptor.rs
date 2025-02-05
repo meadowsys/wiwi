@@ -1,3 +1,5 @@
+//! Builder for `reflect.get_own_property_descriptor()` and supporting elements
+
 use crate::prelude_internal::*;
 use super::raw;
 
