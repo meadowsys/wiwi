@@ -1,7 +1,8 @@
 #![allow(
 	dead_code,
+	unused_imports,
 	clippy::missing_safety_doc,
-	reason = "wip"
+	reason = "wip (todo remove me)"
 )]
 #![deny(
 	unconditional_recursion,
