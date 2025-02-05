@@ -9,6 +9,19 @@ use super::raw;
 
 // - todo `gen_state!` invocation (generates state trait, state
 //   container struct, uninit type def, impl state for statecontainer)
+gen_state! {
+	State
+	StateContainer
+	StateUninit
+
+	Target
+	TargetInit
+	TargetInitWith
+
+	PropertyKey
+	PropertyKeyInit
+	PropertyKeyInitWith
+}
 
 // - todo impl builder uninit
 
