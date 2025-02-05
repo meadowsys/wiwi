@@ -1,5 +1,6 @@
 use crate::prelude_internal::*;
 
+pub mod prevent_extensions;
 pub mod set;
 
 /// Get the global `Reflect` namespace object
@@ -209,16 +210,16 @@ mod raw {
 		// 	// throws TypeError
 		// ) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = preventExtensions,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn prevent_extensions(
-		// 	target: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = preventExtensions,
+			catch
+		)]
+		pub(crate) unsafe fn prevent_extensions(
+			target: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
 			js_namespace = Reflect,
