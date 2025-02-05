@@ -35,4 +35,10 @@ impl ExternAny {
 	pub fn from_str(s: &str) -> Self {
 		Self::from_js_value(JsValue::from_str(s))
 	}
+
+	// todo return string
+	#[inline]
+	pub fn do_typeof(&self) -> Self {
+		Self::from_js_value(self.as_js_value().js_typeof())
+	}
 }
