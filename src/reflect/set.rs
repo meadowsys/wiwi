@@ -67,8 +67,9 @@ impl<
 >> {
 	/// Executes `Reflect.set(target, property_key, value)`
 	// todo make the return types better
+	// returns boolean, do unwrap unchecked
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn execute(self) -> ExternAny {
 		unsafe {
 			read_slots! {
 				self
@@ -77,9 +78,12 @@ impl<
 				value: Value
 			}
 
-			raw::set3(target, property_key, value)
-				.map(ExternAny::from_js_value)
-				.map_err(ExternAny::from_js_value)
+			let raw = raw::set3(
+				target,
+				property_key,
+				value
+			).unwrap_unchecked();
+			ExternAny::from_js_value(raw)
 		}
 	}
 }
@@ -98,8 +102,9 @@ impl<
 >> {
 	/// Executes `Reflect.set(target, property_key, value, receiver)`
 	// todo make the return types better
+	// returns boolean, do unwrap unchecked
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn execute(self) -> ExternAny {
 		unsafe {
 			read_slots! {
 				self
@@ -109,9 +114,13 @@ impl<
 				receiver: Receiver
 			}
 
-			raw::set4(target, property_key, value, receiver)
-				.map(ExternAny::from_js_value)
-				.map_err(ExternAny::from_js_value)
+			let raw = raw::set4(
+				target,
+				property_key,
+				value,
+				receiver
+			).unwrap_unchecked();
+			ExternAny::from_js_value(raw)
 		}
 	}
 }
