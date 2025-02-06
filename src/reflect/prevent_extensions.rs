@@ -65,6 +65,8 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
+	gen_change_state!('h);
+
 	#[inline]
 	pub fn target<'h2, T>(
 		self,
@@ -90,6 +92,4 @@ where
 	{
 		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
 	}
-
-	gen_change_state!('h);
 }
