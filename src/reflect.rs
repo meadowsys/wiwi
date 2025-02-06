@@ -207,32 +207,32 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = get,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn get2(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue
-		// 	// returns value of property
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = get,
+			catch
+		)]
+		pub(crate) unsafe fn get2(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue
+			// returns value of property
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = get,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn get3(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue,
-		// 	receiver: &JsValue
-		// 	// returns value of property
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = get,
+			catch
+		)]
+		pub(crate) unsafe fn get3(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue,
+			receiver: &JsValue
+			// returns value of property
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
 			js_namespace = Reflect,

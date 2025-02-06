@@ -55,6 +55,61 @@ impl Builder<'static, StateUninit> {
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.get(target, propertyKey)
 //   Reflect.get(target, propertyKey, receiver)
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
+	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>,
+	Init<PropertyKey>,
+	Uninit
+>> {
+	/// Executes `Reflect.get(target, propertyKey)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+				property_key: PropertyKey
+			}
+
+			raw::get2(target, property_key)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
+
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
+	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
+	Receiver: SlotUnchecked<ReceiverSlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>,
+	Init<PropertyKey>,
+	Init<Receiver>
+>> {
+	/// Executes `Reflect.get(target, propertyKey, receiver)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+				property_key: PropertyKey
+				receiver: Receiver
+			}
+
+			raw::get3(target, property_key, receiver)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 impl<'h, S> Builder<'h, S>
