@@ -57,21 +57,7 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	#[inline]
-	unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
-	where
-		'h: 'h2,
-		S2: State,
-		F: FnOnce(&mut Builder<'h2, S2>)
-	{
-		let mut changed = Builder {
-			inner: self.inner,
-			__marker: PhantomData
-		};
-
-		f(&mut changed);
-		changed
-	}
+	gen_change_state!('h);
 }
 
 // - todo target slot union definitions (will want `uninit`, likely will

@@ -384,3 +384,41 @@ macro_rules! gen_state {
 	};
 }
 pub(crate) use gen_state;
+
+macro_rules! gen_change_state {
+	('h) => {
+		#[inline]
+		unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
+		where
+			'h: 'h2,
+			S2: State,
+			F: FnOnce(&mut Builder<'h2, S2>)
+		{
+			let mut changed = Builder {
+				inner: self.inner,
+				__marker: PhantomData
+			};
+
+			f(&mut changed);
+			changed
+		}
+	};
+
+	() => {
+		#[inline]
+		unsafe fn change_state<S2, F>(self, f: F) -> Builder<S2>
+		where
+			S2: State,
+			F: FnOnce(&mut Builder<S2>)
+		{
+			let mut changed = Builder {
+				inner: self.inner,
+				__marker: PhantomData
+			};
+
+			f(&mut changed);
+			changed
+		}
+	};
+}
+pub(crate) use gen_change_state;
