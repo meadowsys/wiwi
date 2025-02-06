@@ -142,10 +142,7 @@ mod raw {
 		pub(crate) unsafe fn apply(
 			target: &JsValue,
 			this_argument: &JsValue,
-			// array-like
 			arguments_list: &JsValue,
-			// returns result of calling given target function
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -154,13 +151,8 @@ mod raw {
 			catch
 		)]
 		pub(crate) unsafe fn construct2(
-			// function
 			target: &JsValue,
-			// array-like
 			arguments_list: &JsValue
-			// returns new instance of target, init by target as constructor
-			// and given arguments_list
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -169,14 +161,9 @@ mod raw {
 			catch
 		)]
 		pub(crate) unsafe fn construct3(
-			// function
 			target: &JsValue,
-			// array-like
 			arguments_list: &JsValue,
 			new_target: &JsValue
-			// returns new instance of new_target, init by target as constructor
-			// and given arguments_list
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -185,13 +172,9 @@ mod raw {
 			catch
 		)]
 		pub(crate) unsafe fn define_property(
-			// object
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue,
 			attributes: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -201,10 +184,7 @@ mod raw {
 		)]
 		pub(crate) unsafe fn delete_property(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -214,10 +194,7 @@ mod raw {
 		)]
 		pub(crate) unsafe fn get2(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue
-			// returns value of property
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -227,11 +204,8 @@ mod raw {
 		)]
 		pub(crate) unsafe fn get3(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue,
 			receiver: &JsValue
-			// returns value of property
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -241,10 +215,7 @@ mod raw {
 		)]
 		pub(crate) unsafe fn get_own_property_descriptor(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue
-			// returns property descriptor object or undefined
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -254,8 +225,6 @@ mod raw {
 		)]
 		pub(crate) unsafe fn get_prototype_of(
 			target: &JsValue
-			// returns prototype (obj or null)
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -264,10 +233,7 @@ mod raw {
 		)]
 		pub(crate) unsafe fn has(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -277,8 +243,6 @@ mod raw {
 		)]
 		pub(crate) unsafe fn is_extensible(
 			target: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -288,9 +252,6 @@ mod raw {
 		)]
 		pub(crate) unsafe fn own_keys(
 			target: &JsValue
-			// returns array of target's own property keys
-			// (incl strings and symbols)
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -300,8 +261,6 @@ mod raw {
 		)]
 		pub(crate) unsafe fn prevent_extensions(
 			target: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -311,12 +270,8 @@ mod raw {
 		)]
 		pub(crate) unsafe fn set3(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue,
-			// value to set
 			value: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -326,12 +281,9 @@ mod raw {
 		)]
 		pub(crate) unsafe fn set4(
 			target: &JsValue,
-			// name of property (string? or autocast?)
 			property_key: &JsValue,
 			value: &JsValue,
 			receiver: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
@@ -341,10 +293,7 @@ mod raw {
 		)]
 		pub(crate) unsafe fn set_prototype_of(
 			target: &JsValue,
-			// new prototype (object or null)
 			prototype: &JsValue
-			// returns bool
-			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 	}
 }
