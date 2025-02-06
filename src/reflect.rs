@@ -247,16 +247,16 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = getPrototypeOf,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn get_prototype_of(
-		// 	target: &JsValue
-		// 	// returns prototype (obj or null)
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = getPrototypeOf,
+			catch
+		)]
+		pub(crate) unsafe fn get_prototype_of(
+			target: &JsValue
+			// returns prototype (obj or null)
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
