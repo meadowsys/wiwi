@@ -44,6 +44,28 @@ impl Builder<'static, StateUninit> {
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.ownKeys(target)
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>
+>> {
+	/// Executes `Reflect.ownKeys(target)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+			}
+
+			raw::own_keys(target)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 impl<'h, S> Builder<'h, S>

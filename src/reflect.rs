@@ -281,17 +281,17 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = ownKeys,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn own_keys(
-		// 	target: &JsValue
-		// 	// returns array of target's own property keys
-		// 	// (incl strings and symbols)
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = ownKeys,
+			catch
+		)]
+		pub(crate) unsafe fn own_keys(
+			target: &JsValue
+			// returns array of target's own property keys
+			// (incl strings and symbols)
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		#[wasm_bindgen(
 			js_namespace = Reflect,
