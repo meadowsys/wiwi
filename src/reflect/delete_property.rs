@@ -28,11 +28,9 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 
 	PropertyKey
 	PropertyKeyInit
-	PropertyKeyInitWith
 }
 
 // - todo impl builder uninit
