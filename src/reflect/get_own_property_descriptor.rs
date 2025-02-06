@@ -36,6 +36,18 @@ gen_state! {
 }
 
 // - todo impl builder uninit
+impl Builder<'static, StateUninit> {
+	#[inline]
+	pub(super) fn new() -> Self {
+		Self {
+			inner: BuilderInner {
+				target: ObjectSlot::uninit(),
+				property_key: PropertyKeySlot { uninit: () }
+			},
+			__marker: PhantomData
+		}
+	}
+}
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.getOwnPropertyDescriptor(target, propertyKey)

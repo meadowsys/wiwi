@@ -38,6 +38,19 @@ gen_state! {
 }
 
 // - todo impl builder uninit
+impl Builder<'static, StateUninit> {
+	#[inline]
+	pub(super) fn new() -> Self {
+		Self {
+			inner: BuilderInner {
+				target: ObjectSlot::uninit(),
+				arguments_list: ArgumentsListSlot { uninit: () },
+				new_target: ObjectSlot::uninit()
+			},
+			__marker: PhantomData
+		}
+	}
+}
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.construct(target, argumentsList)
