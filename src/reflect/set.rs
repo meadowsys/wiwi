@@ -63,7 +63,7 @@ impl<
 	Init<Value>,
 	Uninit
 >> {
-	/// Executes `Reflect.set(target, property_key, value)`
+	/// Executes `Reflect.set(target, propertyKey, value)`
 	// todo make the return types better
 	// returns boolean
 	#[inline]
@@ -98,7 +98,7 @@ impl<
 	Init<Value>,
 	Init<Receiver>
 >> {
-	/// Executes `Reflect.set(target, property_key, value, receiver)`
+	/// Executes `Reflect.set(target, propertyKey, value, receiver)`
 	// todo make the return types better
 	// returns boolean
 	#[inline]
