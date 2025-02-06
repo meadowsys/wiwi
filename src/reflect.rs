@@ -148,36 +148,36 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = construct,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn construct2(
-		// 	// function
-		// 	target: &JsValue,
-		// 	// array-like
-		// 	arguments_list: &JsValue
-		// 	// returns new instance of target, init by target as constructor
-		// 	// and given arguments_list
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = construct,
+			catch
+		)]
+		pub(crate) unsafe fn construct2(
+			// function
+			target: &JsValue,
+			// array-like
+			arguments_list: &JsValue
+			// returns new instance of target, init by target as constructor
+			// and given arguments_list
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = construct,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn construct3(
-		// 	// function
-		// 	target: &JsValue,
-		// 	// array-like
-		// 	arguments_list: &JsValue,
-		// 	new_target: &JsValue
-		// 	// returns new instance of new_target, init by target as constructor
-		// 	// and given arguments_list
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = construct,
+			catch
+		)]
+		pub(crate) unsafe fn construct3(
+			// function
+			target: &JsValue,
+			// array-like
+			arguments_list: &JsValue,
+			new_target: &JsValue
+			// returns new instance of new_target, init by target as constructor
+			// and given arguments_list
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,

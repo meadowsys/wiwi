@@ -55,6 +55,61 @@ impl Builder<'static, StateUninit> {
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.construct(target, argumentsList)
 //   Reflect.construct(target, argumentsList, newTarget)
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
+	ArgumentsList: SlotUnchecked<ArgumentsListSlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>,
+	Init<ArgumentsList>,
+	Uninit
+>> {
+	/// Executes `Reflect.construct(target, argumentsList)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+				arguments_list: ArgumentsList
+			}
+
+			raw::construct2(target, arguments_list)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
+
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
+	ArgumentsList: SlotUnchecked<ArgumentsListSlot<'h>>,
+	NewTarget: SlotUnchecked<ObjectSlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>,
+	Init<ArgumentsList>,
+	Init<NewTarget>
+>> {
+	/// Executes `Reflect.construct(target, argumentsList, newTarget)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+				arguments_list: ArgumentsList
+				new_target: NewTarget
+			}
+
+			raw::construct3(target, arguments_list, new_target)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 
