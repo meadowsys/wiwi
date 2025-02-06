@@ -49,17 +49,11 @@ mod string;
 	reason = "prelude"
 )]
 mod prelude_internal {
-	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
-	pub use crate::builder::*;
-	pub use crate::slot::*;
-	pub use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
-	pub use std::ops::Deref;
-
-	#[deprecated(note = "nei")]
-	#[inline]
-	pub fn uninit<T>() -> MaybeUninit<T> {
-		MaybeUninit::uninit()
-	}
+	pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
+	pub(crate) use crate::builder::*;
+	pub(crate) use crate::slot::*;
+	pub(crate) use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
+	pub(crate) use std::ops::Deref;
 }
 
 #[allow(
@@ -69,6 +63,6 @@ mod prelude_internal {
 )]
 #[cfg(test)]
 mod prelude_test {
-	pub use wasm_bindgen_test::wasm_bindgen_test;
-	pub use std::hint::black_box;
+	pub(crate) use wasm_bindgen_test::wasm_bindgen_test;
+	pub(crate) use std::hint::black_box;
 }
