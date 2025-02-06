@@ -26,19 +26,15 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 
 	PropertyKey
 	PropertyKeyInit
-	PropertyKeyInitWith
 
 	Value
 	ValueInit
-	ValueInitWith
 
 	Receiver
 	ReceiverInit
-	ReceiverInitWith
 }
 
 impl Builder<'static, StateUninit> {
@@ -135,7 +131,7 @@ where
 	pub fn target<'h2, T>(
 		self,
 		target: T
-	) -> Builder<'h2, S::TargetInitWith<T>>
+	) -> Builder<'h2, S::TargetInit<T>>
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
@@ -148,7 +144,7 @@ where
 	pub unsafe fn target_unchecked<'h2, T>(
 		self,
 		target: T
-	) -> Builder<'h2, S::TargetInitWith<T>>
+	) -> Builder<'h2, S::TargetInit<T>>
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
@@ -161,7 +157,7 @@ where
 	pub fn property_key<'h2, T>(
 		self,
 		property_key: T
-	) -> Builder<'h2, S::PropertyKeyInitWith<T>>
+	) -> Builder<'h2, S::PropertyKeyInit<T>>
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
@@ -174,7 +170,7 @@ where
 	pub unsafe fn property_key_unchecked<'h2, T>(
 		self,
 		property_key: T
-	) -> Builder<'h2, S::PropertyKeyInitWith<T>>
+	) -> Builder<'h2, S::PropertyKeyInit<T>>
 	where
 		'h: 'h2,
 		S::PropertyKey: IsUninit,
@@ -187,7 +183,7 @@ where
 	pub fn value<'h2, T>(
 		self,
 		value: T
-	) -> Builder<'h2, S::ValueInitWith<T>>
+	) -> Builder<'h2, S::ValueInit<T>>
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
@@ -200,7 +196,7 @@ where
 	pub unsafe fn value_unchecked<'h2, T>(
 		self,
 		value: T
-	) -> Builder<'h2, S::ValueInitWith<T>>
+	) -> Builder<'h2, S::ValueInit<T>>
 	where
 		'h: 'h2,
 		S::Value: IsUninit,
@@ -213,7 +209,7 @@ where
 	pub fn receiver<'h2, T>(
 		self,
 		receiver: T
-	) -> Builder<'h2, S::ReceiverInitWith<T>>
+	) -> Builder<'h2, S::ReceiverInit<T>>
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,
@@ -226,7 +222,7 @@ where
 	pub unsafe fn receiver_unchecked<'h2, T>(
 		self,
 		receiver: T
-	) -> Builder<'h2, S::ReceiverInitWith<T>>
+	) -> Builder<'h2, S::ReceiverInit<T>>
 	where
 		'h: 'h2,
 		S::Receiver: IsUninit,

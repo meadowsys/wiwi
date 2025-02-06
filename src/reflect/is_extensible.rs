@@ -16,7 +16,6 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 }
 
 // - todo impl builder uninit

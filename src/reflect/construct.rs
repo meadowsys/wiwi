@@ -16,15 +16,12 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 
 	ArgumentsList
 	ArgumentsListInit
-	ArgumentsListInitWith
 
 	NewTarget
 	NewTargetInit
-	NewTargetInitWith
 }
 
 // - todo impl builder uninit

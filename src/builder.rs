@@ -246,14 +246,12 @@ macro_rules! gen_state {
 		$(
 			$field:ident
 			$field_init:ident
-			$field_init_with:ident
 		)*
 	} => {
 		pub trait $state {
 			$(
 				type $field: $crate::builder::InitStatus;
-				// type $field_init: $state;
-				type $field_init_with<S: ?Sized>: $state;
+				type $field_init<S: ?Sized>: $state;
 			)*
 		}
 
@@ -286,7 +284,6 @@ macro_rules! gen_state {
 				{ $(
 					$field
 					$field_init
-					$field_init_with
 				)* }
 			}
 		}
@@ -300,11 +297,9 @@ macro_rules! gen_state {
 		{
 			$field_next:ident
 			$field_init_next:ident
-			$field_init_with_next:ident
 			$(
 				$field_rest:ident
 				$field_init_rest:ident
-				$field_init_with_rest:ident
 			)*
 		}
 	} => {
@@ -315,12 +310,10 @@ macro_rules! gen_state {
 			{
 				$field_next
 				$field_init_next
-				$field_init_with_next
 			}
 			{ $(
 				$field_rest
 				$field_init_rest
-				$field_init_with_rest
 			)* }
 		}
 	};
@@ -331,32 +324,22 @@ macro_rules! gen_state {
 		{ $(
 			$field_prev:ident
 			$field_init_prev:ident
-			$field_init_with_prev:ident
 		)* }
 		{
 			$field:ident
 			$field_init:ident
-			$field_init_with:ident
 		}
 		{
 			$field_next:ident
 			$field_init_next:ident
-			$field_init_with_next:ident
 			$(
 				$field_rest:ident
 				$field_init_rest:ident
-				$field_init_with_rest:ident
 			)*
 		}
 	} => {
 		type $field = $field;
-		// type $field_init = $state_container<
-		// 	$($field_prev,)*
-		// 	$crate::builder::Init,
-		// 	$field_next,
-		// 	$($field_rest,)*
-		// >;
-		type $field_init_with<S: ?Sized> = $state_container<
+		type $field_init<S: ?Sized> = $state_container<
 			$($field_prev,)*
 			crate::builder::Init<S>,
 			$field_next,
@@ -370,22 +353,18 @@ macro_rules! gen_state {
 				$(
 					$field_prev
 					$field_init_prev
-					$field_init_with_prev
 				)*
 
 				$field
 				$field_init
-				$field_init_with
 			}
 			{
 				$field_next
 				$field_init_next
-				$field_init_with_next
 			}
 			{ $(
 				$field_rest
 				$field_init_rest
-				$field_init_with_rest
 			)* }
 		}
 	};
@@ -396,21 +375,15 @@ macro_rules! gen_state {
 		{ $(
 			$field_prev:ident
 			$field_init_prev:ident
-			$field_init_with_prev:ident
 		)* }
 		{
 			$field:ident
 			$field_init:ident
-			$field_init_with:ident
 		}
 		{}
 	} => {
 		type $field = $field;
-		// type $field_init = $state_container<
-		// 	$($field_prev,)*
-		// 	$crate::builder::Init
-		// >;
-		type $field_init_with<S: ?Sized> = $state_container<
+		type $field_init<S: ?Sized> = $state_container<
 			$($field_prev,)*
 			crate::builder::Init<S>,
 		>;

@@ -23,7 +23,6 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 }
 
 impl Builder<'static, StateUninit> {
@@ -70,7 +69,7 @@ where
 	pub fn target<'h2, T>(
 		self,
 		target: T
-	) -> Builder<'h2, S::TargetInitWith<T>>
+	) -> Builder<'h2, S::TargetInit<T>>
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
@@ -83,7 +82,7 @@ where
 	pub unsafe fn target_unchecked<'h2, T>(
 		self,
 		target: T
-	) -> Builder<'h2, S::TargetInitWith<T>>
+	) -> Builder<'h2, S::TargetInit<T>>
 	where
 		'h: 'h2,
 		S::Target: IsUninit,

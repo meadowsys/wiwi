@@ -16,15 +16,12 @@ gen_state! {
 
 	Target
 	TargetInit
-	TargetInitWith
 
 	PropertyKey
 	PropertyKeyInit
-	PropertyKeyInitWith
 
 	Receiver
 	ReceiverInit
-	ReceiverInitWith
 }
 
 // - todo impl builder uninit
