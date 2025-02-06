@@ -194,18 +194,18 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = deleteProperty,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn delete_property(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = deleteProperty,
+			catch
+		)]
+		pub(crate) unsafe fn delete_property(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
