@@ -1,5 +1,5 @@
 use crate::{ ExternAny, ExternObject };
-use crate::builder::*;
+use crate::util::{ Slot, SlotUnchecked };
 
 /// Slot type accepting all objects
 pub union ObjectSlot<'h> {

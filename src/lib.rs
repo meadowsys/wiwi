@@ -31,9 +31,9 @@ pub use self::reflect::{ ExternReflectNs, reflect };
 pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
-pub mod builder;
 pub mod extern_crates;
 pub mod slot;
+pub mod util;
 
 mod any;
 mod bigint;
@@ -50,7 +50,7 @@ mod string;
 )]
 mod prelude_internal {
 	pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
-	pub(crate) use crate::builder::*;
+	pub(crate) use crate::util::*;
 	pub(crate) use crate::slot::*;
 	pub(crate) use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
 	pub(crate) use std::ops::Deref;
