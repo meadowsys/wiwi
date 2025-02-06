@@ -39,10 +39,16 @@ jobs:
         # could probably be made more optimal
         RUSTFLAGS: -Clto=off -Copt-level=1 -Ccodegen-units=1024 -Cpanic=unwind
 
-    - name: build
+    - name: build (std)
+      run: cargo build --verbose --features std
+
+    - name: test (std)
+      run: cargo test --verbose --features std --target wasm32-unknown-unknown -Zdoctest-xcompile
+
+    - name: build (no std)
       run: cargo build --verbose
 
-    - name: test
+    - name: test (no std)
       run: cargo test --verbose --target wasm32-unknown-unknown -Zdoctest-xcompile
 
   docs:
