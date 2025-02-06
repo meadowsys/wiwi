@@ -112,6 +112,26 @@ impl<
 }
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
+impl<'h, S> Builder<'h, S>
+where
+	S: State
+{
+	#[inline]
+	unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
+	where
+		'h: 'h2,
+		S2: State,
+		F: FnOnce(&mut Builder<'h2, S2>)
+	{
+		let mut changed = Builder {
+			inner: self.inner,
+			__marker: PhantomData
+		};
+
+		f(&mut changed);
+		changed
+	}
+}
 
 // - todo target slot union definitions (will want `uninit`, likely will
 //   want `any`, and whatever other incompatible types in there), and
