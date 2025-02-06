@@ -1,4 +1,4 @@
-//! Builder for `Reflect.set_prototype_of()` and supporting elements
+//! Builder for `Reflect.setPrototypeOf()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;

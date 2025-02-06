@@ -1,4 +1,4 @@
-//! Builder for `Reflect.define_property()` and supporting elements
+//! Builder for `Reflect.defineProperty()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;

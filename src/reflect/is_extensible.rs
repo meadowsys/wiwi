@@ -1,4 +1,4 @@
-//! Builder for `Reflect.is_extensible()` and supporting elements
+//! Builder for `Reflect.isExtensible()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;

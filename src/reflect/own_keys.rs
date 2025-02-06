@@ -1,4 +1,4 @@
-//! Builder for `Reflect.own_keys()` and supporting elements
+//! Builder for `Reflect.ownKeys()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;

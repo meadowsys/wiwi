@@ -1,4 +1,4 @@
-//! Builder for `Reflect.prevent_extensions()` and supporting elements
+//! Builder for `Reflect.preventExtensions()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;
@@ -44,7 +44,7 @@ impl<
 	Init<Target>
 >> {
 	#[inline]
-	/// Executes `Reflect.prevent_extensions(target)`
+	/// Executes `Reflect.preventExtensions(target)`
 	// todo return boolean
 	pub fn execute(self) -> ExternAny {
 		unsafe {

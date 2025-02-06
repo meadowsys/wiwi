@@ -1,4 +1,4 @@
-//! Builder for `Reflect.delete_property()` and supporting elements
+//! Builder for `Reflect.deleteProperty()` and supporting elements
 
 use crate::prelude_internal::*;
 use super::raw;
