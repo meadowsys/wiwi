@@ -49,6 +49,31 @@ impl Builder<'static, StateUninit> {
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.has(target, propertyKey)
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
+	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>,
+	Init<PropertyKey>
+>> {
+	/// Executes `Reflect.has(target, propertyKey)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+				property_key: PropertyKey
+			}
+
+			raw::has(target, property_key)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 impl<'h, S> Builder<'h, S>
