@@ -252,7 +252,7 @@ macro_rules! gen_state {
 		pub trait $state {
 			$(
 				type $field: $crate::builder::InitStatus;
-				type $field_init: $state;
+				// type $field_init: $state;
 				type $field_init_with<S: ?Sized>: $state;
 			)*
 		}
@@ -350,12 +350,12 @@ macro_rules! gen_state {
 		}
 	} => {
 		type $field = $field;
-		type $field_init = $state_container<
-			$($field_prev,)*
-			$crate::builder::Init,
-			$field_next,
-			$($field_rest,)*
-		>;
+		// type $field_init = $state_container<
+		// 	$($field_prev,)*
+		// 	$crate::builder::Init,
+		// 	$field_next,
+		// 	$($field_rest,)*
+		// >;
 		type $field_init_with<S: ?Sized> = $state_container<
 			$($field_prev,)*
 			crate::builder::Init<S>,
@@ -406,10 +406,10 @@ macro_rules! gen_state {
 		{}
 	} => {
 		type $field = $field;
-		type $field_init = $state_container<
-			$($field_prev,)*
-			$crate::builder::Init
-		>;
+		// type $field_init = $state_container<
+		// 	$($field_prev,)*
+		// 	$crate::builder::Init
+		// >;
 		type $field_init_with<S: ?Sized> = $state_container<
 			$($field_prev,)*
 			crate::builder::Init<S>,
