@@ -76,6 +76,9 @@ where
 /// # Safety
 ///
 /// Marker struct must actually represent an uninitialised state.
+#[diagnostic::on_unimplemented(
+	message = "this field has already been initialised"
+)]
 pub unsafe trait IsUninit: InitStatus {}
 
 // SAFETY: `Uninit` represents uninitialised
