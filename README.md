@@ -1,6 +1,6 @@
 # wiwi-wasm
 
-Nicer, higher level APIs for working with JavaScript from Rust (WASM)
+Nicer, higher level APIs for working with JavaScript from Rust (WASM), mostly revolving around builder-style APIs
 
 ## MSRV
 

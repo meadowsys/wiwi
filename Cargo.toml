@@ -1,6 +1,6 @@
 [package]
 name = "wiwi-wasm"
-description = "Nicer, higher level APIs for working with JavaScript from Rust (WASM)"
+description = "Nicer, higher level APIs for working with JavaScript from Rust (WASM), mostly revolving around builder-style APIs"
 version = "0.1.0"
 authors = ["Meadow Liu <meadowsys@kiwin.gay>"]
 repository = "https://github.com/meadowsys/wiwi-wasm"
