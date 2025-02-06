@@ -179,20 +179,20 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = defineProperty,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn define_property(
-		// 	// object
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue,
-		// 	attributes: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = defineProperty,
+			catch
+		)]
+		pub(crate) unsafe fn define_property(
+			// object
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue,
+			attributes: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
