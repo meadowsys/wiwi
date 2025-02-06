@@ -135,18 +135,18 @@ mod raw {
 		)]
 		pub(crate) static REFLECT: JsValue;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn apply(
-		// 	target: &JsValue,
-		// 	this_argument: &JsValue,
-		// 	// array-like
-		// 	arguments_list: &JsValue,
-		// 	// returns result of calling given target function
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			catch
+		)]
+		pub(crate) unsafe fn apply(
+			target: &JsValue,
+			this_argument: &JsValue,
+			// array-like
+			arguments_list: &JsValue,
+			// returns result of calling given target function
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
