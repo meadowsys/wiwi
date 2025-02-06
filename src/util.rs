@@ -25,7 +25,7 @@
 //   want `any`, and whatever other incompatible types in there), and
 //   associated impls (`Slot` and `SlotUnchecked` impls etc)
 
-pub use std::marker::PhantomData;
+pub use core::marker::PhantomData;
 
 /// Marker struct for a field in the uninitialised state
 pub struct Uninit {
@@ -187,7 +187,7 @@ pub(crate) trait PtrWriteCastLifetimeExt<T> {
 	/// # Safety
 	///
 	/// You must ensure that your lifetimes are correct, as well as follow
-	/// safety requirements of [`ptr::write`](std::ptr::write).
+	/// safety requirements of [`ptr::write`](core::ptr::write).
 	unsafe fn cast_lifetime_write(self, value: &T);
 }
 

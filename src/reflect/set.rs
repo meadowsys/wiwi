@@ -279,7 +279,10 @@ unsafe impl<'h> SlotUnchecked<PropertyKeySlot<'h>> for &'h str {
 	}
 }
 
+// todo alloc feature? I dunno how alloc interacts with no_std just yet
+#[cfg(feature = "std")]
 unsafe impl<'h> Slot<PropertyKeySlot<'h>> for &'h String {}
+#[cfg(feature = "std")]
 unsafe impl<'h> SlotUnchecked<PropertyKeySlot<'h>> for &'h String {
 	type Result = ExternAny;
 

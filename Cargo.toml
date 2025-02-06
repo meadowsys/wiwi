@@ -21,9 +21,6 @@ wasm-bindgen = { version = "0.2.100", default-features = false, features = ["msr
 wasm-bindgen-test = "0.3.50"
 
 [features]
-default = [
-	"std"
-]
 std = [
 	"wasm-bindgen/std"
 ]

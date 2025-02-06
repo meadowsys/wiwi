@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "std"), no_std)]
 #![allow(
 	dead_code,
 	unused_imports,
@@ -52,8 +53,8 @@ mod prelude_internal {
 	pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
 	pub(crate) use crate::util::*;
 	pub(crate) use crate::slot::*;
-	pub(crate) use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
-	pub(crate) use std::ops::Deref;
+	pub(crate) use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
+	pub(crate) use core::ops::Deref;
 }
 
 #[allow(
@@ -64,5 +65,5 @@ mod prelude_internal {
 #[cfg(test)]
 mod prelude_test {
 	pub(crate) use wasm_bindgen_test::wasm_bindgen_test;
-	pub(crate) use std::hint::black_box;
+	pub(crate) use core::hint::black_box;
 }
