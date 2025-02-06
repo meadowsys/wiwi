@@ -234,18 +234,18 @@ mod raw {
 		// 	// throws TypeError
 		// ) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = getOwnPropertyDescriptor,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn get_own_property_descriptor(
-		// 	target: &JsValue,
-		// 	// name of property (string? or autocast?)
-		// 	property_key: &JsValue
-		// 	// returns property descriptor object or undefined
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = getOwnPropertyDescriptor,
+			catch
+		)]
+		pub(crate) unsafe fn get_own_property_descriptor(
+			target: &JsValue,
+			// name of property (string? or autocast?)
+			property_key: &JsValue
+			// returns property descriptor object or undefined
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
