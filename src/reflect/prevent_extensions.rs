@@ -55,7 +55,7 @@ impl<
 
 			let raw = raw::prevent_extensions(
 				target
-			).unwrap_unchecked();
+			).unwrap();
 			ExternAny::from_js_value(raw)
 		}
 	}

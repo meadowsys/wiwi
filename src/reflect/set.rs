@@ -65,7 +65,7 @@ impl<
 >> {
 	/// Executes `Reflect.set(target, property_key, value)`
 	// todo make the return types better
-	// returns boolean, do unwrap unchecked
+	// returns boolean
 	#[inline]
 	pub fn execute(self) -> ExternAny {
 		unsafe {
@@ -80,7 +80,7 @@ impl<
 				target,
 				property_key,
 				value
-			).unwrap_unchecked();
+			).unwrap();
 			ExternAny::from_js_value(raw)
 		}
 	}
@@ -100,7 +100,7 @@ impl<
 >> {
 	/// Executes `Reflect.set(target, property_key, value, receiver)`
 	// todo make the return types better
-	// returns boolean, do unwrap unchecked
+	// returns boolean
 	#[inline]
 	pub fn execute(self) -> ExternAny {
 		unsafe {
@@ -117,7 +117,7 @@ impl<
 				property_key,
 				value,
 				receiver
-			).unwrap_unchecked();
+			).unwrap();
 			ExternAny::from_js_value(raw)
 		}
 	}
