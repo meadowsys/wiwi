@@ -31,7 +31,7 @@ pub struct ExternReflectNs {
 
 impl ExternReflectNs {
 	#[inline]
-	pub fn as_object(&self) -> &ExternObject {
+	fn as_object(&self) -> &ExternObject {
 		&self.inner
 	}
 

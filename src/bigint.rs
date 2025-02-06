@@ -23,7 +23,7 @@ pub struct ExternBigint {
 
 impl ExternBigint {
 	#[inline]
-	pub fn as_any(&self) -> &ExternAny {
+	fn as_any(&self) -> &ExternAny {
 		&self.inner
 	}
 }

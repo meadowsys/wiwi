@@ -23,7 +23,7 @@ pub struct ExternNumber {
 
 impl ExternNumber {
 	#[inline]
-	pub fn as_any(&self) -> &ExternAny {
+	fn as_any(&self) -> &ExternAny {
 		&self.inner
 	}
 }
