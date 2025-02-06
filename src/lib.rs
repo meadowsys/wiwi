@@ -34,6 +34,7 @@ pub use wasm_bindgen::prelude::wasm_bindgen;
 pub mod builder;
 pub mod extern_crates;
 mod sealed;
+pub mod slot;
 
 mod any;
 mod bigint;
@@ -52,6 +53,7 @@ mod prelude_internal {
 	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
 	pub use crate::builder::*;
 	pub use crate::sealed::Sealed;
+	pub use crate::slot::*;
 	pub use std::mem::{ ManuallyDrop, MaybeUninit, transmute };
 	pub use std::ops::Deref;
 

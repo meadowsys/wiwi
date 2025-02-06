@@ -13,7 +13,7 @@ where
 }
 
 struct BuilderInner<'h> {
-	target: TargetSlot<'h>,
+	target: ObjectSlot<'h>,
 	property_key: PropertyKeySlot<'h>,
 	value: ValueSlot<'h>,
 	receiver: ReceiverSlot<'h>,
@@ -42,7 +42,7 @@ impl Builder<'static, StateUninit> {
 	pub(super) fn new() -> Self {
 		Self {
 			inner: BuilderInner {
-				target: TargetSlot { uninit: () },
+				target: ObjectSlot::uninit(),
 				property_key: PropertyKeySlot { uninit: () },
 				value: ValueSlot { uninit: () },
 				receiver: ReceiverSlot { uninit: () }
@@ -54,7 +54,7 @@ impl Builder<'static, StateUninit> {
 
 impl<
 	'h,
-	Target: SlotUnchecked<TargetSlot<'h>>,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
 	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
 	Value: SlotUnchecked<ValueSlot<'h>>
 > Builder<'h, StateContainer<
@@ -88,7 +88,7 @@ impl<
 
 impl<
 	'h,
-	Target: SlotUnchecked<TargetSlot<'h>>,
+	Target: SlotUnchecked<ObjectSlot<'h>>,
 	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
 	Value: SlotUnchecked<ValueSlot<'h>>,
 	Receiver: SlotUnchecked<ReceiverSlot<'h>>
@@ -135,7 +135,7 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: Slot<TargetSlot<'h2>>
+		T: Slot<ObjectSlot<'h2>>
 	{
 		unsafe { self.target_unchecked(target) }
 	}
@@ -148,7 +148,7 @@ where
 	where
 		'h: 'h2,
 		S::Target: IsUninit,
-		T: SlotUnchecked<TargetSlot<'h2>>
+		T: SlotUnchecked<ObjectSlot<'h2>>
 	{
 		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
 	}
@@ -245,30 +245,6 @@ where
 
 		f(&mut changed);
 		changed
-	}
-}
-
-pub union TargetSlot<'h> {
-	uninit: (),
-	any: &'h ExternAny
-}
-
-unsafe impl<'h> SlotUnchecked<TargetSlot<'h>> for &'h ExternAny {
-	type Result = &'h ExternAny;
-
-	#[inline]
-	unsafe fn write(self, slot: &mut TargetSlot<'h>) {
-		*slot = TargetSlot { any: self }
-	}
-
-	#[inline]
-	unsafe fn read(slot: TargetSlot<'h>) -> &'h ExternAny {
-		unsafe { slot.any }
-	}
-
-	#[inline]
-	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
-		result
 	}
 }
 
