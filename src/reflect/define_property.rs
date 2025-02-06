@@ -4,8 +4,21 @@ use crate::prelude_internal::*;
 use super::raw;
 
 // - todo builder struct (with repr(transparent), `inner`, `__marker`)
+#[repr(transparent)]
+pub struct Builder<'h, S>
+where
+	S: State
+{
+	inner: BuilderInner<'h>,
+	__marker: PhantomDataInvariant<S>
+}
 
 // - todo builder inner struct
+struct BuilderInner<'h> {
+	target: ObjectSlot<'h>,
+	property_key: PropertyKeySlot<'h>,
+	attributes: AttributesSlot<'h>
+}
 
 // - todo `gen_state!` invocation (generates state trait, state
 //   container struct, uninit type def, impl state for statecontainer)
@@ -34,12 +47,6 @@ gen_state! {
 // - todo target slot union definitions (will want `uninit`, likely will
 //   want `any`, and whatever other incompatible types in there), and
 //   associated impls (`Slot` and `SlotUnchecked` impls etc)
-
-pub union TargetSlot<'h> {
-	uninit: (),
-	any: &'h ExternAny
-}
-
 pub union PropertyKeySlot<'h> {
 	uninit: (),
 	any: &'h ExternAny
