@@ -243,10 +243,7 @@ macro_rules! gen_state {
 		$state:ident
 		$state_container:ident
 		$state_uninit:ident
-		$(
-			$field:ident
-			$field_init:ident
-		)*
+		$($field:ident $field_init:ident)*
 	} => {
 		pub trait $state {
 			$(
@@ -281,10 +278,7 @@ macro_rules! gen_state {
 				$state_container
 				{}
 				{}
-				{ $(
-					$field
-					$field_init
-				)* }
+				{ $($field $field_init)* }
 			}
 		}
 	};
@@ -295,47 +289,27 @@ macro_rules! gen_state {
 		{}
 		{}
 		{
-			$field_next:ident
-			$field_init_next:ident
-			$(
-				$field_rest:ident
-				$field_init_rest:ident
-			)*
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
 		}
 	} => {
 		$crate::builder::gen_state! {
 			@impl state_init_types
 			$state_container
 			{}
-			{
-				$field_next
-				$field_init_next
-			}
-			{ $(
-				$field_rest
-				$field_init_rest
-			)* }
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
 		}
 	};
 
 	{
 		@impl state_init_types
 		$state_container:ident
-		{ $(
-			$field_prev:ident
-			$field_init_prev:ident
-		)* }
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
 		{
-			$field:ident
-			$field_init:ident
-		}
-		{
-			$field_next:ident
-			$field_init_next:ident
-			$(
-				$field_rest:ident
-				$field_init_rest:ident
-			)*
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
 		}
 	} => {
 		type $field = $field;
@@ -350,36 +324,19 @@ macro_rules! gen_state {
 			@impl state_init_types
 			$state_container
 			{
-				$(
-					$field_prev
-					$field_init_prev
-				)*
-
-				$field
-				$field_init
+				$($field_prev $field_init_prev)*
+				$field $field_init
 			}
-			{
-				$field_next
-				$field_init_next
-			}
-			{ $(
-				$field_rest
-				$field_init_rest
-			)* }
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
 		}
 	};
 
 	{
 		@impl state_init_types
 		$state_container:ident
-		{ $(
-			$field_prev:ident
-			$field_init_prev:ident
-		)* }
-		{
-			$field:ident
-			$field_init:ident
-		}
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
 		{}
 	} => {
 		type $field = $field;
@@ -393,7 +350,7 @@ macro_rules! gen_state {
 		@impl gen_uninit
 		$state_container:ident
 		$state_uninit:ident
-		{ $(($($uninit_ty:tt)*))* }
+		{ $({ $($uninit_ty:tt)* })* }
 		{
 			$field:ident
 			$($field_rest:ident)*
@@ -404,8 +361,8 @@ macro_rules! gen_state {
 			$state_container
 			$state_uninit
 			{
-				$(($($uninit_ty)*))*
-				(crate::builder::Uninit)
+				$({ $($uninit_ty)* })*
+				{ crate::builder::Uninit }
 			}
 			{ $($field_rest)* }
 		}
@@ -415,7 +372,7 @@ macro_rules! gen_state {
 		@impl gen_uninit
 		$state_container:ident
 		$state_uninit:ident
-		{ $(($($uninit_ty:tt)*))* }
+		{ $({ $($uninit_ty:tt)* })* }
 		{}
 	} => {
 		pub type $state_uninit = $state_container<
