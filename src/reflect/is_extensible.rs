@@ -44,6 +44,28 @@ impl Builder<'static, StateUninit> {
 
 // - todo impl blocks for finished ones with `execute` or `build` fns
 //   Reflect.isExtensible(target)
+impl<
+	'h,
+	Target: SlotUnchecked<ObjectSlot<'h>>
+> Builder<'h, StateContainer<
+	Init<Target>
+>> {
+	/// Executes `Reflect.isExtensible(target)`
+	// todo better return type
+	#[inline]
+	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+		unsafe {
+			read_slots! {
+				self
+				target: Target
+			}
+
+			raw::is_extensible(target)
+				.map(ExternAny::from_js_value)
+				.map_err(ExternAny::from_js_value)
+		}
+	}
+}
 
 // - todo impl block for builder fns, `change_state`, internal functions etc
 impl<'h, S> Builder<'h, S>

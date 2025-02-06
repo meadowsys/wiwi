@@ -270,16 +270,16 @@ mod raw {
 			// throws TypeError
 		) -> Result<JsValue, JsValue>;
 
-		// #[wasm_bindgen(
-		// 	js_namespace = Reflect,
-		// 	js_name = isExtensible,
-		// 	catch
-		// )]
-		// pub(crate) unsafe fn is_extensible(
-		// 	target: &JsValue
-		// 	// returns bool
-		// 	// throws TypeError
-		// ) -> Result<JsValue, JsValue>;
+		#[wasm_bindgen(
+			js_namespace = Reflect,
+			js_name = isExtensible,
+			catch
+		)]
+		pub(crate) unsafe fn is_extensible(
+			target: &JsValue
+			// returns bool
+			// throws TypeError
+		) -> Result<JsValue, JsValue>;
 
 		// #[wasm_bindgen(
 		// 	js_namespace = Reflect,
