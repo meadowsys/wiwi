@@ -63,11 +63,11 @@ impl<
 	Init<Value>,
 	Uninit
 >> {
-	/// Executes `Reflect.set(target, propertyKey, value)`
+	/// Calls the function `Reflect.set(target, propertyKey, value)`
 	// todo make the return types better
 	// returns boolean
 	#[inline]
-	pub fn execute(self) -> ExternAny {
+	pub fn call_fn(self) -> ExternAny {
 		unsafe {
 			read_slots! {
 				self
@@ -98,11 +98,11 @@ impl<
 	Init<Value>,
 	Init<Receiver>
 >> {
-	/// Executes `Reflect.set(target, propertyKey, value, receiver)`
+	/// Calls the function `Reflect.set(target, propertyKey, value, receiver)`
 	// todo make the return types better
 	// returns boolean
 	#[inline]
-	pub fn execute(self) -> ExternAny {
+	pub fn call_fn(self) -> ExternAny {
 		unsafe {
 			read_slots! {
 				self

@@ -57,10 +57,10 @@ impl<
 	Init<PropertyKey>,
 	Init<Attributes>
 >> {
-	/// Executes `Reflect.defineProperty(target, propertyKey, attributes)`
+	/// Calls the function `Reflect.defineProperty(target, propertyKey, attributes)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

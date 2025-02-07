@@ -56,10 +56,10 @@ impl<
 	Init<PropertyKey>,
 	Uninit
 >> {
-	/// Executes `Reflect.get(target, propertyKey)`
+	/// Calls the function `Reflect.get(target, propertyKey)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self
@@ -84,10 +84,10 @@ impl<
 	Init<PropertyKey>,
 	Init<Receiver>
 >> {
-	/// Executes `Reflect.get(target, propertyKey, receiver)`
+	/// Calls the function `Reflect.get(target, propertyKey, receiver)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

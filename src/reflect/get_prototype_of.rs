@@ -43,10 +43,10 @@ impl<
 > Builder<'h, StateContainer<
 	Init<Target>
 >> {
-	/// Executes `Reflect.getPrototypeOf(target)`
+	/// Calls the function `Reflect.getPrototypeOf(target)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

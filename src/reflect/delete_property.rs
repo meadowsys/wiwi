@@ -50,10 +50,10 @@ impl<
 	Init<Target>,
 	Init<PropertyKey>
 >> {
-	/// Executes `Reflect.deleteProperty(target, propertyKey)`
+	/// Calls the function `Reflect.deleteProperty(target, propertyKey)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

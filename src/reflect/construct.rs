@@ -56,10 +56,10 @@ impl<
 	Init<ArgumentsList>,
 	Uninit
 >> {
-	/// Executes `Reflect.construct(target, argumentsList)`
+	/// Calls the function `Reflect.construct(target, argumentsList)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self
@@ -84,10 +84,10 @@ impl<
 	Init<ArgumentsList>,
 	Init<NewTarget>
 >> {
-	/// Executes `Reflect.construct(target, argumentsList, newTarget)`
+	/// Calls the function `Reflect.construct(target, argumentsList, newTarget)`
 	// todo better return type
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

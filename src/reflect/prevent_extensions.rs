@@ -44,9 +44,9 @@ impl<
 	Init<Target>
 >> {
 	#[inline]
-	/// Executes `Reflect.preventExtensions(target)`
+	/// Calls the function `Reflect.preventExtensions(target)`
 	// todo return boolean
-	pub fn execute(self) -> ExternAny {
+	pub fn call_fn(self) -> ExternAny {
 		unsafe {
 			read_slots! {
 				self

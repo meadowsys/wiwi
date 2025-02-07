@@ -50,10 +50,10 @@ impl<
 	Init<Target>,
 	Init<PropertyKey>
 >> {
-	/// Executes `Reflect.getOwnPropertyDescriptor(target, propertyKey)`
+	/// Calls the function `Reflect.getOwnPropertyDescriptor(target, propertyKey)`
 	// todo make return types better
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self

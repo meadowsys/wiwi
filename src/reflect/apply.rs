@@ -57,10 +57,10 @@ impl<
 	Init<ThisArgument>,
 	Init<ArgumentsList>
 >> {
-	/// Executes `Reflect.apply(target, thisArgument, argumentsList)`
+	/// Calls `Reflect.apply(target, thisArgument, argumentsList)`
 	// todo make the return types better
 	#[inline]
-	pub fn execute(self) -> Result<ExternAny, ExternAny> {
+	pub fn call_fn(self) -> Result<ExternAny, ExternAny> {
 		unsafe {
 			read_slots! {
 				self
