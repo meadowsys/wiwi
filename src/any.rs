@@ -14,7 +14,7 @@ impl ExternAny {
 	#[inline]
 	pub fn from_js_value_ref(value: &JsValue) -> &Self {
 		// SAFETY: ExternAny is repr(transparent) over JsValue
-		unsafe { &*(&raw const *value as *const ExternAny) }
+		unsafe { &*(&raw const *value).cast::<ExternAny>() }
 	}
 
 	#[inline]

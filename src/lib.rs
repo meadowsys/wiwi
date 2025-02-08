@@ -8,6 +8,7 @@
 #![deny(
 	unconditional_recursion,
 	clippy::missing_inline_in_public_items,
+	clippy::as_conversions,
 	reason = "yes"
 )]
 

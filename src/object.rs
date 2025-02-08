@@ -41,7 +41,7 @@ impl ExternObject {
 	#[inline]
 	pub unsafe fn from_any_ref_unchecked(value: &ExternAny) -> &Self {
 		// SAFETY: ExternObject is repr(transparent) over ExternAny
-		unsafe { &*(&raw const value as *const ExternObject) }
+		unsafe { &*(&raw const *value).cast::<ExternObject>() }
 	}
 
 	#[inline]
