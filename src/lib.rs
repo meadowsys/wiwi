@@ -43,6 +43,7 @@ mod object;
 mod number;
 pub mod reflect;
 mod string;
+mod symbol;
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
