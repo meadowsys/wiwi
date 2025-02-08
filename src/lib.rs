@@ -7,6 +7,7 @@
 )]
 #![deny(
 	unconditional_recursion,
+	unsafe_op_in_unsafe_fn,
 	clippy::missing_inline_in_public_items,
 	clippy::as_conversions,
 	reason = "yes"
