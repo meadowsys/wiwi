@@ -129,108 +129,44 @@ where
 {
 	gen_change_state!('h);
 
-	#[inline]
-	pub fn target<'h2, T>(
-		self,
-		target: T
-	) -> Builder<'h2, S::TargetInit<T>>
-	where
-		'h: 'h2,
-		S::Target: IsUninit,
-		T: Slot<ObjectSlot<'h2>>
-	{
-		unsafe { self.target_unchecked(target) }
+	gen_builder_fn! {
+		'h
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
 	}
 
-	#[inline]
-	pub unsafe fn target_unchecked<'h2, T>(
-		self,
-		target: T
-	) -> Builder<'h2, S::TargetInit<T>>
-	where
-		'h: 'h2,
-		S::Target: IsUninit,
-		T: SlotUnchecked<ObjectSlot<'h2>>
-	{
-		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
+	gen_builder_fn! {
+		'h
+		PropertyKey
+		PropertyKeyInit
+		PropertyKeySlot
+
+		property_key
+		property_key_unchecked
 	}
 
-	#[inline]
-	pub fn property_key<'h2, T>(
-		self,
-		property_key: T
-	) -> Builder<'h2, S::PropertyKeyInit<T>>
-	where
-		'h: 'h2,
-		S::PropertyKey: IsUninit,
-		T: Slot<PropertyKeySlot<'h2>>
-	{
-		unsafe { self.property_key_unchecked(property_key) }
+	gen_builder_fn! {
+		'h
+		Value
+		ValueInit
+		ValueSlot
+
+		value
+		value_unchecked
 	}
 
-	#[inline]
-	pub unsafe fn property_key_unchecked<'h2, T>(
-		self,
-		property_key: T
-	) -> Builder<'h2, S::PropertyKeyInit<T>>
-	where
-		'h: 'h2,
-		S::PropertyKey: IsUninit,
-		T: SlotUnchecked<PropertyKeySlot<'h2>>
-	{
-		unsafe { self.change_state(|b| property_key.write(&mut b.inner.property_key)) }
-	}
+	gen_builder_fn! {
+		'h
+		Receiver
+		ReceiverInit
+		ReceiverSlot
 
-	#[inline]
-	pub fn value<'h2, T>(
-		self,
-		value: T
-	) -> Builder<'h2, S::ValueInit<T>>
-	where
-		'h: 'h2,
-		S::Value: IsUninit,
-		T: Slot<ValueSlot<'h2>>
-	{
-		unsafe { self.value_unchecked(value) }
-	}
-
-	#[inline]
-	pub unsafe fn value_unchecked<'h2, T>(
-		self,
-		value: T
-	) -> Builder<'h2, S::ValueInit<T>>
-	where
-		'h: 'h2,
-		S::Value: IsUninit,
-		T: SlotUnchecked<ValueSlot<'h2>>
-	{
-		unsafe { self.change_state(|b| value.write(&mut b.inner.value)) }
-	}
-
-	#[inline]
-	pub fn receiver<'h2, T>(
-		self,
-		receiver: T
-	) -> Builder<'h2, S::ReceiverInit<T>>
-	where
-		'h: 'h2,
-		S::Receiver: IsUninit,
-		T: Slot<ReceiverSlot<'h2>>
-	{
-		unsafe { self.receiver_unchecked(receiver) }
-	}
-
-	#[inline]
-	pub unsafe fn receiver_unchecked<'h2, T>(
-		self,
-		receiver: T
-	) -> Builder<'h2, S::ReceiverInit<T>>
-	where
-		'h: 'h2,
-		S::Receiver: IsUninit,
-		T: SlotUnchecked<ReceiverSlot<'h2>>
-	{
-		unsafe { self.change_state(|b| receiver.write(&mut b.inner.receiver)) }
+		receiver
+		receiver_unchecked
 	}
 }
 

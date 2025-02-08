@@ -250,7 +250,7 @@ macro_rules! gen_state {
 	} => {
 		pub trait $state {
 			$(
-				type $field: $crate::util::InitStatus;
+				type $field: InitStatus;
 				type $field_init<S: ?Sized>: $state;
 			)*
 		}
@@ -265,7 +265,7 @@ macro_rules! gen_state {
 			)>
 		}
 
-		$crate::util::gen_state! {
+		gen_state! {
 			@impl gen_uninit
 			$state_container
 			$state_uninit
@@ -274,9 +274,9 @@ macro_rules! gen_state {
 		}
 
 		impl<$(
-			$field: $crate::util::InitStatus
+			$field: InitStatus
 		),*> $state for $state_container<$($field),*> {
-			$crate::util::gen_state! {
+			gen_state! {
 				@impl state_init_types
 				$state_container
 				{}
@@ -296,7 +296,7 @@ macro_rules! gen_state {
 			$($field_rest:ident $field_init_rest:ident)*
 		}
 	} => {
-		$crate::util::gen_state! {
+		gen_state! {
 			@impl state_init_types
 			$state_container
 			{}
@@ -318,12 +318,12 @@ macro_rules! gen_state {
 		type $field = $field;
 		type $field_init<S: ?Sized> = $state_container<
 			$($field_prev,)*
-			crate::util::Init<S>,
+			Init<S>,
 			$field_next,
 			$($field_rest,)*
 		>;
 
-		$crate::util::gen_state! {
+		gen_state! {
 			@impl state_init_types
 			$state_container
 			{
@@ -345,7 +345,7 @@ macro_rules! gen_state {
 		type $field = $field;
 		type $field_init<S: ?Sized> = $state_container<
 			$($field_prev,)*
-			crate::util::Init<S>,
+			Init<S>,
 		>;
 	};
 
@@ -353,19 +353,19 @@ macro_rules! gen_state {
 		@impl gen_uninit
 		$state_container:ident
 		$state_uninit:ident
-		{ $({ $($uninit_ty:tt)* })* }
+		{ $($uninit_ty:ident)* }
 		{
 			$field:ident
 			$($field_rest:ident)*
 		}
 	} => {
-		$crate::util::gen_state! {
+		gen_state! {
 			@impl gen_uninit
 			$state_container
 			$state_uninit
 			{
-				$({ $($uninit_ty)* })*
-				{ crate::util::Uninit }
+				$($uninit_ty)*
+				Uninit
 			}
 			{ $($field_rest)* }
 		}
@@ -375,11 +375,11 @@ macro_rules! gen_state {
 		@impl gen_uninit
 		$state_container:ident
 		$state_uninit:ident
-		{ $({ $($uninit_ty:tt)* })* }
+		{ $($uninit_ty:ident)* }
 		{}
 	} => {
 		pub type $state_uninit = $state_container<
-			$($($uninit_ty)*),*
+			$($uninit_ty),*
 		>;
 	};
 }
@@ -403,22 +403,49 @@ macro_rules! gen_change_state {
 			changed
 		}
 	};
+}
+pub(crate) use gen_change_state;
 
-	() => {
+macro_rules! gen_builder_fn {
+	{
+		'h
+		$field_state:ident
+		$field_state_init:ident
+		$slot:ident
+
+		$(#[$meta:meta])*
+		$field:ident
+
+		$(#[$meta_unchecked:meta])*
+		$fn_name_unchecked:ident
+	} => {
+		$(#[$meta])*
 		#[inline]
-		unsafe fn change_state<S2, F>(self, f: F) -> Builder<S2>
+		pub fn $field<'h2, T>(
+			self,
+			$field: T
+		) -> Builder<'h2, S::$field_state_init<T>>
 		where
-			S2: State,
-			F: FnOnce(&mut Builder<S2>)
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: Slot<$slot<'h2>>
 		{
-			let mut changed = Builder {
-				inner: self.inner,
-				__marker: PhantomData
-			};
+			unsafe { self.$fn_name_unchecked($field) }
+		}
 
-			f(&mut changed);
-			changed
+		$(#[$meta_unchecked])*
+		#[inline]
+		pub unsafe fn $fn_name_unchecked<'h2, T>(
+			self,
+			$field: T
+		) -> Builder<'h2, S::$field_state_init<T>>
+		where
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: SlotUnchecked<$slot<'h2>>
+		{
+			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
 		}
 	};
 }
-pub(crate) use gen_change_state;
+pub(crate) use gen_builder_fn;
