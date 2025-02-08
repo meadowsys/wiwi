@@ -192,7 +192,7 @@ pub(crate) trait PtrWriteCastLifetimeExt<T> {
 }
 
 impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
-	#[inline]
+	#[inline(always)]
 	unsafe fn cast_lifetime_write(self, value: &T) {
 		unsafe { self.cast::<&T>().write(value) }
 	}
@@ -387,7 +387,7 @@ pub(crate) use gen_state;
 
 macro_rules! gen_change_state {
 	('h) => {
-		#[inline]
+		#[inline(always)]
 		unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
 		where
 			'h: 'h2,
@@ -420,7 +420,7 @@ macro_rules! gen_builder_fn {
 		$fn_name_unchecked:ident
 	} => {
 		$(#[$meta])*
-		#[inline]
+		#[inline(always)]
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
@@ -434,7 +434,7 @@ macro_rules! gen_builder_fn {
 		}
 
 		$(#[$meta_unchecked])*
-		#[inline]
+		#[inline(always)]
 		pub unsafe fn $fn_name_unchecked<'h2, T>(
 			self,
 			$field: T
