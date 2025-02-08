@@ -37,9 +37,6 @@ impl Deref for ExternBigint {
 	}
 }
 
-// todo ??
-// pub struct ExternBigintObject {}
-
 mod raw {
 	use super::*;
 	use wasm_bindgen::JsValue;
