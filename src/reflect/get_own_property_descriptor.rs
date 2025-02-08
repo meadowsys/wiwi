@@ -73,6 +73,28 @@ where
 	S: State
 {
 	gen_change_state!('h);
+
+	gen_builder_fn! {
+		'h
+
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
+	}
+
+	gen_builder_fn! {
+		'h
+
+		PropertyKey
+		PropertyKeyInit
+		PropertyKeySlot
+
+		property_key
+		property_key_unchecked
+	}
 }
 
 pub union PropertyKeySlot<'h> {

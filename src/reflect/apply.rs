@@ -81,6 +81,39 @@ where
 	S: State
 {
 	gen_change_state!('h);
+
+	gen_builder_fn! {
+		'h
+
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
+	}
+
+	gen_builder_fn! {
+		'h
+
+		ThisArgument
+		ThisArgumentInit
+		ThisArgumentSlot
+
+		this_argument
+		this_argument_unchecked
+	}
+
+	gen_builder_fn! {
+		'h
+
+		ArgumentsList
+		ArgumentsListInit
+		ArgumentsListSlot
+
+		arguments_list
+		arguments_list_unchecked
+	}
 }
 
 pub union ThisArgumentSlot<'h> {

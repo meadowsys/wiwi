@@ -67,29 +67,14 @@ where
 {
 	gen_change_state!('h);
 
-	#[inline]
-	pub fn target<'h2, T>(
-		self,
-		target: T
-	) -> Builder<'h2, S::TargetInit<T>>
-	where
-		'h: 'h2,
-		S::Target: IsUninit,
-		T: Slot<ObjectSlot<'h2>>
-	{
-		unsafe { self.target_unchecked(target) }
-	}
+	gen_builder_fn! {
+		'h
 
-	#[inline]
-	pub unsafe fn target_unchecked<'h2, T>(
-		self,
-		target: T
-	) -> Builder<'h2, S::TargetInit<T>>
-	where
-		'h: 'h2,
-		S::Target: IsUninit,
-		T: SlotUnchecked<ObjectSlot<'h2>>
-	{
-		unsafe { self.change_state(|b| target.write(&mut b.inner.target)) }
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
 	}
 }

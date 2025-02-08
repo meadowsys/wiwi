@@ -73,6 +73,28 @@ where
 	S: State
 {
 	gen_change_state!('h);
+
+	gen_builder_fn! {
+		'h
+
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
+	}
+
+	gen_builder_fn! {
+		'h
+
+		Prototype
+		PrototypeInit
+		PrototypeSlot
+
+		prototype
+		prototype_unchecked
+	}
 }
 
 pub union PrototypeSlot<'h> {

@@ -65,4 +65,15 @@ where
 	S: State
 {
 	gen_change_state!('h);
+
+	gen_builder_fn! {
+		'h
+
+		Target
+		TargetInit
+		ObjectSlot
+
+		target
+		target_unchecked
+	}
 }

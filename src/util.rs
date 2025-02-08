@@ -419,8 +419,8 @@ macro_rules! gen_builder_fn {
 		$(#[$meta_unchecked:meta])*
 		$fn_name_unchecked:ident
 	} => {
-		$(#[$meta])*
 		#[inline(always)]
+		$(#[$meta])*
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
@@ -433,8 +433,8 @@ macro_rules! gen_builder_fn {
 			unsafe { self.$fn_name_unchecked($field) }
 		}
 
-		$(#[$meta_unchecked])*
 		#[inline(always)]
+		$(#[$meta_unchecked])*
 		pub unsafe fn $fn_name_unchecked<'h2, T>(
 			self,
 			$field: T
