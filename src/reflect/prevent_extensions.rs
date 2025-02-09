@@ -78,7 +78,6 @@ where
 }
 
 gen_slot! {
-	/// Slot type accepting all objects
 	TargetSlot
 	field any { &'h ExternAny }
 
