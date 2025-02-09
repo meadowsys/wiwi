@@ -1,54 +1,21 @@
 use crate::{ ExternAny, ExternObject };
-use crate::util::{ Slot, SlotUnchecked };
+use crate::util::{ Slot, SlotUnchecked, gen_slot };
 
-/// Slot type accepting all objects
-pub union ObjectSlot<'h> {
-	uninit: (),
-	any: &'h ExternAny
-}
+gen_slot! {
+	/// Slot type accepting all objects
+	ObjectSlot
+	field any { &'h ExternAny }
 
-impl ObjectSlot<'static> {
-	#[inline]
-	pub(crate) fn uninit() -> Self {
-		Self { uninit: () }
-	}
-}
-
-unsafe impl<'h> SlotUnchecked<ObjectSlot<'h>> for &'h ExternAny {
-	type Result = &'h ExternAny;
-
-	#[inline]
-	unsafe fn write(self, slot: &mut ObjectSlot<'h>) {
-		*slot = ObjectSlot { any: self }
-	}
-
-	#[inline]
-	unsafe fn read(slot: ObjectSlot<'h>) -> &'h ExternAny {
-		unsafe { slot.any }
-	}
-
-	#[inline]
-	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
-		result
-	}
-}
-
-unsafe impl<'h> Slot<ObjectSlot<'h>> for &'h ExternObject {}
-unsafe impl<'h> SlotUnchecked<ObjectSlot<'h>> for &'h ExternObject {
-	type Result = &'h ExternAny;
-
-	#[inline]
-	unsafe fn write(self, slot: &mut ObjectSlot<'h>) {
-		*slot = ObjectSlot { any: self }
-	}
-
-	#[inline]
-	unsafe fn read(slot: ObjectSlot<'h>) -> &'h ExternAny {
-		unsafe { slot.any }
-	}
-
-	#[inline]
-	fn as_ref(result: &&'h ExternAny) -> &'h ExternAny {
-		result
+	impl for { &'h ExternObject } {
+		result { &'h ExternAny }
+		write(self, slot) {
+			*slot = ObjectSlot { any: self }
+		}
+		read(slot) {
+			unsafe { slot.any }
+		}
+		as_ref(result) {
+			result
+		}
 	}
 }

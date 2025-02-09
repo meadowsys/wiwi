@@ -448,3 +448,121 @@ macro_rules! gen_builder_fn {
 	};
 }
 pub(crate) use gen_builder_fn;
+
+macro_rules! gen_slot {
+	{
+		$(#[$union_meta:meta])*
+		$slot:ident
+		$(field $field:ident { $($field_type:tt)* })*
+
+		$(
+			impl for { $($impl_type:tt)* } $($unsafe:ident)? {
+				$($impl_stuff:tt)*
+			}
+		)*
+	} => {
+		$(#[$union_meta])*
+		pub union $slot<'h> {
+			uninit: (),
+			$($field: $($field_type)*),*
+		}
+
+		impl $slot<'static> {
+			#[inline(always)]
+			pub(crate) fn uninit() -> Self {
+				Self { uninit: () }
+			}
+		}
+
+		gen_slot! {
+			@impl trait_impl
+			unsafe $slot { &'h ExternAny } {
+				result { &'h ExternAny }
+				write(self, slot) {
+					*slot = $slot { any: self }
+				}
+				read(slot) {
+					unsafe { slot.any }
+				}
+				as_ref(result) {
+					result
+				}
+			}
+		}
+
+		$(
+			gen_slot! {
+				@impl trait_impl
+				$($unsafe)? $slot { $($impl_type)* } { $($impl_stuff)* }
+			}
+		)*
+	};
+
+	{
+		@impl trait_impl
+		unsafe $slot:ident { $($impl_type:tt)* } {
+			result { $($result:tt)* }
+
+			write($self:ident, $slot_write_param:ident) $(-> { $($write_return_type:tt)* })? {
+				$($write_impl:tt)*
+			}
+
+			read($slot_read_param:ident) $(-> { $($read_return_type:tt)* })? {
+				$($read_impl:tt)*
+			}
+
+			as_ref($result_as_ref_param:ident) $(-> { $($as_ref_return_type:tt)* })? {
+				$($as_ref_impl:tt)*
+			}
+		}
+	} => {
+		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $($impl_type)* {
+			type Result = $($result)*;
+
+			#[inline]
+			unsafe fn write(
+				$self,
+				$slot_write_param: &mut $slot<'h>
+			) {
+				$($write_impl)*
+			}
+
+			#[inline]
+			unsafe fn read(
+				$slot_read_param: $slot<'h>
+			) -> $($result)* {
+				$($read_impl)*
+			}
+
+			#[inline]
+			fn as_ref<'h2>(
+				$result_as_ref_param: &'h2 $($result)*
+			) -> gen_slot! {
+				@impl mk_return_type_as_ref
+				$($as_ref_return_type)*
+			} {
+				$($as_ref_impl)*
+			}
+		}
+	};
+
+	{
+		@impl trait_impl
+		$slot:ident { $($impl_type:tt)* } {
+			$($stuff:tt)*
+		}
+	} => {
+		unsafe impl<'h> Slot<$slot<'h>> for $($impl_type)* {}
+
+		gen_slot! {
+			@impl trait_impl
+			unsafe $slot { $($impl_type)* } {
+				$($stuff)*
+			}
+		}
+	};
+
+	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
+	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
+}
+pub(crate) use gen_slot;
