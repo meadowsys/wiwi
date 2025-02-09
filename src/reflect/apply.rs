@@ -87,6 +87,9 @@ where
 		TargetInit
 		TargetSlot
 
+		/// Set the target function to call
+		///
+		/// [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply#target)
 		target
 		target_unchecked
 	}
@@ -96,6 +99,9 @@ where
 		ThisArgumentInit
 		ThisArgumentSlot
 
+		/// Set the value of `this` provided for the call to `target`
+		///
+		/// [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply#thisargument)
 		this_argument
 		this_argument_unchecked
 	}
@@ -105,6 +111,9 @@ where
 		ArgumentsListInit
 		ArgumentsListSlot
 
+		/// Sets the list of arguments to use when calling the function
+		///
+		/// [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/apply#argumentslist)
 		arguments_list
 		arguments_list_unchecked
 	}
