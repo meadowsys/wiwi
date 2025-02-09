@@ -13,6 +13,7 @@
 	reason = "yes"
 )]
 
+#![doc = include_str!("../README.md")]
 #![cfg_attr(all(docsrs, kiwingay), doc = "")]
 #![cfg_attr(
 	all(docsrs, kiwingay),
