@@ -425,6 +425,21 @@ macro_rules! gen_builder_fn {
 			unsafe { self.$fn_name_unchecked($field) }
 		}
 
+		#[doc = concat!(
+			"Setter for [`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			") with much, _much_ looser type restrictions"
+		)]
+		#[doc = ""]
+		#[doc = concat!(
+			"See the safer setter ([`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			")) for more information."
+		)]
 		#[inline(always)]
 		$(#[$meta_unchecked])*
 		pub unsafe fn $fn_name_unchecked<'h2, T>(
