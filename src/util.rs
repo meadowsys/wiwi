@@ -198,6 +198,42 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 	}
 }
 
+macro_rules! gen_builder {
+	{
+		$(#[$meta:meta])*
+		$($field:ident: $slot:ident)*
+	} => {
+		#[repr(transparent)]
+		$(#[$meta])*
+		pub struct Builder<'h, S>
+		where
+			S: State
+		{
+			inner: BuilderInner<'h>,
+			__marker: PhantomDataInvariant<S>
+		}
+
+		struct BuilderInner<'h> {
+			$($field: $slot<'h>),*
+		}
+
+		impl Builder<'static, StateUninit> {
+			#[inline(always)]
+			pub(super) fn new() -> Self {
+				Self {
+					inner: BuilderInner {
+						$($field: $slot { uninit: () }),*
+						// todo when all slots have been converted to use the macro, use this
+						// $($field: $slot::uninit()),*
+					},
+					__marker: PhantomData
+				}
+			}
+		}
+	}
+}
+pub(crate) use gen_builder;
+
 macro_rules! gen_state {
 	{
 		$state:ident

@@ -3,20 +3,11 @@
 use crate::prelude_internal::*;
 use super::raw;
 
-#[repr(transparent)]
-pub struct Builder<'h, S>
-where
-	S: State
-{
-	inner: BuilderInner<'h>,
-	__marker: PhantomDataInvariant<S>
-}
-
-struct BuilderInner<'h> {
-	target: TargetSlot<'h>,
-	property_key: PropertyKeySlot<'h>,
-	value: ValueSlot<'h>,
-	receiver: ReceiverSlot<'h>,
+gen_builder! {
+	target: TargetSlot
+	property_key: PropertyKeySlot
+	value: ValueSlot
+	receiver: ReceiverSlot
 }
 
 gen_state! {
@@ -35,21 +26,6 @@ gen_state! {
 
 	Receiver
 	ReceiverInit
-}
-
-impl Builder<'static, StateUninit> {
-	#[inline]
-	pub(super) fn new() -> Self {
-		Self {
-			inner: BuilderInner {
-				target: TargetSlot::uninit(),
-				property_key: PropertyKeySlot { uninit: () },
-				value: ValueSlot { uninit: () },
-				receiver: ReceiverSlot { uninit: () }
-			},
-			__marker: PhantomData
-		}
-	}
 }
 
 impl<
