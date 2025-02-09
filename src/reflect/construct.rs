@@ -13,9 +13,9 @@ where
 }
 
 struct BuilderInner<'h> {
-	target: ObjectSlot<'h>,
+	target: TargetSlot<'h>,
 	arguments_list: ArgumentsListSlot<'h>,
-	new_target: ObjectSlot<'h>
+	new_target: NewTargetSlot<'h>
 }
 
 gen_state! {
@@ -38,9 +38,9 @@ impl Builder<'static, StateUninit> {
 	pub(super) fn new() -> Self {
 		Self {
 			inner: BuilderInner {
-				target: ObjectSlot::uninit(),
+				target: TargetSlot::uninit(),
 				arguments_list: ArgumentsListSlot { uninit: () },
-				new_target: ObjectSlot::uninit()
+				new_target: NewTargetSlot::uninit()
 			},
 			__marker: PhantomData
 		}
@@ -49,7 +49,7 @@ impl Builder<'static, StateUninit> {
 
 impl<
 	'h,
-	Target: SlotUnchecked<ObjectSlot<'h>>,
+	Target: SlotUnchecked<TargetSlot<'h>>,
 	ArgumentsList: SlotUnchecked<ArgumentsListSlot<'h>>
 > Builder<'h, StateContainer<
 	Init<Target>,
@@ -76,9 +76,9 @@ impl<
 
 impl<
 	'h,
-	Target: SlotUnchecked<ObjectSlot<'h>>,
+	Target: SlotUnchecked<TargetSlot<'h>>,
 	ArgumentsList: SlotUnchecked<ArgumentsListSlot<'h>>,
-	NewTarget: SlotUnchecked<ObjectSlot<'h>>
+	NewTarget: SlotUnchecked<NewTargetSlot<'h>>
 > Builder<'h, StateContainer<
 	Init<Target>,
 	Init<ArgumentsList>,
@@ -112,7 +112,7 @@ where
 	gen_builder_fn! {
 		Target
 		TargetInit
-		ObjectSlot
+		TargetSlot
 
 		target
 		target_unchecked
@@ -130,14 +130,52 @@ where
 	gen_builder_fn! {
 		NewTarget
 		NewTargetInit
-		ObjectSlot
+		NewTargetSlot
 
 		new_target
 		new_target_unchecked
 	}
 }
 
+gen_slot! {
+	/// Slot type accepting all objects
+	TargetSlot
+	field any { &'h ExternAny }
+
+	impl for { &'h ExternObject } {
+		result { &'h ExternAny }
+		write(self, slot) {
+			*slot = TargetSlot { any: self }
+		}
+		read(slot) {
+			unsafe { slot.any }
+		}
+		as_ref(result) {
+			result
+		}
+	}
+}
+
 pub union ArgumentsListSlot<'h> {
 	uninit: (),
 	any: &'h ExternAny
+}
+
+gen_slot! {
+	/// Slot type accepting all objects
+	NewTargetSlot
+	field any { &'h ExternAny }
+
+	impl for { &'h ExternObject } {
+		result { &'h ExternAny }
+		write(self, slot) {
+			*slot = NewTargetSlot { any: self }
+		}
+		read(slot) {
+			unsafe { slot.any }
+		}
+		as_ref(result) {
+			result
+		}
+	}
 }

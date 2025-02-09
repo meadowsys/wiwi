@@ -13,7 +13,7 @@ where
 }
 
 struct BuilderInner<'h> {
-	target: ObjectSlot<'h>
+	target: TargetSlot<'h>
 }
 
 gen_state! {
@@ -30,7 +30,7 @@ impl Builder<'static, StateUninit> {
 	pub(super) fn new() -> Self {
 		Self {
 			inner: BuilderInner {
-				target: ObjectSlot::uninit()
+				target: TargetSlot::uninit()
 			},
 			__marker: PhantomData
 		}
@@ -39,7 +39,7 @@ impl Builder<'static, StateUninit> {
 
 impl<
 	'h,
-	Target: SlotUnchecked<ObjectSlot<'h>>
+	Target: SlotUnchecked<TargetSlot<'h>>
 > Builder<'h, StateContainer<
 	Init<Target>
 >> {
@@ -69,9 +69,28 @@ where
 	gen_builder_fn! {
 		Target
 		TargetInit
-		ObjectSlot
+		TargetSlot
 
 		target
 		target_unchecked
+	}
+}
+
+gen_slot! {
+	/// Slot type accepting all objects
+	TargetSlot
+	field any { &'h ExternAny }
+
+	impl for { &'h ExternObject } {
+		result { &'h ExternAny }
+		write(self, slot) {
+			*slot = TargetSlot { any: self }
+		}
+		read(slot) {
+			unsafe { slot.any }
+		}
+		as_ref(result) {
+			result
+		}
 	}
 }
