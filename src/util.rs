@@ -198,49 +198,6 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 	}
 }
 
-/// macro for the boilerplate of calling `SlotUnchecked::read`
-/// followed by conversion to `&JsValue`
-///
-/// # Examples
-///
-/// ```ignore
-/// unsafe {
-///    read_slots! {
-///       self
-///       value: Value
-///       value2: Value2
-///       cheese: Cheese
-///    }
-/// }
-/// ```
-///
-/// Expands to:
-///
-/// ```ignore
-/// unsafe {
-///    let value = Value::read(self.inner.value);
-///    let value = value.as_ref().as_js_value();
-///    let value2 = Value2::read(self.inner.value2);
-///    let value2 = value2.as_ref().as_js_value();
-///    let cheese = Cheese::read(self.inner.cheese);
-///    let cheese = cheese.as_ref().as_js_value();
-/// }
-/// ```
-///
-/// Well... not quite, but, good enough for purposes of demonstration.
-macro_rules! read_slots {
-	{
-		$self:ident
-		$($ident:ident: $ty:ident)*
-	} => {
-		$(
-			let $ident = $ty::read($self.inner.$ident);
-			let $ident = $ty::as_ref(&$ident).as_js_value();
-		)*
-	}
-}
-pub(crate) use read_slots;
-
 macro_rules! gen_state {
 	{
 		$state:ident
@@ -448,6 +405,49 @@ macro_rules! gen_builder_fn {
 	};
 }
 pub(crate) use gen_builder_fn;
+
+/// macro for the boilerplate of calling `SlotUnchecked::read`
+/// followed by conversion to `&JsValue`
+///
+/// # Examples
+///
+/// ```ignore
+/// unsafe {
+///    read_slots! {
+///       self
+///       value: Value
+///       value2: Value2
+///       cheese: Cheese
+///    }
+/// }
+/// ```
+///
+/// Expands to:
+///
+/// ```ignore
+/// unsafe {
+///    let value = Value::read(self.inner.value);
+///    let value = value.as_ref().as_js_value();
+///    let value2 = Value2::read(self.inner.value2);
+///    let value2 = value2.as_ref().as_js_value();
+///    let cheese = Cheese::read(self.inner.cheese);
+///    let cheese = cheese.as_ref().as_js_value();
+/// }
+/// ```
+///
+/// Well... not quite, but, good enough for purposes of demonstration.
+macro_rules! read_slots {
+	{
+		$self:ident
+		$($ident:ident: $ty:ident)*
+	} => {
+		$(
+			let $ident = $ty::read($self.inner.$ident);
+			let $ident = $ty::as_ref(&$ident).as_js_value();
+		)*
+	}
+}
+pub(crate) use read_slots;
 
 macro_rules! gen_slot {
 	{
