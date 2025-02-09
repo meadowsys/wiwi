@@ -64,11 +64,9 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	gen_change_state!('h);
+	gen_change_state!();
 
 	gen_builder_fn! {
-		'h
-
 		Target
 		TargetInit
 		ObjectSlot

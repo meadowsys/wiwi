@@ -386,7 +386,7 @@ macro_rules! gen_state {
 pub(crate) use gen_state;
 
 macro_rules! gen_change_state {
-	('h) => {
+	() => {
 		#[inline(always)]
 		unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
 		where
@@ -408,7 +408,6 @@ pub(crate) use gen_change_state;
 
 macro_rules! gen_builder_fn {
 	{
-		'h
 		$field_state:ident
 		$field_state_init:ident
 		$slot:ident

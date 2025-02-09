@@ -80,11 +80,9 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	gen_change_state!('h);
+	gen_change_state!();
 
 	gen_builder_fn! {
-		'h
-
 		Target
 		TargetInit
 		ObjectSlot
@@ -94,8 +92,6 @@ where
 	}
 
 	gen_builder_fn! {
-		'h
-
 		PropertyKey
 		PropertyKeyInit
 		PropertyKeySlot
@@ -105,8 +101,6 @@ where
 	}
 
 	gen_builder_fn! {
-		'h
-
 		Attributes
 		AttributesInit
 		AttributesSlot
