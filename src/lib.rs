@@ -36,7 +36,7 @@
 // pub use wasm_bindgen::prelude::wasm_bindgen;
 
 // pub mod extern_crates;
-// pub mod util;
+pub mod util;
 
 // mod any;
 // mod bigint;
