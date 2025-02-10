@@ -26,7 +26,7 @@
 	)
 )]
 
-// pub use self::any::ExternAny;
+pub use self::any::ExternAny;
 // pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 // pub use self::object::ExternObject;
 // pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
@@ -38,7 +38,7 @@
 // pub mod extern_crates;
 pub mod util;
 
-// mod any;
+mod any;
 // mod bigint;
 // mod boolean;
 // mod object;
