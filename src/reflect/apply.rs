@@ -38,7 +38,7 @@ impl Builder<'static, StateUninit> {
 	pub(super) fn new() -> Self {
 		Self {
 			inner: BuilderInner {
-				target: TargetSlot ::uninit(),
+				target: TargetSlot::uninit(),
 				this_argument: ThisArgumentSlot { uninit: () },
 				arguments_list: ArgumentsListSlot { uninit: () }
 			},
