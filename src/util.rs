@@ -1,7 +1,16 @@
-//! API utilities and thingies
-//!
-//! The items that are publicly visible in this module can be considered stable.
-//! Anything that is internal only won't be visible.
+//! Common builder API utilities and stuffs
+
+// Checklist™
+// - use statements
+// - builder struct (with repr(transparent), `inner`, `__marker`)
+// - builder inner struct
+// - state trait
+// - state container struct
+// - type definitions for important states
+// - impl state for statecontainer
+// - impl builder uninit
+// - impl blocks for finished ones with `call` or `build` fns
+// - impl block for builder fns, `change_state`, internal functions etc
 
 // Checklist™ v2
 // - use statements
@@ -18,20 +27,18 @@
 
 pub use core::marker::PhantomData;
 
-pub type PhantomInvariant<T> = PhantomData<fn(T) -> T>;
-
 /// Marker struct for a field in the uninitialised state
 pub struct Uninit {
 	__private: ()
 }
 
 /// Marker struct for a field in the initialised state, optionally
-/// holding more state in the form of another type `T`
+/// containing more state in the form of another type `T`
 pub struct Init<T = ()>
 where
 	T: ?Sized
 {
-	__marker: PhantomInvariant<T>
+	__marker: PhantomDataInvariant<T>
 }
 
 /// Trait for marker structs to hold state about if a field in
@@ -161,115 +168,452 @@ where
 	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
 
+/// [`PhantomData`] but invariant over `T`
+///
+/// To construct values of this type, you still must use the expression
+/// `PhantomData`, as Rust doesn't like using type definitions as unit struct
+/// constructors.
+pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
+
+/// Provides convenience method
+/// [`cast_lifetime_write`](PtrWriteCastLifetimeExt::cast_lifetime_write)
+/// for pointers to references, to cast the lifetime of the reference type to
+/// something else before writing to the pointer (extremely, _extremely_
+/// simple to misuse!)
+pub(crate) trait PtrWriteCastLifetimeExt<T> {
+	/// Convenience method to change the lifetime of the reference type of the
+	/// pointer, then call `write` on the casted pointer
+	///
+	/// # Safety
+	///
+	/// You must ensure that your lifetimes are correct, as well as follow
+	/// safety requirements of [`ptr::write`](core::ptr::write).
+	unsafe fn cast_lifetime_write(self, value: &T);
+}
+
+impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
+	#[inline(always)]
+	unsafe fn cast_lifetime_write(self, value: &T) {
+		unsafe { self.cast::<&T>().write(value) }
+	}
+}
+
 macro_rules! gen_builder {
 	{
-		$(#[$struct_meta:meta])*
-		$struct_name:ident {
-			deref: $deref_ty:ty;
-
-			$(
-				$field_name:ident {
-					ty: $field_ident:ident;
-					ty_init: $field_ident_init:ident;
-					ty_slot: $field_ident_slot:ident;
-
-					$(slot $slot_ident:ident: $slot_type:ty;)*
-
-					$(slot_impl $($unsafe:ident)?: $slot_impl_ty:ident {
-						$($slot_impl_body:tt)*
-					})*
-				}
-			)*
-		}
+		$(#[$meta:meta])*
+		$($field:ident: $slot:ident)*
 	} => {
 		#[repr(transparent)]
-		$(#[$struct_meta])*
-		pub struct $struct_name<S>
+		$(#[$meta])*
+		pub struct Builder<'h, S>
 		where
 			S: State
 		{
-			inner: Inner,
-			__marker: PhantomData<S>
+			inner: BuilderInner<'h>,
+			__marker: PhantomDataInvariant<S>
 		}
 
-		// - todo builder inner struct
-		struct Inner {
-			deref: $deref_ty,
-			$($field_name: $field_ident_slot),*
+		struct BuilderInner<'h> {
+			$($field: $slot<'h>),*
 		}
 
-		impl<S> Deref for $struct_name<S>
-		where
-			S: State
-		{
-			type Target = $deref_ty;
-
+		impl Builder<'static, StateUninit> {
 			#[inline(always)]
-			fn deref(&self) -> &$deref_ty {
-				&self.inner.deref
+			pub(super) fn new() -> Self {
+				Self {
+					inner: BuilderInner {
+						$($field: $slot { uninit: () }),*
+						// todo when all slots have been converted to use the macro, use this
+						// $($field: $slot::uninit()),*
+					},
+					__marker: PhantomData
+				}
+			}
+		}
+	}
+}
+pub(crate) use gen_builder;
+
+macro_rules! gen_state {
+	{
+		$state:ident
+		$state_container:ident
+		$state_uninit:ident
+		$($field:ident $field_init:ident)*
+	} => {
+		pub trait $state {
+			$(
+				type $field: InitStatus;
+				type $field_init<S: ?Sized>: $state;
+			)*
+		}
+
+		#[allow(
+			unused_parens,
+			reason = "automatically generated"
+		)]
+		pub struct $state_container<$($field),*> {
+			__marker: $crate::prelude_internal::PhantomDataInvariant<(
+				$($field),*
+			)>
+		}
+
+		gen_state! {
+			@impl gen_uninit
+			$state_container
+			$state_uninit
+			{}
+			{ $($field)* }
+		}
+
+		impl<$(
+			$field: InitStatus
+		),*> $state for $state_container<$($field),*> {
+			gen_state! {
+				@impl state_init_types
+				$state_container
+				{}
+				{}
+				{ $($field $field_init)* }
+			}
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{}
+		{}
+		{
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
+		}
+	} => {
+		gen_state! {
+			@impl state_init_types
+			$state_container
+			{}
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
+		{
+			$field_next:ident $field_init_next:ident
+			$($field_rest:ident $field_init_rest:ident)*
+		}
+	} => {
+		type $field = $field;
+		type $field_init<S: ?Sized> = $state_container<
+			$($field_prev,)*
+			Init<S>,
+			$field_next,
+			$($field_rest,)*
+		>;
+
+		gen_state! {
+			@impl state_init_types
+			$state_container
+			{
+				$($field_prev $field_init_prev)*
+				$field $field_init
+			}
+			{ $field_next $field_init_next }
+			{ $($field_rest $field_init_rest)* }
+		}
+	};
+
+	{
+		@impl state_init_types
+		$state_container:ident
+		{ $($field_prev:ident $field_init_prev:ident)* }
+		{ $field:ident $field_init:ident }
+		{}
+	} => {
+		type $field = $field;
+		type $field_init<S: ?Sized> = $state_container<
+			$($field_prev,)*
+			Init<S>,
+		>;
+	};
+
+	{
+		@impl gen_uninit
+		$state_container:ident
+		$state_uninit:ident
+		{ $($uninit_ty:ident)* }
+		{
+			$field:ident
+			$($field_rest:ident)*
+		}
+	} => {
+		gen_state! {
+			@impl gen_uninit
+			$state_container
+			$state_uninit
+			{
+				$($uninit_ty)*
+				Uninit
+			}
+			{ $($field_rest)* }
+		}
+	};
+
+	{
+		@impl gen_uninit
+		$state_container:ident
+		$state_uninit:ident
+		{ $($uninit_ty:ident)* }
+		{}
+	} => {
+		pub type $state_uninit = $state_container<
+			$($uninit_ty),*
+		>;
+	};
+}
+pub(crate) use gen_state;
+
+macro_rules! gen_change_state {
+	() => {
+		#[inline(always)]
+		unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
+		where
+			'h: 'h2,
+			S2: State,
+			F: FnOnce(&mut Builder<'h2, S2>)
+		{
+			let mut changed = Builder {
+				inner: self.inner,
+				__marker: PhantomData
+			};
+
+			f(&mut changed);
+			changed
+		}
+	};
+}
+pub(crate) use gen_change_state;
+
+macro_rules! gen_builder_fn {
+	{
+		$field_state:ident
+		$field_state_init:ident
+		$slot:ident
+
+		$(#[$meta:meta])*
+		$field:ident
+
+		$(#[$meta_unchecked:meta])*
+		$fn_name_unchecked:ident
+	} => {
+		#[inline(always)]
+		$(#[$meta])*
+		pub fn $field<'h2, T>(
+			self,
+			$field: T
+		) -> Builder<'h2, S::$field_state_init<T>>
+		where
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: Slot<$slot<'h2>>
+		{
+			unsafe { self.$fn_name_unchecked($field) }
+		}
+
+		#[doc = concat!(
+			"Setter for [`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			") with much, _much_ looser type restrictions"
+		)]
+		#[doc = ""]
+		#[doc = concat!(
+			"See the safer setter ([`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			")) for more information."
+		)]
+		#[inline(always)]
+		$(#[$meta_unchecked])*
+		pub unsafe fn $fn_name_unchecked<'h2, T>(
+			self,
+			$field: T
+		) -> Builder<'h2, S::$field_state_init<T>>
+		where
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: SlotUnchecked<$slot<'h2>>
+		{
+			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
+		}
+	};
+}
+pub(crate) use gen_builder_fn;
+
+/// macro for the boilerplate of calling `SlotUnchecked::read`
+/// followed by conversion to `&JsValue`
+///
+/// # Examples
+///
+/// ```ignore
+/// unsafe {
+///    read_slots! {
+///       self
+///       value: Value
+///       value2: Value2
+///       cheese: Cheese
+///    }
+/// }
+/// ```
+///
+/// Expands to:
+///
+/// ```ignore
+/// unsafe {
+///    let value = Value::read(self.inner.value);
+///    let value = value.as_ref().as_js_value();
+///    let value2 = Value2::read(self.inner.value2);
+///    let value2 = value2.as_ref().as_js_value();
+///    let cheese = Cheese::read(self.inner.cheese);
+///    let cheese = cheese.as_ref().as_js_value();
+/// }
+/// ```
+///
+/// Well... not quite, but, good enough for purposes of demonstration.
+macro_rules! read_slots {
+	{
+		$self:ident
+		$($ident:ident: $ty:ident)*
+	} => {
+		$(
+			let $ident = $ty::read($self.inner.$ident);
+			let $ident = $ty::as_ref(&$ident).as_js_value();
+		)*
+	}
+}
+pub(crate) use read_slots;
+
+macro_rules! gen_slot {
+	{
+		$(#[$union_meta:meta])*
+		$slot:ident
+		$(field $field:ident { $($field_type:tt)* })*
+
+		$(
+			impl for { $($impl_type:tt)* } $($unsafe:ident)? {
+				$($impl_stuff:tt)*
+			}
+		)*
+	} => {
+		$(#[$union_meta])*
+		pub union $slot<'h> {
+			uninit: (),
+			$($field: $($field_type)*),*
+		}
+
+		impl $slot<'static> {
+			#[inline(always)]
+			pub(crate) fn uninit() -> Self {
+				Self { uninit: () }
 			}
 		}
 
-		// - todo state trait
-		pub trait State {
-			$(
-				type $field_ident: InitStatus;
-				type $field_ident_init<'h, T>: State;
-			)*
+		gen_slot! {
+			@impl trait_impl
+			unsafe $slot { &'h ExternAny } {
+				result { &'h ExternAny }
+				write(self, slot) {
+					*slot = $slot { any: self }
+				}
+				read(slot) {
+					unsafe { slot.any }
+				}
+				as_ref(result) {
+					result
+				}
+			}
 		}
 
-		// - todo state container
-
-		// - todo uninit type def
-
-		// - todo impl state for state container
-
-		// - todo impl builder uninit
-
-		// - todo impl blocks for finished ones with `call_fn` or `build` fns
-
-		// - todo impl block for builder fns, `change_state`, internal functions etc
-
-		// - todo target slot union definitions (will want `uninit`, likely will
-		//   want `any`, and whatever other incompatible types in there), and
-		//   associated impls (`Slot` and `SlotUnchecked` impls etc)
-
 		$(
-			pub union $field_ident_slot {
-				uninit: ()
+			gen_slot! {
+				@impl trait_impl
+				$($unsafe)? $slot { $($impl_type)* } { $($impl_stuff)* }
 			}
 		)*
 	};
 
 	{
-		@impl slot_impl
-		unsafe $slot:ident for $impl_ty:ty {
-			result: $result:ident;
+		@impl trait_impl
+		unsafe $slot:ident { $($impl_type:tt)* } {
+			result { $($result:tt)* }
 
-			write($self:ident, $slot_write:ident) {
+			write($self:ident, $slot_write_param:ident) $(-> { $($write_return_type:tt)* })? {
 				$($write_impl:tt)*
 			}
 
-			read($slot_read:ident) {
+			read($slot_read_param:ident) $(-> { $($read_return_type:tt)* })? {
 				$($read_impl:tt)*
 			}
 
-			as_ref(result:ident) $(-> $result_ty:ty)? {
+			as_ref($result_as_ref_param:ident) $(-> { $($as_ref_return_type:tt)* })? {
 				$($as_ref_impl:tt)*
 			}
 		}
 	} => {
-		impl<'h> SlotUnchecked<$slot> for $impl_ty {}
+		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $($impl_type)* {
+			type Result = $($result)*;
+
+			#[inline]
+			unsafe fn write(
+				$self,
+				$slot_write_param: &mut $slot<'h>
+			) {
+				$($write_impl)*
+			}
+
+			#[inline]
+			unsafe fn read(
+				$slot_read_param: $slot<'h>
+			) -> $($result)* {
+				$($read_impl)*
+			}
+
+			#[inline]
+			fn as_ref<'h2>(
+				$result_as_ref_param: &'h2 $($result)*
+			) -> gen_slot! {
+				@impl mk_return_type_as_ref
+				$($as_ref_return_type)*
+			} {
+				$($as_ref_impl)*
+			}
+		}
 	};
 
 	{
-		@impl slot_impl
-		$slot:ident: $impl_ty:ty {
+		@impl trait_impl
+		$slot:ident { $($impl_type:tt)* } {
 			$($stuff:tt)*
 		}
-	} => {};
+	} => {
+		unsafe impl<'h> Slot<$slot<'h>> for $($impl_type)* {}
+
+		gen_slot! {
+			@impl trait_impl
+			unsafe $slot { $($impl_type)* } {
+				$($stuff)*
+			}
+		}
+	};
 
 	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
 	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
 }
-pub(crate) use gen_builder;
+pub(crate) use gen_slot;
