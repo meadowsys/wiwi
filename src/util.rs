@@ -201,27 +201,29 @@ impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
 macro_rules! gen_builder {
 	{
 		$(#[$meta:meta])*
+		$name:ident
+
 		$($field:ident: $slot:ident)*
 	} => {
 		#[repr(transparent)]
 		$(#[$meta])*
-		pub struct Builder<'h, S>
+		pub struct $name<'h, S>
 		where
 			S: State
 		{
-			inner: BuilderInner<'h>,
+			inner: Inner<'h>,
 			__marker: PhantomDataInvariant<S>
 		}
 
-		struct BuilderInner<'h> {
+		struct Inner<'h> {
 			$($field: $slot<'h>),*
 		}
 
-		impl Builder<'static, StateUninit> {
+		impl $name<'static, StateUninit> {
 			#[inline(always)]
 			pub(super) fn new() -> Self {
 				Self {
-					inner: BuilderInner {
+					inner: Inner {
 						$($field: $slot { uninit: () }),*
 						// todo when all slots have been converted to use the macro, use this
 						// $($field: $slot::uninit()),*
@@ -379,15 +381,15 @@ macro_rules! gen_state {
 pub(crate) use gen_state;
 
 macro_rules! gen_change_state {
-	() => {
+	($name:ident) => {
 		#[inline(always)]
-		unsafe fn change_state<'h2, S2, F>(self, f: F) -> Builder<'h2, S2>
+		unsafe fn change_state<'h2, S2, F>(self, f: F) -> $name<'h2, S2>
 		where
 			'h: 'h2,
 			S2: State,
-			F: FnOnce(&mut Builder<'h2, S2>)
+			F: FnOnce(&mut $name<'h2, S2>)
 		{
-			let mut changed = Builder {
+			let mut changed = $name {
 				inner: self.inner,
 				__marker: PhantomData
 			};
@@ -401,6 +403,8 @@ pub(crate) use gen_change_state;
 
 macro_rules! gen_builder_fn {
 	{
+		$name:ident
+
 		$field_state:ident
 		$field_state_init:ident
 		$slot:ident
@@ -416,7 +420,7 @@ macro_rules! gen_builder_fn {
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
-		) -> Builder<'h2, S::$field_state_init<T>>
+		) -> $name<'h2, S::$field_state_init<T>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
@@ -445,7 +449,7 @@ macro_rules! gen_builder_fn {
 		pub unsafe fn $fn_name_unchecked<'h2, T>(
 			self,
 			$field: T
-		) -> Builder<'h2, S::$field_state_init<T>>
+		) -> $name<'h2, S::$field_state_init<T>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,

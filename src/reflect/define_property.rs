@@ -8,11 +8,11 @@ pub struct Builder<'h, S>
 where
 	S: State
 {
-	inner: BuilderInner<'h>,
+	inner: Inner<'h>,
 	__marker: PhantomDataInvariant<S>
 }
 
-struct BuilderInner<'h> {
+struct Inner<'h> {
 	target: TargetSlot<'h>,
 	property_key: PropertyKeySlot<'h>,
 	attributes: AttributesSlot<'h>
@@ -37,7 +37,7 @@ impl Builder<'static, StateUninit> {
 	#[inline]
 	pub(super) fn new() -> Self {
 		Self {
-			inner: BuilderInner {
+			inner: Inner {
 				target: TargetSlot::uninit(),
 				property_key: PropertyKeySlot { uninit: () },
 				attributes: AttributesSlot { uninit: () }
@@ -80,9 +80,11 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	gen_change_state!();
+	gen_change_state!(Builder);
 
 	gen_builder_fn! {
+		Builder
+
 		Target
 		TargetInit
 		TargetSlot
@@ -92,6 +94,8 @@ where
 	}
 
 	gen_builder_fn! {
+		Builder
+
 		PropertyKey
 		PropertyKeyInit
 		PropertyKeySlot
@@ -101,6 +105,8 @@ where
 	}
 
 	gen_builder_fn! {
+		Builder
+
 		Attributes
 		AttributesInit
 		AttributesSlot

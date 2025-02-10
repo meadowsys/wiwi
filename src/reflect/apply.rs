@@ -8,11 +8,11 @@ pub struct Builder<'h, S>
 where
 	S: State
 {
-	inner: BuilderInner<'h>,
+	inner: Inner<'h>,
 	__marker: PhantomDataInvariant<S>
 }
 
-struct BuilderInner<'h> {
+struct Inner<'h> {
 	target: TargetSlot <'h>,
 	this_argument: ThisArgumentSlot<'h>,
 	arguments_list: ArgumentsListSlot<'h>
@@ -37,7 +37,7 @@ impl Builder<'static, StateUninit> {
 	#[inline]
 	pub(super) fn new() -> Self {
 		Self {
-			inner: BuilderInner {
+			inner: Inner {
 				target: TargetSlot::uninit(),
 				this_argument: ThisArgumentSlot { uninit: () },
 				arguments_list: ArgumentsListSlot { uninit: () }
@@ -80,9 +80,11 @@ impl<'h, S> Builder<'h, S>
 where
 	S: State
 {
-	gen_change_state!();
+	gen_change_state!(Builder);
 
 	gen_builder_fn! {
+		Builder
+
 		Target
 		TargetInit
 		TargetSlot
@@ -95,6 +97,8 @@ where
 	}
 
 	gen_builder_fn! {
+		Builder
+
 		ThisArgument
 		ThisArgumentInit
 		ThisArgumentSlot
@@ -107,6 +111,8 @@ where
 	}
 
 	gen_builder_fn! {
+		Builder
+
 		ArgumentsList
 		ArgumentsListInit
 		ArgumentsListSlot

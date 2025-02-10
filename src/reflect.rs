@@ -1,5 +1,19 @@
 use crate::prelude_internal::*;
 
+// pub use apply::
+// pub use construct::
+// pub use define_property::
+// pub use delete_property::
+// pub use get::
+// pub use get_own_property_descriptor::
+// pub use get_prototype_of::
+// pub use has::
+// pub use is_extensible::
+// pub use own_keys::
+// pub use prevent_extensions::
+pub use set::ExternReflectSet;
+// pub use set_prototype_of::
+
 pub mod apply;
 pub mod construct;
 pub mod define_property;
@@ -127,8 +141,8 @@ impl ExternReflectNs {
 	///
 	/// [MDN docs](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect/set)
 	#[inline]
-	pub fn set(&self) -> set::Builder<'static, set::StateUninit> {
-		set::Builder::new()
+	pub fn set(&self) -> ExternReflectSet<'static, set::StateUninit> {
+		ExternReflectSet::new()
 	}
 
 	/// Create builder for `Reflect.setPrototypeOf()`

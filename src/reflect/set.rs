@@ -4,6 +4,8 @@ use crate::prelude_internal::*;
 use super::raw;
 
 gen_builder! {
+	ExternReflectSet
+
 	target: TargetSlot
 	property_key: PropertyKeySlot
 	value: ValueSlot
@@ -33,7 +35,7 @@ impl<
 	Target: SlotUnchecked<TargetSlot<'h>>,
 	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
 	Value: SlotUnchecked<ValueSlot<'h>>
-> Builder<'h, StateContainer<
+> ExternReflectSet<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
 	Init<Value>,
@@ -68,7 +70,7 @@ impl<
 	PropertyKey: SlotUnchecked<PropertyKeySlot<'h>>,
 	Value: SlotUnchecked<ValueSlot<'h>>,
 	Receiver: SlotUnchecked<ReceiverSlot<'h>>
-> Builder<'h, StateContainer<
+> ExternReflectSet<'h, StateContainer<
 	Init<Target>,
 	Init<PropertyKey>,
 	Init<Value>,
@@ -99,13 +101,15 @@ impl<
 	}
 }
 
-impl<'h, S> Builder<'h, S>
+impl<'h, S> ExternReflectSet<'h, S>
 where
 	S: State
 {
-	gen_change_state!();
+	gen_change_state!(ExternReflectSet);
 
 	gen_builder_fn! {
+		ExternReflectSet
+
 		Target
 		TargetInit
 		TargetSlot
@@ -115,6 +119,8 @@ where
 	}
 
 	gen_builder_fn! {
+		ExternReflectSet
+
 		PropertyKey
 		PropertyKeyInit
 		PropertyKeySlot
@@ -124,6 +130,8 @@ where
 	}
 
 	gen_builder_fn! {
+		ExternReflectSet
+
 		Value
 		ValueInit
 		ValueSlot
@@ -133,6 +141,8 @@ where
 	}
 
 	gen_builder_fn! {
+		ExternReflectSet
+
 		Receiver
 		ReceiverInit
 		ReceiverSlot
