@@ -173,7 +173,7 @@ macro_rules! gen_builder {
 					ty_init: $field_ident_init:ident;
 					ty_slot: $field_ident_slot:ident;
 
-					$(slot: $slot_type:ty;)*
+					$(slot $slot_ident:ident: $slot_type:ty;)*
 
 					$(slot_impl $($unsafe:ident)?: $slot_impl_ty:ident {
 						$($slot_impl_body:tt)*
@@ -194,7 +194,20 @@ macro_rules! gen_builder {
 
 		// - todo builder inner struct
 		struct Inner {
+			deref: $deref_ty,
 			$($field_name: $field_ident_slot),*
+		}
+
+		impl<S> Deref for $struct_name<S>
+		where
+			S: State
+		{
+			type Target = $deref_ty;
+
+			#[inline(always)]
+			fn deref(&self) -> &$deref_ty {
+				&self.inner.deref
+			}
 		}
 
 		// - todo state trait
@@ -206,7 +219,9 @@ macro_rules! gen_builder {
 		}
 
 		// - todo state container
+
 		// - todo uninit type def
+
 		// - todo impl state for state container
 
 		// - todo impl builder uninit
@@ -225,5 +240,36 @@ macro_rules! gen_builder {
 			}
 		)*
 	};
+
+	{
+		@impl slot_impl
+		unsafe $slot:ident for $impl_ty:ty {
+			result: $result:ident;
+
+			write($self:ident, $slot_write:ident) {
+				$($write_impl:tt)*
+			}
+
+			read($slot_read:ident) {
+				$($read_impl:tt)*
+			}
+
+			as_ref(result:ident) $(-> $result_ty:ty)? {
+				$($as_ref_impl:tt)*
+			}
+		}
+	} => {
+		impl<'h> SlotUnchecked<$slot> for $impl_ty {}
+	};
+
+	{
+		@impl slot_impl
+		$slot:ident: $impl_ty:ty {
+			$($stuff:tt)*
+		}
+	} => {};
+
+	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
+	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
 }
 pub(crate) use gen_builder;
