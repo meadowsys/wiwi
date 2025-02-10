@@ -151,13 +151,12 @@ where
 	/// [`write`]: SlotUnchecked::write
 	unsafe fn read(slot: T) -> Self::Result;
 
-	// todo do this after ExternAny
-	// /// Converts the read output type into a reference of type
-	// /// [`&ExternAny`](crate::ExternAny)
-	// ///
-	// /// This function is used so implementors can return non reference types.
-	// /// Trait consumers would then take ownership of the provided output, and
-	// /// use this function to get a reference type [`&ExternAny`](crate::ExternAny)
-	// /// from it.
-	// fn as_ref(result: &Self::Result) -> &crate::ExternAny;
+	/// Converts the read output type into a reference of type
+	/// [`&ExternAny`](crate::ExternAny)
+	///
+	/// This function is used so implementors can return non reference types.
+	/// Trait consumers would then take ownership of the provided output, and
+	/// use this function to get a reference type [`&ExternAny`](crate::ExternAny)
+	/// from it.
+	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
