@@ -33,7 +33,7 @@ pub use self::any::ExternAny;
 // #[doc(inline)]
 // pub use self::reflect::{ ExternReflectNs, reflect };
 // pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
-// pub use wasm_bindgen::prelude::wasm_bindgen;
+pub use wasm_bindgen::prelude::wasm_bindgen;
 
 // pub mod extern_crates;
 pub mod util;
@@ -50,25 +50,26 @@ mod reflect;
 // #[cfg(test)]
 // wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
-// #[allow(
-// 	dead_code,
-// 	unused_imports,
-// 	reason = "prelude"
-// )]
-// mod prelude_internal {
-// 	pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
-// 	pub(crate) use crate::util::*;
-// 	pub(crate) use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
-// 	pub(crate) use core::ops::Deref;
-// }
+#[allow(
+	dead_code,
+	unused_imports,
+	reason = "prelude"
+)]
+mod prelude_internal {
+	// pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
+	pub use crate::wasm_bindgen;
+	pub use crate::util::*;
+	// pub use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
+	// pub use core::ops::Deref;
+}
 
-// #[allow(
-// 	dead_code,
-// 	unused_imports,
-// 	reason = "prelude"
-// )]
-// #[cfg(test)]
-// mod prelude_test {
-// 	pub(crate) use wasm_bindgen_test::wasm_bindgen_test;
-// 	pub(crate) use core::hint::black_box;
-// }
+#[allow(
+	dead_code,
+	unused_imports,
+	reason = "prelude"
+)]
+#[cfg(test)]
+mod prelude_test {
+	pub use wasm_bindgen_test::wasm_bindgen_test;
+	pub use core::hint::black_box;
+}
