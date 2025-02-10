@@ -41,7 +41,7 @@ pub mod util;
 mod any;
 // mod bigint;
 // mod boolean;
-// mod object;
+mod object;
 // mod number;
 mod reflect;
 // mod string;

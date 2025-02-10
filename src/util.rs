@@ -160,3 +160,70 @@ where
 	/// from it.
 	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
+
+macro_rules! gen_builder {
+	{
+		$(#[$struct_meta:meta])*
+		$struct_name:ident {
+			deref: $deref_ty:ty;
+
+			$(
+				$field_name:ident {
+					ty: $field_ident:ident;
+					ty_init: $field_ident_init:ident;
+					ty_slot: $field_ident_slot:ident;
+
+					$(slot: $slot_type:ty;)*
+
+					$(slot_impl $($unsafe:ident)?: $slot_impl_ty:ident {
+						$($slot_impl_body:tt)*
+					})*
+				}
+			)*
+		}
+	} => {
+		#[repr(transparent)]
+		$(#[$struct_meta])*
+		pub struct $struct_name<S>
+		where
+			S: State
+		{
+			inner: Inner,
+			__marker: PhantomData<S>
+		}
+
+		// - todo builder inner struct
+		struct Inner {
+			$($field_name: $field_ident_slot),*
+		}
+
+		// - todo state trait
+		pub trait State {
+			$(
+				type $field_ident: InitStatus;
+				type $field_ident_init<'h, T>: State;
+			)*
+		}
+
+		// - todo state container
+		// - todo uninit type def
+		// - todo impl state for state container
+
+		// - todo impl builder uninit
+
+		// - todo impl blocks for finished ones with `call_fn` or `build` fns
+
+		// - todo impl block for builder fns, `change_state`, internal functions etc
+
+		// - todo target slot union definitions (will want `uninit`, likely will
+		//   want `any`, and whatever other incompatible types in there), and
+		//   associated impls (`Slot` and `SlotUnchecked` impls etc)
+
+		$(
+			pub union $field_ident_slot {
+				uninit: ()
+			}
+		)*
+	};
+}
+pub(crate) use gen_builder;
