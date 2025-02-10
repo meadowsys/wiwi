@@ -5,11 +5,14 @@ use super::raw;
 
 gen_builder! {
 	ExternReflectSet
+	deref(value) -> () {
+		value.get_or_insert_with(|| ())
+	}
 
-	target: TargetSlot
-	property_key: PropertyKeySlot
-	value: ValueSlot
-	receiver: ReceiverSlot
+	target: TargetSlot;
+	property_key: PropertyKeySlot;
+	value: ValueSlot;
+	receiver: ReceiverSlot;
 }
 
 gen_state! {

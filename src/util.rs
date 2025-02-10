@@ -202,8 +202,11 @@ macro_rules! gen_builder {
 	{
 		$(#[$meta:meta])*
 		$name:ident
+		deref($value:ident) -> $deref:ty {
+			$($deref_impl:tt)*
+		}
 
-		$($field:ident: $slot:ident)*
+		$($field:ident: $slot:ident;)*
 	} => {
 		#[repr(transparent)]
 		$(#[$meta])*
@@ -216,6 +219,7 @@ macro_rules! gen_builder {
 		}
 
 		struct Inner<'h> {
+			__deref: core::cell::UnsafeCell<Option<$deref>>,
 			$($field: $slot<'h>),*
 		}
 
@@ -224,12 +228,25 @@ macro_rules! gen_builder {
 			pub(super) fn new() -> Self {
 				Self {
 					inner: Inner {
+						__deref: core::cell::UnsafeCell::new(None),
 						$($field: $slot { uninit: () }),*
 						// todo when all slots have been converted to use the macro, use this
 						// $($field: $slot::uninit()),*
 					},
 					__marker: PhantomData
 				}
+			}
+		}
+
+		impl<'h, S> Deref for $name<'h, S>
+		where
+			S: State
+		{
+			type Target = $deref;
+			#[inline(always)]
+			fn deref(&self) -> &$deref {
+				let $value = unsafe { &mut *self.inner.__deref.get() };
+				$($deref_impl)*
 			}
 		}
 	}
