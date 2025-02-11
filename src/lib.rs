@@ -27,25 +27,25 @@
 )]
 
 pub use self::any::ExternAny;
-pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
-pub use self::object::ExternObject;
-pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
-#[doc(inline)]
-pub use self::reflect::{ ExternReflectNs, reflect };
-pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
+// pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
+// pub use self::object::ExternObject;
+// pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
+// #[doc(inline)]
+// pub use self::reflect::{ ExternReflectNs, reflect };
+// pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
-pub mod extern_crates;
+mod any;
+// pub mod extern_crates;
 pub mod util;
 
-mod any;
-mod bigint;
-mod boolean;
-mod object;
-mod number;
-pub mod reflect;
-mod string;
-mod symbol;
+// mod bigint;
+// mod boolean;
+// mod object;
+// mod number;
+// pub mod reflect;
+// mod string;
+// mod symbol;
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
@@ -56,10 +56,10 @@ wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 	reason = "prelude"
 )]
 mod prelude_internal {
-	pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
-	pub(crate) use crate::util::*;
-	pub(crate) use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
-	pub(crate) use core::ops::Deref;
+	// pub(crate) use crate::{ ExternAny, ExternObject, wasm_bindgen };
+	// pub(crate) use crate::util::*;
+	// pub(crate) use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
+	// pub(crate) use core::ops::Deref;
 }
 
 #[allow(
@@ -69,6 +69,6 @@ mod prelude_internal {
 )]
 #[cfg(test)]
 mod prelude_test {
-	pub(crate) use wasm_bindgen_test::wasm_bindgen_test;
-	pub(crate) use core::hint::black_box;
+	// pub(crate) use wasm_bindgen_test::wasm_bindgen_test;
+	// pub(crate) use core::hint::black_box;
 }
