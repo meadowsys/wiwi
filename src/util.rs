@@ -169,6 +169,21 @@ where
 	// fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
 
+/// [`PhantomData`] but contravariant over `'h`, invariant over `T`,
+/// and marks the type as `!Send` and `!Sync`.
+///
+/// To construct values of this type, you still must use the expression
+/// `PhantomData`, as Rust doesn't like using type definitions as unit struct
+/// constructors.
+pub(crate) type PhantomDataBuilder<'h, S> = PhantomData<(
+	// `'h` contravariant
+	fn(&'h ()),
+	// `S` invariant
+	fn(S) -> S,
+	// `!Send` and `!Sync`
+	*mut ()
+)>;
+
 /// [`PhantomData`] but invariant over `T`
 ///
 /// To construct values of this type, you still must use the expression
