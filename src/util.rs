@@ -176,29 +176,6 @@ where
 /// constructors.
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
-/// Provides convenience method
-/// [`cast_lifetime_write`](PtrWriteCastLifetimeExt::cast_lifetime_write)
-/// for pointers to references, to cast the lifetime of the reference type to
-/// something else before writing to the pointer (extremely, _extremely_
-/// simple to misuse!)
-pub(crate) trait PtrWriteCastLifetimeExt<T> {
-	/// Convenience method to change the lifetime of the reference type of the
-	/// pointer, then call `write` on the casted pointer
-	///
-	/// # Safety
-	///
-	/// You must ensure that your lifetimes are correct, as well as follow
-	/// safety requirements of [`ptr::write`](core::ptr::write).
-	unsafe fn cast_lifetime_write(self, value: &T);
-}
-
-impl<T> PtrWriteCastLifetimeExt<T> for *mut &T {
-	#[inline(always)]
-	unsafe fn cast_lifetime_write(self, value: &T) {
-		unsafe { self.cast::<&T>().write(value) }
-	}
-}
-
 macro_rules! gen_builder {
 	{
 		$(#[$meta:meta])*
