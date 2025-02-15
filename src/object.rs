@@ -33,6 +33,31 @@ gen_builder_fns! {
 	field_unchecked value_unchecked;
 }
 
+gen_call_fn! {
+	struct ExternObject;
+	raw_call unsafe {
+		let _ = value;
+		todo!()
+	};
+	return Result<ExternAny, ExternAny>;
+
+	field value;
+	state Value;
+	init Init<ValueSlot>;
+}
+
+gen_call_fn! {
+	struct ExternObject;
+	raw_call unsafe {
+		todo!()
+	};
+	return Result<ExternAny, ExternAny>;
+
+	field valueaaaaaaaaaaaaaaaaaa;
+	state Value;
+	init Uninit;
+}
+
 mod raw {
 	use super::*;
 	use wasm_bindgen::JsValue;

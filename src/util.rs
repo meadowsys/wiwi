@@ -158,15 +158,14 @@ where
 	/// [`write`]: SlotUnchecked::write
 	unsafe fn read(slot: T) -> Self::Result;
 
-	// todo
-	// /// Converts the read output type into a reference of type
-	// /// [`&ExternAny`](crate::ExternAny)
-	// ///
-	// /// This function is used so implementors can return non reference types.
-	// /// Trait consumers would then take ownership of the provided output, and
-	// /// use this function to get a reference type [`&ExternAny`](crate::ExternAny)
-	// /// from it.
-	// fn as_ref(result: &Self::Result) -> &crate::ExternAny;
+	/// Converts the read output type into a reference of type
+	/// [`&ExternAny`](crate::ExternAny)
+	///
+	/// This function is used so implementors can return non reference types.
+	/// Trait consumers would then take ownership of the provided output, and
+	/// use this function to get a reference type [`&ExternAny`](crate::ExternAny)
+	/// from it.
+	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
 
 /// [`PhantomData`] but contravariant over `'h`, invariant over `T`,
@@ -445,48 +444,48 @@ pub(crate) use gen_slot;
 // }
 // pub(crate) use gen_slot;
 
-// /// macro for the boilerplate of calling `SlotUnchecked::read`
-// /// followed by conversion to `&JsValue`
-// ///
-// /// # Examples
-// ///
-// /// ```ignore
-// /// unsafe {
-// ///    read_slots! {
-// ///       self
-// ///       value: Value
-// ///       value2: Value2
-// ///       cheese: Cheese
-// ///    }
-// /// }
-// /// ```
-// ///
-// /// Expands to:
-// ///
-// /// ```ignore
-// /// unsafe {
-// ///    let value = Value::read(self.inner.value);
-// ///    let value = value.as_ref().as_js_value();
-// ///    let value2 = Value2::read(self.inner.value2);
-// ///    let value2 = value2.as_ref().as_js_value();
-// ///    let cheese = Cheese::read(self.inner.cheese);
-// ///    let cheese = cheese.as_ref().as_js_value();
-// /// }
-// /// ```
-// ///
-// /// Well... not quite, but, good enough for purposes of demonstration.
-// macro_rules! read_slots {
-// 	{
-// 		$self:ident
-// 		$($ident:ident: $ty:ident)*
-// 	} => {
-// 		$(
-// 			let $ident = $ty::read($self.inner.$ident);
-// 			let $ident = $ty::as_ref(&$ident).as_js_value();
-// 		)*
-// 	}
-// }
-// pub(crate) use read_slots;
+/// macro for the boilerplate of calling `SlotUnchecked::read`
+/// followed by conversion to `&JsValue`
+///
+/// # Examples
+///
+/// ```ignore
+/// unsafe {
+///    read_slots! {
+///       self
+///       value: Value
+///       value2: Value2
+///       cheese: Cheese
+///    }
+/// }
+/// ```
+///
+/// Expands to:
+///
+/// ```ignore
+/// unsafe {
+///    let value = Value::read(self.inner.value);
+///    let value = value.as_ref().as_js_value();
+///    let value2 = Value2::read(self.inner.value2);
+///    let value2 = value2.as_ref().as_js_value();
+///    let cheese = Cheese::read(self.inner.cheese);
+///    let cheese = cheese.as_ref().as_js_value();
+/// }
+/// ```
+///
+/// Well... not quite, but, good enough for purposes of demonstration.
+macro_rules! read_slots {
+	{
+		$self:ident
+		$($ident:ident: $ty:ident)*
+	} => {
+		$(
+			let $ident = $ty::read($self.inner.$ident);
+			let $ident = $ty::as_ref(&$ident).as_js_value();
+		)*
+	}
+}
+pub(crate) use read_slots;
 
 macro_rules! gen_state {
 	{
@@ -661,7 +660,7 @@ macro_rules! gen_builder_fns {
 
 		$(
 			state $field_state:ident;
-			init $field_state_init:ident;
+			init $field_init:ident;
 			slot $slot:ident;
 
 			$(#[$meta:meta])*
@@ -679,7 +678,7 @@ macro_rules! gen_builder_fns {
 					struct $struct_name;
 
 					state $field_state;
-					init $field_state_init;
+					init $field_init;
 					slot $slot;
 
 					$(#[$meta:meta])*
@@ -699,7 +698,7 @@ macro_rules! gen_builder_fn {
 		struct $struct_name:ident;
 
 		state $field_state:ident;
-		init $field_state_init:ident;
+		init $field_init:ident;
 		slot $slot:ident;
 
 		$(#[$meta:meta])*
@@ -713,7 +712,7 @@ macro_rules! gen_builder_fn {
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
-		) -> $struct_name<'h2, S::$field_state_init<T>>
+		) -> $struct_name<'h2, S::$field_init<T>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
@@ -742,7 +741,7 @@ macro_rules! gen_builder_fn {
 		pub unsafe fn $fn_name_unchecked<'h2, T>(
 			self,
 			$field: T
-		) -> $struct_name<'h2, S::$field_state_init<T>>
+		) -> $struct_name<'h2, S::$field_init<T>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
@@ -774,3 +773,123 @@ macro_rules! gen_change_state {
 	};
 }
 pub(crate) use gen_change_state;
+
+macro_rules! gen_call_fn {
+	{
+		struct $struct_name:ident;
+		raw_call unsafe { $($raw_call:tt)* };
+		return $return_type:ty;
+
+		$($rest:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call { $($raw_call)* };
+			return $return_type;
+
+			fields {}
+
+			$($rest)*
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call { $($raw_call:tt)* };
+		return $return_type:ty;
+
+		fields { $($fields:tt)* }
+
+		field $field_name:ident;
+		state $field_state:ident;
+		init Init<$slot:ident>;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call { $($raw_call)* };
+			return $return_type;
+
+			fields {
+				$($fields)*
+
+				field
+				{ $field_state: SlotUnchecked<$slot<'h>>, }
+				{ Init<$field_state> }
+				{ $field_name: $field_state }
+			}
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call { $($raw_call:tt)* };
+		return $return_type:ty;
+
+		fields { $($fields:tt)* }
+
+		field $field_name:ident;
+		state $field_state:ident;
+		init Uninit;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call { $($raw_call)* };
+			return $return_type;
+
+			fields {
+				$($fields)*
+
+				field
+				{}
+				{ Uninit }
+				{}
+			}
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call { $($raw_call:tt)* };
+		return $return_type:ty;
+
+		fields {
+			$(
+				field
+				{ $($impl_param:tt)* }
+				{ $($struct_param:tt)* }
+				{ $($read_slots_input:tt)* }
+			)*
+		}
+	} => {
+		impl<
+			'h,
+			$($($impl_param)*)*
+		> $struct_name<'h, StateContainer<
+			$($($struct_param)*),*
+		>> {
+			#[inline]
+			pub fn call_fn(self) -> $return_type {
+				#[allow(unused_unsafe, reason = "shut")]
+				unsafe {
+					read_slots! {
+						self
+						$($($read_slots_input)*)*
+					}
+
+					$($raw_call)*
+				}
+			}
+		}
+	};
+}
+pub(crate) use gen_call_fn;
