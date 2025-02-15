@@ -1,16 +1,5 @@
 use crate::prelude_internal::*;
 
-// #[repr(transparent)]
-// pub struct ExternObject<'h, S: State> {
-// 	inner: Inner<'h>,
-// 	__marker: PhantomDataBuilder<'h, S>
-// }
-
-// struct Inner<'h> {
-// 	__deref: Option<ExternAny>,
-// 	value: ValueSlot<'h>
-// }
-
 gen_struct! {
 	struct ExternObject;
 
