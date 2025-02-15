@@ -6,9 +6,20 @@ pub struct ExternObject<'h, S: State> {
 	__marker: PhantomDataBuilder<'h, S>
 }
 
-struct Inner {}
+struct Inner {
+	__deref: Option<ExternAny>
+	// todo
+	// value: ValueSlot<'h>
+}
 
-pub trait State {}
+gen_state! {
+	state State
+	container StateContainer
+	uninit StateUninit
+
+	field Value
+	init ValueInit
+}
 
 mod raw {
 	use super::*;

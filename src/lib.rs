@@ -56,8 +56,7 @@ wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 	reason = "prelude"
 )]
 mod prelude_internal {
-	// pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
-	pub use crate::wasm_bindgen;
+	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
 	pub use crate::util::*;
 	// pub use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
 	// pub use core::ops::Deref;
