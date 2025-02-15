@@ -2,23 +2,26 @@ use crate::prelude_internal::*;
 
 #[repr(transparent)]
 pub struct ExternObject<'h, S: State> {
-	inner: Inner,
+	inner: Inner<'h>,
 	__marker: PhantomDataBuilder<'h, S>
 }
 
-struct Inner {
-	__deref: Option<ExternAny>
-	// todo
-	// value: ValueSlot<'h>
+struct Inner<'h> {
+	__deref: Option<ExternAny>,
+	value: ValueSlot<'h>
 }
 
 gen_state! {
-	state State
-	container StateContainer
-	uninit StateUninit
+	state State;
+	container StateContainer;
+	uninit StateUninit;
 
-	field Value
-	init ValueInit
+	field Value;
+	init ValueInit;
+}
+
+gen_slot! {
+	slot ValueSlot;
 }
 
 mod raw {

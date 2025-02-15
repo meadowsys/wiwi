@@ -248,12 +248,13 @@ pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
 macro_rules! gen_state {
 	{
-		state $state:ident
-		container $state_container:ident
-		uninit $state_uninit:ident
+		state $state:ident;
+		container $state_container:ident;
+		uninit $state_uninit:ident;
+
 		$(
-			field $field:ident
-			init $field_init:ident
+			field $field:ident;
+			init $field_init:ident;
 		)*
 	} => {
 		pub trait $state {
@@ -516,6 +517,29 @@ pub(crate) use gen_state;
 // 	}
 // }
 // pub(crate) use read_slots;
+
+macro_rules! gen_slot {
+	{
+		$(#[$meta:meta])*
+		slot $slot:ident;
+		$(field $field:ident: $field_ty:ty;)*
+	} => {
+		$(#[$meta])*
+		pub union $slot<'h> {
+			uninit: (),
+			any: &'h $crate::ExternAny,
+			$($field: $field_ty),*
+		}
+
+		impl $slot<'static> {
+			#[inline(always)]
+			pub(crate) fn uninit() -> Self {
+				Self { uninit: () }
+			}
+		}
+	};
+}
+pub(crate) use gen_slot;
 
 // macro_rules! gen_slot {
 // 	{
