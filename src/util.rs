@@ -191,6 +191,64 @@ pub(crate) type PhantomDataBuilder<'h, S> = PhantomData<(
 /// constructors.
 pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
+macro_rules! gen_struct {
+	{
+		$(#[$meta:meta])*
+		struct $struct_name:ident;
+
+		$(
+			deref $deref_ty:ty;
+			deref_value $deref_value:expr;
+		)?
+
+		$(field $field:ident: $slot:ident;)*
+	} => {
+		#[repr(transparent)]
+		pub struct $struct_name<'h, S: State> {
+			inner: Inner<'h>,
+			__marker: $crate::util::PhantomDataBuilder<'h, S>
+		}
+
+		struct Inner<'h> {
+			$(__deref: ::core::cell::UnsafeCell<::core::option::Option<$deref_ty>>,)?
+			$($field: $slot<'h>),*
+		}
+
+		impl $struct_name<'static, StateUninit> {
+			#[inline(always)]
+			pub(super) fn new() -> Self {
+				Self {
+					inner: Inner {
+						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_ty>),)?
+						$($field: $slot::uninit()),*
+					},
+					__marker: PhantomData
+				}
+			}
+		}
+
+		$(
+			impl<'h, S> ::core::ops::Deref for $struct_name<'h, S>
+			where
+				S: State
+			{
+				type Target = $deref_ty;
+
+				#[inline(always)]
+				fn deref(&self) -> &$deref_ty {
+					// SAFETY: we are not thread safe so taking mut ref like
+					// this of the inner value of UnsafeCell temporarily is fine
+					unsafe {
+						(*self.inner.__deref.get())
+							.get_or_insert_with(|| $deref_value)
+					}
+				}
+			}
+		)?
+	};
+}
+pub(crate) use gen_struct;
+
 // macro_rules! gen_builder {
 // 	{
 // 		$(#[$meta:meta])*

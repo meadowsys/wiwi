@@ -1,14 +1,26 @@
 use crate::prelude_internal::*;
 
-#[repr(transparent)]
-pub struct ExternObject<'h, S: State> {
-	inner: Inner<'h>,
-	__marker: PhantomDataBuilder<'h, S>
-}
+// #[repr(transparent)]
+// pub struct ExternObject<'h, S: State> {
+// 	inner: Inner<'h>,
+// 	__marker: PhantomDataBuilder<'h, S>
+// }
 
-struct Inner<'h> {
-	__deref: Option<ExternAny>,
-	value: ValueSlot<'h>
+// struct Inner<'h> {
+// 	__deref: Option<ExternAny>,
+// 	value: ValueSlot<'h>
+// }
+
+gen_struct! {
+	struct ExternObject;
+
+	deref ExternAny;
+	deref_value {
+		let value = raw::OBJECT.with(Clone::clone);
+		ExternAny::from_js_value(value)
+	};
+
+	field value: ValueSlot;
 }
 
 gen_state! {
