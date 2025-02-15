@@ -304,6 +304,190 @@ pub(crate) use gen_struct;
 // }
 // pub(crate) use gen_builder;
 
+macro_rules! gen_slot {
+	{
+		$(#[$meta:meta])*
+		slot $slot:ident;
+		$(field $field:ident: $field_ty:ty;)*
+	} => {
+		$(#[$meta])*
+		pub union $slot<'h> {
+			uninit: (),
+			any: &'h ExternAny,
+			$($field: $field_ty),*
+		}
+
+		impl $slot<'static> {
+			#[inline(always)]
+			pub(crate) fn uninit() -> Self {
+				Self { uninit: () }
+			}
+		}
+	};
+}
+pub(crate) use gen_slot;
+
+// macro_rules! gen_slot {
+// 	{
+// 		$(#[$union_meta:meta])*
+// 		$slot:ident
+// 		$(field $field:ident { $($field_type:tt)* })*
+//
+// 		$(
+// 			impl for { $($impl_type:tt)* } $($unsafe:ident)? {
+// 				$($impl_stuff:tt)*
+// 			}
+// 		)*
+// 	} => {
+// 		$(#[$union_meta])*
+// 		pub union $slot<'h> {
+// 			uninit: (),
+// 			$($field: $($field_type)*),*
+// 		}
+//
+// 		impl $slot<'static> {
+// 			#[inline(always)]
+// 			pub(crate) fn uninit() -> Self {
+// 				Self { uninit: () }
+// 			}
+// 		}
+//
+// 		gen_slot! {
+// 			@impl trait_impl
+// 			unsafe $slot { &'h ExternAny } {
+// 				result { &'h ExternAny }
+// 				write(self, slot) {
+// 					*slot = $slot { any: self }
+// 				}
+// 				read(slot) {
+// 					unsafe { slot.any }
+// 				}
+// 				as_ref(result) {
+// 					result
+// 				}
+// 			}
+// 		}
+//
+// 		$(
+// 			gen_slot! {
+// 				@impl trait_impl
+// 				$($unsafe)? $slot { $($impl_type)* } { $($impl_stuff)* }
+// 			}
+// 		)*
+// 	};
+//
+// 	{
+// 		@impl trait_impl
+// 		unsafe $slot:ident { $($impl_type:tt)* } {
+// 			result { $($result:tt)* }
+//
+// 			write($self:ident, $slot_write_param:ident) $(-> { $($write_return_type:tt)* })? {
+// 				$($write_impl:tt)*
+// 			}
+//
+// 			read($slot_read_param:ident) $(-> { $($read_return_type:tt)* })? {
+// 				$($read_impl:tt)*
+// 			}
+//
+// 			as_ref($result_as_ref_param:ident) $(-> { $($as_ref_return_type:tt)* })? {
+// 				$($as_ref_impl:tt)*
+// 			}
+// 		}
+// 	} => {
+// 		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $($impl_type)* {
+// 			type Result = $($result)*;
+//
+// 			#[inline]
+// 			unsafe fn write(
+// 				$self,
+// 				$slot_write_param: &mut $slot<'h>
+// 			) {
+// 				$($write_impl)*
+// 			}
+//
+// 			#[inline]
+// 			unsafe fn read(
+// 				$slot_read_param: $slot<'h>
+// 			) -> $($result)* {
+// 				$($read_impl)*
+// 			}
+//
+// 			#[inline]
+// 			fn as_ref<'h2>(
+// 				$result_as_ref_param: &'h2 $($result)*
+// 			) -> gen_slot! {
+// 				@impl mk_return_type_as_ref
+// 				$($as_ref_return_type)*
+// 			} {
+// 				$($as_ref_impl)*
+// 			}
+// 		}
+// 	};
+//
+// 	{
+// 		@impl trait_impl
+// 		$slot:ident { $($impl_type:tt)* } {
+// 			$($stuff:tt)*
+// 		}
+// 	} => {
+// 		unsafe impl<'h> Slot<$slot<'h>> for $($impl_type)* {}
+//
+// 		gen_slot! {
+// 			@impl trait_impl
+// 			unsafe $slot { $($impl_type)* } {
+// 				$($stuff)*
+// 			}
+// 		}
+// 	};
+//
+// 	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
+// 	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
+// }
+// pub(crate) use gen_slot;
+
+// /// macro for the boilerplate of calling `SlotUnchecked::read`
+// /// followed by conversion to `&JsValue`
+// ///
+// /// # Examples
+// ///
+// /// ```ignore
+// /// unsafe {
+// ///    read_slots! {
+// ///       self
+// ///       value: Value
+// ///       value2: Value2
+// ///       cheese: Cheese
+// ///    }
+// /// }
+// /// ```
+// ///
+// /// Expands to:
+// ///
+// /// ```ignore
+// /// unsafe {
+// ///    let value = Value::read(self.inner.value);
+// ///    let value = value.as_ref().as_js_value();
+// ///    let value2 = Value2::read(self.inner.value2);
+// ///    let value2 = value2.as_ref().as_js_value();
+// ///    let cheese = Cheese::read(self.inner.cheese);
+// ///    let cheese = cheese.as_ref().as_js_value();
+// /// }
+// /// ```
+// ///
+// /// Well... not quite, but, good enough for purposes of demonstration.
+// macro_rules! read_slots {
+// 	{
+// 		$self:ident
+// 		$($ident:ident: $ty:ident)*
+// 	} => {
+// 		$(
+// 			let $ident = $ty::read($self.inner.$ident);
+// 			let $ident = $ty::as_ref(&$ident).as_js_value();
+// 		)*
+// 	}
+// }
+// pub(crate) use read_slots;
+
 macro_rules! gen_state {
 	{
 		$(
@@ -510,27 +694,6 @@ macro_rules! gen_builder_fns {
 }
 pub(crate) use gen_builder_fns;
 
-macro_rules! gen_change_state {
-	($struct_name:ident) => {
-		#[inline(always)]
-		unsafe fn change_state<'h2, S2, F>(self, f: F) -> $struct_name<'h2, S2>
-		where
-			'h: 'h2,
-			S2: State,
-			F: FnOnce(&mut $struct_name<'h2, S2>)
-		{
-			let mut changed = $struct_name {
-				inner: self.inner,
-				__marker: PhantomData
-			};
-
-			f(&mut changed);
-			changed
-		}
-	};
-}
-pub(crate) use gen_change_state;
-
 macro_rules! gen_builder_fn {
 	{
 		struct $struct_name:ident;
@@ -591,186 +754,23 @@ macro_rules! gen_builder_fn {
 }
 pub(crate) use gen_builder_fn;
 
-// /// macro for the boilerplate of calling `SlotUnchecked::read`
-// /// followed by conversion to `&JsValue`
-// ///
-// /// # Examples
-// ///
-// /// ```ignore
-// /// unsafe {
-// ///    read_slots! {
-// ///       self
-// ///       value: Value
-// ///       value2: Value2
-// ///       cheese: Cheese
-// ///    }
-// /// }
-// /// ```
-// ///
-// /// Expands to:
-// ///
-// /// ```ignore
-// /// unsafe {
-// ///    let value = Value::read(self.inner.value);
-// ///    let value = value.as_ref().as_js_value();
-// ///    let value2 = Value2::read(self.inner.value2);
-// ///    let value2 = value2.as_ref().as_js_value();
-// ///    let cheese = Cheese::read(self.inner.cheese);
-// ///    let cheese = cheese.as_ref().as_js_value();
-// /// }
-// /// ```
-// ///
-// /// Well... not quite, but, good enough for purposes of demonstration.
-// macro_rules! read_slots {
-// 	{
-// 		$self:ident
-// 		$($ident:ident: $ty:ident)*
-// 	} => {
-// 		$(
-// 			let $ident = $ty::read($self.inner.$ident);
-// 			let $ident = $ty::as_ref(&$ident).as_js_value();
-// 		)*
-// 	}
-// }
-// pub(crate) use read_slots;
+macro_rules! gen_change_state {
+	($struct_name:ident) => {
+		#[inline(always)]
+		unsafe fn change_state<'h2, S2, F>(self, f: F) -> $struct_name<'h2, S2>
+		where
+			'h: 'h2,
+			S2: State,
+			F: FnOnce(&mut $struct_name<'h2, S2>)
+		{
+			let mut changed = $struct_name {
+				inner: self.inner,
+				__marker: PhantomData
+			};
 
-macro_rules! gen_slot {
-	{
-		$(#[$meta:meta])*
-		slot $slot:ident;
-		$(field $field:ident: $field_ty:ty;)*
-	} => {
-		$(#[$meta])*
-		pub union $slot<'h> {
-			uninit: (),
-			any: &'h ExternAny,
-			$($field: $field_ty),*
-		}
-
-		impl $slot<'static> {
-			#[inline(always)]
-			pub(crate) fn uninit() -> Self {
-				Self { uninit: () }
-			}
+			f(&mut changed);
+			changed
 		}
 	};
 }
-pub(crate) use gen_slot;
-
-// macro_rules! gen_slot {
-// 	{
-// 		$(#[$union_meta:meta])*
-// 		$slot:ident
-// 		$(field $field:ident { $($field_type:tt)* })*
-//
-// 		$(
-// 			impl for { $($impl_type:tt)* } $($unsafe:ident)? {
-// 				$($impl_stuff:tt)*
-// 			}
-// 		)*
-// 	} => {
-// 		$(#[$union_meta])*
-// 		pub union $slot<'h> {
-// 			uninit: (),
-// 			$($field: $($field_type)*),*
-// 		}
-//
-// 		impl $slot<'static> {
-// 			#[inline(always)]
-// 			pub(crate) fn uninit() -> Self {
-// 				Self { uninit: () }
-// 			}
-// 		}
-//
-// 		gen_slot! {
-// 			@impl trait_impl
-// 			unsafe $slot { &'h ExternAny } {
-// 				result { &'h ExternAny }
-// 				write(self, slot) {
-// 					*slot = $slot { any: self }
-// 				}
-// 				read(slot) {
-// 					unsafe { slot.any }
-// 				}
-// 				as_ref(result) {
-// 					result
-// 				}
-// 			}
-// 		}
-//
-// 		$(
-// 			gen_slot! {
-// 				@impl trait_impl
-// 				$($unsafe)? $slot { $($impl_type)* } { $($impl_stuff)* }
-// 			}
-// 		)*
-// 	};
-//
-// 	{
-// 		@impl trait_impl
-// 		unsafe $slot:ident { $($impl_type:tt)* } {
-// 			result { $($result:tt)* }
-//
-// 			write($self:ident, $slot_write_param:ident) $(-> { $($write_return_type:tt)* })? {
-// 				$($write_impl:tt)*
-// 			}
-//
-// 			read($slot_read_param:ident) $(-> { $($read_return_type:tt)* })? {
-// 				$($read_impl:tt)*
-// 			}
-//
-// 			as_ref($result_as_ref_param:ident) $(-> { $($as_ref_return_type:tt)* })? {
-// 				$($as_ref_impl:tt)*
-// 			}
-// 		}
-// 	} => {
-// 		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $($impl_type)* {
-// 			type Result = $($result)*;
-//
-// 			#[inline]
-// 			unsafe fn write(
-// 				$self,
-// 				$slot_write_param: &mut $slot<'h>
-// 			) {
-// 				$($write_impl)*
-// 			}
-//
-// 			#[inline]
-// 			unsafe fn read(
-// 				$slot_read_param: $slot<'h>
-// 			) -> $($result)* {
-// 				$($read_impl)*
-// 			}
-//
-// 			#[inline]
-// 			fn as_ref<'h2>(
-// 				$result_as_ref_param: &'h2 $($result)*
-// 			) -> gen_slot! {
-// 				@impl mk_return_type_as_ref
-// 				$($as_ref_return_type)*
-// 			} {
-// 				$($as_ref_impl)*
-// 			}
-// 		}
-// 	};
-//
-// 	{
-// 		@impl trait_impl
-// 		$slot:ident { $($impl_type:tt)* } {
-// 			$($stuff:tt)*
-// 		}
-// 	} => {
-// 		unsafe impl<'h> Slot<$slot<'h>> for $($impl_type)* {}
-//
-// 		gen_slot! {
-// 			@impl trait_impl
-// 			unsafe $slot { $($impl_type)* } {
-// 				$($stuff)*
-// 			}
-// 		}
-// 	};
-//
-// 	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
-// 	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
-// }
-// pub(crate) use gen_slot;
+pub(crate) use gen_change_state;
