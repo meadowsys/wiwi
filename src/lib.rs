@@ -28,6 +28,7 @@
 
 pub use self::any::ExternAny;
 // pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
+#[doc(inline)]
 pub use self::object::ExternObject;
 // pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
 // #[doc(inline)]
@@ -41,7 +42,7 @@ pub mod util;
 
 // mod bigint;
 // mod boolean;
-mod object;
+pub mod object;
 // mod number;
 // pub mod reflect;
 // mod string;
