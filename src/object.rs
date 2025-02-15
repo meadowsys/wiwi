@@ -21,6 +21,18 @@ gen_slot! {
 	slot ValueSlot;
 }
 
+gen_builder_fns! {
+	struct ExternObject;
+
+	state Value;
+	init ValueInit;
+	slot ValueSlot;
+
+	field value;
+
+	field_unchecked value_unchecked;
+}
+
 mod raw {
 	use super::*;
 	use wasm_bindgen::JsValue;

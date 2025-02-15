@@ -206,7 +206,7 @@ macro_rules! gen_struct {
 		#[repr(transparent)]
 		pub struct $struct_name<'h, S: State> {
 			inner: Inner<'h>,
-			__marker: $crate::util::PhantomDataBuilder<'h, S>
+			__marker: PhantomDataBuilder<'h, S>
 		}
 
 		struct Inner<'h> {
@@ -329,7 +329,7 @@ macro_rules! gen_state {
 		$($(#[$state_meta])*)?
 		pub trait State {
 			$(
-				type $field: $crate::util::InitStatus;
+				type $field: InitStatus;
 				type $field_init<S: ?Sized>: State;
 			)*
 		}
@@ -340,7 +340,7 @@ macro_rules! gen_state {
 		)]
 		$($(#[$container_meta])*)?
 		pub struct StateContainer<$($field),*> {
-			__marker: $crate::util::PhantomDataInvariant<(
+			__marker: PhantomDataInvariant<(
 				$($field),*
 			)>
 		}
@@ -357,7 +357,7 @@ macro_rules! gen_state {
 		}
 
 		impl<$(
-			$field: $crate::util::InitStatus
+			$field: InitStatus
 		),*> State for StateContainer<$($field),*> {
 			gen_state! {
 				@impl state_init_types
@@ -407,7 +407,7 @@ macro_rules! gen_state {
 		{}
 	} => {
 		pub type StateUninit = StateContainer<
-			$($crate::util::$uninit_ty),*
+			$($uninit_ty),*
 		>;
 	};
 
@@ -471,86 +471,125 @@ macro_rules! gen_state {
 }
 pub(crate) use gen_state;
 
-// macro_rules! gen_change_state {
-// 	($name:ident) => {
-// 		#[inline(always)]
-// 		unsafe fn change_state<'h2, S2, F>(self, f: F) -> $name<'h2, S2>
-// 		where
-// 			'h: 'h2,
-// 			S2: State,
-// 			F: FnOnce(&mut $name<'h2, S2>)
-// 		{
-// 			let mut changed = $name {
-// 				inner: self.inner,
-// 				__marker: PhantomData
-// 			};
-//
-// 			f(&mut changed);
-// 			changed
-// 		}
-// 	};
-// }
-// pub(crate) use gen_change_state;
+macro_rules! gen_builder_fns {
+	{
+		struct $struct_name:ident;
 
-// macro_rules! gen_builder_fn {
-// 	{
-// 		$name:ident
-//
-// 		$field_state:ident
-// 		$field_state_init:ident
-// 		$slot:ident
-//
-// 		$(#[$meta:meta])*
-// 		$field:ident
-//
-// 		$(#[$meta_unchecked:meta])*
-// 		$fn_name_unchecked:ident
-// 	} => {
-// 		#[inline(always)]
-// 		$(#[$meta])*
-// 		pub fn $field<'h2, T>(
-// 			self,
-// 			$field: T
-// 		) -> $name<'h2, S::$field_state_init<T>>
-// 		where
-// 			'h: 'h2,
-// 			S::$field_state: IsUninit,
-// 			T: Slot<$slot<'h2>>
-// 		{
-// 			unsafe { self.$fn_name_unchecked($field) }
-// 		}
-//
-// 		#[doc = concat!(
-// 			"Setter for [`",
-// 			stringify!($field),
-// 			"`](Self::",
-// 			stringify!($field),
-// 			") with much, _much_ looser type restrictions"
-// 		)]
-// 		#[doc = ""]
-// 		#[doc = concat!(
-// 			"See the safer setter ([`",
-// 			stringify!($field),
-// 			"`](Self::",
-// 			stringify!($field),
-// 			")) for more information."
-// 		)]
-// 		#[inline(always)]
-// 		$(#[$meta_unchecked])*
-// 		pub unsafe fn $fn_name_unchecked<'h2, T>(
-// 			self,
-// 			$field: T
-// 		) -> $name<'h2, S::$field_state_init<T>>
-// 		where
-// 			'h: 'h2,
-// 			S::$field_state: IsUninit,
-// 			T: SlotUnchecked<$slot<'h2>>
-// 		{
-// 			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
-// 		}
-// 	};
-// }
-// pub(crate) use gen_builder_fn;
+		$(
+			state $field_state:ident;
+			init $field_state_init:ident;
+			slot $slot:ident;
+
+			$(#[$meta:meta])*
+			field $field:ident;
+
+			$(#[$meta_unchecked:meta])*
+			field_unchecked $fn_name_unchecked:ident;
+		)*
+	} => {
+		impl<'h, S: State> $struct_name<'h, S> {
+			gen_change_state!($struct_name);
+
+			$(
+				gen_builder_fn! {
+					struct $struct_name;
+
+					state $field_state;
+					init $field_state_init;
+					slot $slot;
+
+					$(#[$meta:meta])*
+					field $field;
+
+					$(#[$meta_unchecked:meta])*
+					field_unchecked $fn_name_unchecked;
+				}
+			)*
+		}
+	}
+}
+pub(crate) use gen_builder_fns;
+
+macro_rules! gen_change_state {
+	($struct_name:ident) => {
+		#[inline(always)]
+		unsafe fn change_state<'h2, S2, F>(self, f: F) -> $struct_name<'h2, S2>
+		where
+			'h: 'h2,
+			S2: State,
+			F: FnOnce(&mut $struct_name<'h2, S2>)
+		{
+			let mut changed = $struct_name {
+				inner: self.inner,
+				__marker: PhantomData
+			};
+
+			f(&mut changed);
+			changed
+		}
+	};
+}
+pub(crate) use gen_change_state;
+
+macro_rules! gen_builder_fn {
+	{
+		struct $struct_name:ident;
+
+		state $field_state:ident;
+		init $field_state_init:ident;
+		slot $slot:ident;
+
+		$(#[$meta:meta])*
+		field $field:ident;
+
+		$(#[$meta_unchecked:meta])*
+		field_unchecked $fn_name_unchecked:ident;
+	} => {
+		#[inline(always)]
+		$(#[$meta])*
+		pub fn $field<'h2, T>(
+			self,
+			$field: T
+		) -> $struct_name<'h2, S::$field_state_init<T>>
+		where
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: Slot<$slot<'h2>>
+		{
+			unsafe { self.$fn_name_unchecked($field) }
+		}
+
+		#[doc = concat!(
+			"Setter for [`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			") with much, _much_ looser type restrictions"
+		)]
+		#[doc = ""]
+		#[doc = concat!(
+			"See the safer setter ([`",
+			stringify!($field),
+			"`](Self::",
+			stringify!($field),
+			")) for more information."
+		)]
+		#[inline(always)]
+		$(#[$meta_unchecked])*
+		pub unsafe fn $fn_name_unchecked<'h2, T>(
+			self,
+			$field: T
+		) -> $struct_name<'h2, S::$field_state_init<T>>
+		where
+			'h: 'h2,
+			S::$field_state: IsUninit,
+			T: SlotUnchecked<$slot<'h2>>
+		{
+			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
+		}
+	};
+}
+pub(crate) use gen_builder_fn;
 
 // /// macro for the boilerplate of calling `SlotUnchecked::read`
 // /// followed by conversion to `&JsValue`
@@ -604,7 +643,7 @@ macro_rules! gen_slot {
 		$(#[$meta])*
 		pub union $slot<'h> {
 			uninit: (),
-			any: &'h $crate::ExternAny,
+			any: &'h ExternAny,
 			$($field: $field_ty),*
 		}
 
