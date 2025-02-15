@@ -53,7 +53,7 @@ gen_call_fn! {
 	};
 	return Result<ExternAny, ExternAny>;
 
-	field valueaaaaaaaaaaaaaaaaaa;
+	field value;
 	state Value;
 	init Uninit;
 }

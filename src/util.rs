@@ -313,7 +313,7 @@ macro_rules! gen_slot {
 		pub union $slot<'h> {
 			uninit: (),
 			any: &'h ExternAny,
-			$($field: $field_ty),*
+			$($field: ::core::mem::ManuallyDrop<$field_ty>),*
 		}
 
 		impl $slot<'static> {
@@ -621,7 +621,7 @@ macro_rules! gen_state {
 		}
 	} => {
 		type $field = $field;
-		type $field_init<S: ?Sized> = $StateContainer<
+		type $field_init<S: ?Sized> = StateContainer<
 			$($field_prev,)*
 			Init<S>,
 			$field_next,
@@ -821,7 +821,10 @@ macro_rules! gen_call_fn {
 				{ $field_state: SlotUnchecked<$slot<'h>>, }
 				{ Init<$field_state> }
 				{ $field_name: $field_state }
+				{}
 			}
+
+			$($stuff)*
 		}
 	};
 
@@ -852,7 +855,10 @@ macro_rules! gen_call_fn {
 				{}
 				{ Uninit }
 				{}
+				{ $field_name }
 			}
+
+			$($stuff)*
 		}
 	};
 
@@ -868,6 +874,7 @@ macro_rules! gen_call_fn {
 				{ $($impl_param:tt)* }
 				{ $($struct_param:tt)* }
 				{ $($read_slots_input:tt)* }
+				{ $($unused_fields:tt)* }
 			)*
 		}
 	} => {
@@ -885,6 +892,11 @@ macro_rules! gen_call_fn {
 						self
 						$($($read_slots_input)*)*
 					}
+
+					$($(
+						#[allow(clippy::drop_non_drop, reason = "shut")]
+						drop(self.inner.$unused_fields);
+					)*)*
 
 					$($raw_call)*
 				}
