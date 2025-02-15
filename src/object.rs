@@ -12,10 +12,6 @@ struct Inner<'h> {
 }
 
 gen_state! {
-	state State;
-	container StateContainer;
-	uninit StateUninit;
-
 	field Value;
 	init ValueInit;
 }

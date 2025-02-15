@@ -248,19 +248,31 @@ pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 
 macro_rules! gen_state {
 	{
-		state $state:ident;
-		container $state_container:ident;
-		uninit $state_uninit:ident;
+		$(
+			$(#[$state_meta:meta])*
+			state
+		)?
+
+		$(
+			$(#[$container_meta:meta])*
+			container
+		)?
+
+		$(
+			$(#[$uninit_meta:meta])*
+			uninit
+		)?
 
 		$(
 			field $field:ident;
 			init $field_init:ident;
 		)*
 	} => {
-		pub trait $state {
+		$($(#[$state_meta])*)?
+		pub trait State {
 			$(
 				type $field: $crate::util::InitStatus;
-				type $field_init<S: ?Sized>: $state;
+				type $field_init<S: ?Sized>: State;
 			)*
 		}
 
@@ -268,7 +280,8 @@ macro_rules! gen_state {
 			unused_parens,
 			reason = "automatically generated"
 		)]
-		pub struct $state_container<$($field),*> {
+		$($(#[$container_meta])*)?
+		pub struct StateContainer<$($field),*> {
 			__marker: $crate::util::PhantomDataInvariant<(
 				$($field),*
 			)>
@@ -276,18 +289,20 @@ macro_rules! gen_state {
 
 		gen_state! {
 			@impl gen_uninit
-			$state_container
-			$state_uninit
+			$(
+				$(#[$uninit_meta])*
+				uninit
+			)?
+
 			{}
 			{ $($field)* }
 		}
 
 		impl<$(
 			$field: $crate::util::InitStatus
-		),*> $state for $state_container<$($field),*> {
+		),*> State for StateContainer<$($field),*> {
 			gen_state! {
 				@impl state_init_types
-				$state_container
 				{}
 				{}
 				{ $($field $field_init)* }
@@ -297,8 +312,11 @@ macro_rules! gen_state {
 
 	{
 		@impl gen_uninit
-		$state_container:ident
-		$state_uninit:ident
+		$(
+			$(#[$uninit_meta:meta])*
+			uninit
+		)?
+
 		{ $($uninit_ty:ident)* }
 		{
 			$field:ident
@@ -307,8 +325,11 @@ macro_rules! gen_state {
 	} => {
 		gen_state! {
 			@impl gen_uninit
-			$state_container
-			$state_uninit
+			$(
+				$(#[$uninit_meta])*
+				uninit
+			)?
+
 			{
 				$($uninit_ty)*
 				Uninit
@@ -319,19 +340,21 @@ macro_rules! gen_state {
 
 	{
 		@impl gen_uninit
-		$state_container:ident
-		$state_uninit:ident
+		$(
+			$(#[$uninit_meta:meta])*
+			uninit
+		)?
+
 		{ $($uninit_ty:ident)* }
 		{}
 	} => {
-		pub type $state_uninit = $state_container<
+		pub type StateUninit = StateContainer<
 			$($crate::util::$uninit_ty),*
 		>;
 	};
 
 	{
 		@impl state_init_types
-		$state_container:ident
 		{}
 		{}
 		{
@@ -341,7 +364,6 @@ macro_rules! gen_state {
 	} => {
 		gen_state! {
 			@impl state_init_types
-			$state_container
 			{}
 			{ $field_next $field_init_next }
 			{ $($field_rest $field_init_rest)* }
@@ -350,7 +372,6 @@ macro_rules! gen_state {
 
 	{
 		@impl state_init_types
-		$state_container:ident
 		{ $($field_prev:ident $field_init_prev:ident)* }
 		{ $field:ident $field_init:ident }
 		{
@@ -359,7 +380,7 @@ macro_rules! gen_state {
 		}
 	} => {
 		type $field = $field;
-		type $field_init<S: ?Sized> = $state_container<
+		type $field_init<S: ?Sized> = $StateContainer<
 			$($field_prev,)*
 			Init<S>,
 			$field_next,
@@ -368,7 +389,6 @@ macro_rules! gen_state {
 
 		gen_state! {
 			@impl state_init_types
-			$state_container
 			{
 				$($field_prev $field_init_prev)*
 				$field $field_init
@@ -380,13 +400,12 @@ macro_rules! gen_state {
 
 	{
 		@impl state_init_types
-		$state_container:ident
 		{ $($field_prev:ident $field_init_prev:ident)* }
 		{ $field:ident $field_init:ident }
 		{}
 	} => {
 		type $field = $field;
-		type $field_init<S: ?Sized> = $state_container<
+		type $field_init<S: ?Sized> = StateContainer<
 			$($field_prev,)*
 			Init<S>
 		>;
