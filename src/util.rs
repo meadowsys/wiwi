@@ -236,7 +236,8 @@ macro_rules! gen_struct {
 				#[inline(always)]
 				fn deref(&self) -> &$deref_ty {
 					// SAFETY: we are not thread safe so taking mut ref like
-					// this of the inner value of UnsafeCell temporarily is fine
+					// this of the inner value of UnsafeCell temporarily is fine,
+					// we won't ever have two mut references
 					unsafe {
 						(*self.inner.__deref.get())
 							.get_or_insert_with(|| $deref_value)
@@ -886,7 +887,10 @@ macro_rules! gen_call_fn {
 		>> {
 			#[inline]
 			pub fn call_fn(self) -> $return_type {
-				#[allow(unused_unsafe, reason = "shut")]
+				#[allow(
+					unused_unsafe,
+					reason = "automatically generated"
+				)]
 				unsafe {
 					read_slots! {
 						self
@@ -894,7 +898,10 @@ macro_rules! gen_call_fn {
 					}
 
 					$($(
-						#[allow(clippy::drop_non_drop, reason = "shut")]
+						#[allow(
+							clippy::drop_non_drop,
+							reason = "automatically generated"
+						)]
 						drop(self.inner.$unused_fields);
 					)*)*
 
