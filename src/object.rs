@@ -35,7 +35,7 @@ gen_builder_fns! {
 
 gen_call_fn! {
 	struct ExternObject;
-	raw_call unsafe {
+	raw_call {
 		let _ = value;
 		todo!()
 	};
@@ -48,7 +48,7 @@ gen_call_fn! {
 
 gen_call_fn! {
 	struct ExternObject;
-	raw_call unsafe {
+	raw_call {
 		todo!()
 	};
 	return Result<ExternAny, ExternAny>;

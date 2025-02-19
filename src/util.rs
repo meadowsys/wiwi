@@ -196,7 +196,7 @@ macro_rules! gen_struct {
 		struct $struct_name:ident;
 
 		$(
-			deref $deref_ty:ty;
+			deref $deref_type:ty;
 			deref_value $deref_value:expr;
 		)?
 
@@ -209,7 +209,7 @@ macro_rules! gen_struct {
 		}
 
 		struct Inner<'h> {
-			$(__deref: ::core::cell::UnsafeCell<::core::option::Option<$deref_ty>>,)?
+			$(__deref: ::core::cell::UnsafeCell<::core::option::Option<$deref_type>>,)?
 			$($field: $slot<'h>),*
 		}
 
@@ -218,7 +218,7 @@ macro_rules! gen_struct {
 			pub(super) fn new() -> Self {
 				Self {
 					inner: Inner {
-						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_ty>),)?
+						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_type>),)?
 						$($field: $slot::uninit()),*
 					},
 					__marker: PhantomData
@@ -231,10 +231,10 @@ macro_rules! gen_struct {
 			where
 				S: State
 			{
-				type Target = $deref_ty;
+				type Target = $deref_type;
 
 				#[inline(always)]
-				fn deref(&self) -> &$deref_ty {
+				fn deref(&self) -> &$deref_type {
 					// SAFETY: we are not thread safe so taking mut ref like
 					// this of the inner value of UnsafeCell temporarily is fine,
 					// we won't ever have two mut references
@@ -249,72 +249,17 @@ macro_rules! gen_struct {
 }
 pub(crate) use gen_struct;
 
-// macro_rules! gen_builder {
-// 	{
-// 		$(#[$meta:meta])*
-// 		$name:ident
-// 		deref($value:ident) -> $deref:ty {
-// 			$($deref_impl:tt)*
-// 		}
-//
-// 		$($field:ident: $slot:ident;)*
-// 	} => {
-// 		#[repr(transparent)]
-// 		$(#[$meta])*
-// 		pub struct $name<'h, S>
-// 		where
-// 			S: State
-// 		{
-// 			inner: Inner<'h>,
-// 			__marker: PhantomDataInvariant<S>
-// 		}
-//
-// 		struct Inner<'h> {
-// 			__deref: core::cell::UnsafeCell<Option<$deref>>,
-// 			$($field: $slot<'h>),*
-// 		}
-//
-// 		impl $name<'static, StateUninit> {
-// 			#[inline(always)]
-// 			pub(super) fn new() -> Self {
-// 				Self {
-// 					inner: Inner {
-// 						__deref: core::cell::UnsafeCell::new(None),
-// 						$($field: $slot { uninit: () }),*
-// 						// todo when all slots have been converted to use the macro, use this
-// 						// $($field: $slot::uninit()),*
-// 					},
-// 					__marker: PhantomData
-// 				}
-// 			}
-// 		}
-//
-// 		impl<'h, S> Deref for $name<'h, S>
-// 		where
-// 			S: State
-// 		{
-// 			type Target = $deref;
-// 			#[inline(always)]
-// 			fn deref(&self) -> &$deref {
-// 				let $value = unsafe { &mut *self.inner.__deref.get() };
-// 				$($deref_impl)*
-// 			}
-// 		}
-// 	}
-// }
-// pub(crate) use gen_builder;
-
 macro_rules! gen_slot {
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
-		$(field $field:ident: $field_ty:ty;)*
+		$(field $field:ident: $field_type:ty;)*
 	} => {
 		$(#[$meta])*
 		pub union $slot<'h> {
 			uninit: (),
 			any: &'h ExternAny,
-			$($field: ::core::mem::ManuallyDrop<$field_ty>),*
+			$($field: ::core::mem::ManuallyDrop<$field_type>),*
 		}
 
 		impl $slot<'static> {
@@ -323,127 +268,71 @@ macro_rules! gen_slot {
 				Self { uninit: () }
 			}
 		}
+
+		gen_slot_impl! {
+			slot $slot;
+			unsafe impl &'h ExternAny;
+
+			result &'h ExternAny;
+
+			write(self, slot) {
+				*slot = $slot { any: self }
+			}
+
+			read(slot) {
+				unsafe { slot.any }
+			}
+
+			as_ref(result) {
+				result
+			}
+		}
 	};
 }
 pub(crate) use gen_slot;
 
-// macro_rules! gen_slot {
-// 	{
-// 		$(#[$union_meta:meta])*
-// 		$slot:ident
-// 		$(field $field:ident { $($field_type:tt)* })*
-//
-// 		$(
-// 			impl for { $($impl_type:tt)* } $($unsafe:ident)? {
-// 				$($impl_stuff:tt)*
-// 			}
-// 		)*
-// 	} => {
-// 		$(#[$union_meta])*
-// 		pub union $slot<'h> {
-// 			uninit: (),
-// 			$($field: $($field_type)*),*
-// 		}
-//
-// 		impl $slot<'static> {
-// 			#[inline(always)]
-// 			pub(crate) fn uninit() -> Self {
-// 				Self { uninit: () }
-// 			}
-// 		}
-//
-// 		gen_slot! {
-// 			@impl trait_impl
-// 			unsafe $slot { &'h ExternAny } {
-// 				result { &'h ExternAny }
-// 				write(self, slot) {
-// 					*slot = $slot { any: self }
-// 				}
-// 				read(slot) {
-// 					unsafe { slot.any }
-// 				}
-// 				as_ref(result) {
-// 					result
-// 				}
-// 			}
-// 		}
-//
-// 		$(
-// 			gen_slot! {
-// 				@impl trait_impl
-// 				$($unsafe)? $slot { $($impl_type)* } { $($impl_stuff)* }
-// 			}
-// 		)*
-// 	};
-//
-// 	{
-// 		@impl trait_impl
-// 		unsafe $slot:ident { $($impl_type:tt)* } {
-// 			result { $($result:tt)* }
-//
-// 			write($self:ident, $slot_write_param:ident) $(-> { $($write_return_type:tt)* })? {
-// 				$($write_impl:tt)*
-// 			}
-//
-// 			read($slot_read_param:ident) $(-> { $($read_return_type:tt)* })? {
-// 				$($read_impl:tt)*
-// 			}
-//
-// 			as_ref($result_as_ref_param:ident) $(-> { $($as_ref_return_type:tt)* })? {
-// 				$($as_ref_impl:tt)*
-// 			}
-// 		}
-// 	} => {
-// 		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $($impl_type)* {
-// 			type Result = $($result)*;
-//
-// 			#[inline]
-// 			unsafe fn write(
-// 				$self,
-// 				$slot_write_param: &mut $slot<'h>
-// 			) {
-// 				$($write_impl)*
-// 			}
-//
-// 			#[inline]
-// 			unsafe fn read(
-// 				$slot_read_param: $slot<'h>
-// 			) -> $($result)* {
-// 				$($read_impl)*
-// 			}
-//
-// 			#[inline]
-// 			fn as_ref<'h2>(
-// 				$result_as_ref_param: &'h2 $($result)*
-// 			) -> gen_slot! {
-// 				@impl mk_return_type_as_ref
-// 				$($as_ref_return_type)*
-// 			} {
-// 				$($as_ref_impl)*
-// 			}
-// 		}
-// 	};
-//
-// 	{
-// 		@impl trait_impl
-// 		$slot:ident { $($impl_type:tt)* } {
-// 			$($stuff:tt)*
-// 		}
-// 	} => {
-// 		unsafe impl<'h> Slot<$slot<'h>> for $($impl_type)* {}
-//
-// 		gen_slot! {
-// 			@impl trait_impl
-// 			unsafe $slot { $($impl_type)* } {
-// 				$($stuff)*
-// 			}
-// 		}
-// 	};
-//
-// 	{ @impl mk_return_type_as_ref } => { &'h2 ExternAny };
-// 	{ @impl mk_return_type_as_ref $($return:tt)* } => { $($return)* };
-// }
-// pub(crate) use gen_slot;
+macro_rules! gen_slot_impl {
+	{
+		$(#[$meta:meta])*
+		slot $slot:ident;
+		unsafe impl $impl_type:ty;
+
+		result $result_type:ty;
+
+		write($write_self:ident, $write_slot:ident) {
+			$($write_impl:tt)*
+		}
+
+		read($read_slot:ident) {
+			$($read_impl:tt)*
+		}
+
+		as_ref($as_ref_result:ident) {
+			$($as_ref_impl:tt)*
+		}
+	} => {
+		$(#[$meta])*
+		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $impl_type {
+			type Result = $result_type;
+
+			#[inline(always)]
+			unsafe fn write($write_self, $write_slot: &mut $slot<'h>) {
+				$($write_impl)*
+			}
+
+			#[inline(always)]
+			unsafe fn read($read_slot: $slot<'h>) -> $result_type {
+				$($read_impl)*
+			}
+
+			#[inline(always)]
+			fn as_ref<'as_ref>($as_ref_result: &'as_ref $result_type) -> &'as_ref ExternAny {
+				$($as_ref_impl)*
+			}
+		}
+	}
+}
+pub(crate) use gen_slot_impl;
 
 /// macro for the boilerplate of calling `SlotUnchecked::read`
 /// followed by conversion to `&JsValue`
@@ -452,7 +341,7 @@ pub(crate) use gen_slot;
 ///
 /// ```ignore
 /// unsafe {
-///    read_slots! {
+///    unsafe_read_slots! {
 ///       self
 ///       value: Value
 ///       value2: Value2
@@ -475,18 +364,18 @@ pub(crate) use gen_slot;
 /// ```
 ///
 /// Well... not quite, but, good enough for purposes of demonstration.
-macro_rules! read_slots {
+macro_rules! unsafe_read_slots {
 	{
 		$self:ident
 		$($ident:ident: $ty:ident)*
 	} => {
 		$(
-			let $ident = $ty::read($self.inner.$ident);
+			let $ident = unsafe { $ty::read($self.inner.$ident) };
 			let $ident = $ty::as_ref(&$ident).as_js_value();
 		)*
 	}
 }
-pub(crate) use read_slots;
+pub(crate) use unsafe_read_slots;
 
 macro_rules! gen_state {
 	{
@@ -559,7 +448,7 @@ macro_rules! gen_state {
 			uninit
 		)?
 
-		{ $($uninit_ty:ident)* }
+		{ $($uninit_type:ident)* }
 		{
 			$field:ident
 			$($field_rest:ident)*
@@ -573,7 +462,7 @@ macro_rules! gen_state {
 			)?
 
 			{
-				$($uninit_ty)*
+				$($uninit_type)*
 				Uninit
 			}
 			{ $($field_rest)* }
@@ -587,11 +476,11 @@ macro_rules! gen_state {
 			uninit
 		)?
 
-		{ $($uninit_ty:ident)* }
+		{ $($uninit_type:ident)* }
 		{}
 	} => {
 		pub type StateUninit = StateContainer<
-			$($uninit_ty),*
+			$($uninit_type),*
 		>;
 	};
 
@@ -778,7 +667,7 @@ pub(crate) use gen_change_state;
 macro_rules! gen_call_fn {
 	{
 		struct $struct_name:ident;
-		raw_call unsafe { $($raw_call:tt)* };
+		raw_call $raw_call:expr;
 		return $return_type:ty;
 
 		$($rest:tt)*
@@ -786,7 +675,7 @@ macro_rules! gen_call_fn {
 		gen_call_fn! {
 			@impl nom_fields
 			struct $struct_name;
-			raw_call { $($raw_call)* };
+			raw_call $raw_call;
 			return $return_type;
 
 			fields {}
@@ -798,7 +687,7 @@ macro_rules! gen_call_fn {
 	{
 		@impl nom_fields
 		struct $struct_name:ident;
-		raw_call { $($raw_call:tt)* };
+		raw_call $raw_call:expr;
 		return $return_type:ty;
 
 		fields { $($fields:tt)* }
@@ -812,7 +701,7 @@ macro_rules! gen_call_fn {
 		gen_call_fn! {
 			@impl nom_fields
 			struct $struct_name;
-			raw_call { $($raw_call)* };
+			raw_call $raw_call;
 			return $return_type;
 
 			fields {
@@ -832,7 +721,7 @@ macro_rules! gen_call_fn {
 	{
 		@impl nom_fields
 		struct $struct_name:ident;
-		raw_call { $($raw_call:tt)* };
+		raw_call $raw_call:expr;
 		return $return_type:ty;
 
 		fields { $($fields:tt)* }
@@ -846,7 +735,7 @@ macro_rules! gen_call_fn {
 		gen_call_fn! {
 			@impl nom_fields
 			struct $struct_name;
-			raw_call { $($raw_call)* };
+			raw_call $raw_call;
 			return $return_type;
 
 			fields {
@@ -866,7 +755,7 @@ macro_rules! gen_call_fn {
 	{
 		@impl nom_fields
 		struct $struct_name:ident;
-		raw_call { $($raw_call:tt)* };
+		raw_call $raw_call:expr;
 		return $return_type:ty;
 
 		fields {
@@ -874,7 +763,7 @@ macro_rules! gen_call_fn {
 				field
 				{ $($impl_param:tt)* }
 				{ $($struct_param:tt)* }
-				{ $($read_slots_input:tt)* }
+				{ $($unsafe_read_slots_input:tt)* }
 				{ $($unused_fields:tt)* }
 			)*
 		}
@@ -885,28 +774,22 @@ macro_rules! gen_call_fn {
 		> $struct_name<'h, StateContainer<
 			$($($struct_param)*),*
 		>> {
-			#[inline]
+			#[inline(always)]
 			pub fn call_fn(self) -> $return_type {
-				#[allow(
-					unused_unsafe,
-					reason = "automatically generated"
-				)]
-				unsafe {
-					read_slots! {
-						self
-						$($($read_slots_input)*)*
-					}
-
-					$($(
-						#[allow(
-							clippy::drop_non_drop,
-							reason = "automatically generated"
-						)]
-						drop(self.inner.$unused_fields);
-					)*)*
-
-					$($raw_call)*
+				unsafe_read_slots! {
+					self
+					$($($unsafe_read_slots_input)*)*
 				}
+
+				$($(
+					#[allow(
+						clippy::drop_non_drop,
+						reason = "automatically generated"
+					)]
+					drop(self.inner.$unused_fields);
+				)*)*
+
+				$raw_call
 			}
 		}
 	};
