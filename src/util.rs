@@ -326,7 +326,9 @@ macro_rules! gen_slot_impl {
 			}
 
 			#[inline(always)]
-			fn as_ref<'as_ref>($as_ref_result: &'as_ref $result_type) -> &'as_ref ExternAny {
+			fn as_ref<'as_ref>(
+				$as_ref_result: &'as_ref $result_type
+			) -> &'as_ref ExternAny {
 				$($as_ref_impl)*
 			}
 		}
