@@ -295,6 +295,49 @@ macro_rules! gen_slot_impl {
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
+		impl $impl_type:ty;
+
+		result $result_type:ty;
+
+		write($write_self:ident, $write_slot:ident) {
+			$($write_impl:tt)*
+		}
+
+		read($read_slot:ident) {
+			$($read_impl:tt)*
+		}
+
+		as_ref($as_ref_result:ident) {
+			$($as_ref_impl:tt)*
+		}
+	} => {
+		$(#[$meta])*
+		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
+
+		gen_slot_impl! {
+			$(#[$meta])*
+			slot $slot;
+			impl $impl_type;
+
+			result $result_type;
+
+			write($write_self, $write_slot) {
+				$($write_impl)*
+			}
+
+			read($read_slot) {
+				$($read_impl)*
+			}
+
+			as_ref($as_ref_result) {
+				$($as_ref_impl)*
+			}
+		}
+	};
+
+	{
+		$(#[$meta:meta])*
+		slot $slot:ident;
 		unsafe impl $impl_type:ty;
 
 		result $result_type:ty;
@@ -332,7 +375,7 @@ macro_rules! gen_slot_impl {
 				$($as_ref_impl)*
 			}
 		}
-	}
+	};
 }
 pub(crate) use gen_slot_impl;
 
