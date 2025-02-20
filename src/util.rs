@@ -305,6 +305,15 @@ macro_rules! gen_slot_impl {
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
+		safe_only impl $impl_type:ty;
+	} => {
+		$(#[$meta])*
+		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
+	};
+
+	{
+		$(#[$meta:meta])*
+		slot $slot:ident;
 		impl $impl_type:ty;
 
 		$($stuff:tt)*
