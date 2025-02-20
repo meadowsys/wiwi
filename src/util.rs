@@ -97,37 +97,25 @@ where
 	T: ?Sized
 {}
 
-/// Types that can be used safely for slots of type `T`, just like
-/// [`SlotUnchecked`], but can only be implemented on types for which it is
+/// Types that can be safely written to slots of type `T`, just like
+/// [`SlotWriteUnchecked`], but can only be implemented on types for which it is
 /// correct to use
 ///
 /// For example, if we have an API that is expecting a string, we would only
 /// implement this trait for string types, but we can still implement
-/// [`SlotUnchecked`] for types that isn't guaranteed to be a string,
+/// [`SlotWriteUnchecked`] for types that isn't guaranteed to be a string,
 /// like [`ExternAny`](crate::ExternAny).
 ///
-/// To implement this trait, implement [`SlotUnchecked`] first, as that trait
+/// To implement this trait, implement [`SlotWriteUnchecked`] first, as that trait
 /// contains the actual implementation functionality. This trait is "only"
-/// a marker trait for those who implement [`SlotUnchecked`], and can guarantee
+/// a marker trait for those who implement [`SlotWriteUnchecked`], and can guarantee
 /// that all values of the type are valid for this slot.
-pub unsafe trait Slot<S>
-where
-	Self: SlotUnchecked<S>
-{}
-
-/// Types that can be used for slots of type `T`, just like [`Slot`], but much,
-/// _much_ looser in restrictions in which types can implement this trait
-///
-/// See documentation on [`Slot`] for more details on these two traits.
-pub unsafe trait SlotUnchecked<S>
+pub unsafe trait SlotWrite<S>
 where
 	Self: Sized
 {
 	/// Type to store in the state parameter (should almost always be just `Self`)
-	type State;
-
-	/// Output type of reading from a slot previously written to (can be anything)
-	type Result: Sized;
+	type State: SlotRead<S>;
 
 	/// Writes `self` into `slot`, doing as little work as needed
 	///
@@ -146,6 +134,11 @@ where
 	/// [`read`]: SlotUnchecked::read
 	/// [`write`]: SlotUnchecked::write
 	unsafe fn write(self, slot: &mut S);
+}
+
+pub unsafe trait SlotRead<S> {
+	/// Output type of reading from a slot previously written to (can be anything)
+	type Result: Sized;
 
 	/// Reads back what was written to `slot` in [`write`], then processes it
 	/// into the read output type as necessary
@@ -205,7 +198,6 @@ macro_rules! gen_struct {
 			// uses this expression to initialise the value on first deref
 			deref_value $deref_value:expr;
 		)?
-
 
 		$(
 			field
@@ -292,275 +284,67 @@ macro_rules! gen_slot {
 				Self { uninit: () }
 			}
 		}
-
-		// generates unchecked slot impl for ExternAny automatically
-		// so there is always _some_ way to use this slot
-		gen_slot_impl! {
-			slot $slot;
-			impl &'h ExternAny;
-
-			state Self;
-			result &'h ExternAny;
-
-			simple_rw any;
-			autoderef;
-		}
 	};
 }
 pub(crate) use gen_slot;
 
-macro_rules! gen_slot_impl {
-	// generates safe slot impl in addition to unchecked one
+macro_rules! gen_slot_write_impl {
 	{
-		$(#[$meta:meta])*
-		slot $slot:ident;
-		safe impl $impl_type:ty;
-
-		$($stuff:tt)*
-	} => {
-		$(#[$meta])*
-		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
-
-		gen_slot_impl! {
-			$(#[$meta])*
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
-		}
-	};
-
-	// generates only safe slot impl (relies on existing unchecked impl from
-	// somewhere else, ex. the type accepts any type so add this onto the
-	// impl from `gen_slot!` output)
-	{
-		$(#[$meta:meta])*
-		slot $slot:ident;
-		safe_only impl $impl_type:ty;
-	} => {
-		$(#[$meta])*
-		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
-	};
-
-	// generates unchecked slot impl
-	{
-		$(#[$meta:meta])*
 		slot $slot:ident;
 		impl $impl_type:ty;
 
-		$($stuff:tt)*
-	} => {
-		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $impl_type {
-			gen_slot_impl! {
-				@impl
-				slot $slot;
-				impl $impl_type;
-
-				$($stuff)*
-			}
-		}
-	};
-
-	// SlotUnchecked::State
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		state $state_type:ty;
-
-		$($stuff:tt)*
-	} => {
-		type State = $state_type;
-
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
-		}
-	};
-
-	// SlotUnchecked::Result
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		result $result_type:ty;
-
-		$($stuff:tt)*
-	} => {
-		type Result = $result_type;
-
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
-		}
-	};
-
-	// SlotUnchecked::write
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
+		state $state:ident;
 		write($self:ident, $write_slot:ident) {
 			$($write_impl:tt)*
 		}
-
-		$($stuff:tt)*
 	} => {
-		#[inline(always)]
-		unsafe fn write($self, $write_slot: &mut $slot<'h>) {
-			$($write_impl)*
-		}
+		unsafe impl<'h> SlotWrite<$slot<'h>> for $impl_type {
+			type State = $state;
 
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
+			#[inline]
+			unsafe fn write($self, $write_slot: &mut $slot<'h>) {
+				$($write_impl)*
+			}
 		}
 	};
+}
+pub(crate) use gen_slot_write_impl;
 
-	// SlotUnchecked::read
+macro_rules! gen_slot_read {
 	{
-		@impl
 		slot $slot:ident;
-		impl $impl_type:ty;
+		type $slot_read:ident;
+
+		result $result_type:ty;
 
 		read($read_slot:ident) {
 			$($read_impl:tt)*
 		}
 
-		$($stuff:tt)*
-	} => {
-		#[inline(always)]
-		unsafe fn read($read_slot: $slot<'h>) -> Self::Result {
-			$($read_impl)*
-		}
-
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
-		}
-	};
-
-	// SlotUnchecked::as_ref
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		as_ref($as_ref_result:ident) {
+		as_ref($result:ident) {
 			$($as_ref_impl:tt)*
 		}
-
-		$($stuff:tt)*
 	} => {
-		#[inline(always)]
-		fn as_ref($as_ref_result: &Self::Result) -> &ExternAny {
-			$($as_ref_impl)*
+		pub struct $slot_read {
+			__private: ()
 		}
 
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
+		unsafe impl<'h> SlotRead<$slot<'h>> for $slot_read {
+			type Result = $result_type;
 
-			$($stuff)*
-		}
-	};
-
-	// *slot = Slot { field: self }
-	// does rely on simple assignment syntax to the field
-	// (autoderef if needed etc.)
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		simple_w $field:ident;
-
-		$($stuff:tt)*
-	} => {
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			write(self, slot) {
-				*slot = $slot { $field: self }
+			#[inline(always)]
+			unsafe fn read($read_slot: $slot<'h>) -> Self::Result {
+				$($read_impl)*
 			}
 
-			$($stuff)*
-		}
-	};
-
-	// simple_w, additionally just reading the slot field in read
-	// unsafe { slot.field }
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		simple_rw $field:ident;
-
-		$($stuff:tt)*
-	} => {
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			simple_w $field;
-
-			read(slot) {
-				unsafe { slot.$field }
+			#[inline(always)]
+			fn as_ref($result: &Self::Result) -> &ExternAny {
+				$($as_ref_impl)*
 			}
-
-			$($stuff)*
 		}
 	};
-
-	// implements SlotUnchecked::as_ref via just returning result
-	// (autoderef if needed etc.)
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-
-		autoderef;
-
-		$($stuff:tt)*
-	} => {
-		gen_slot_impl! {
-			@impl
-			slot $slot;
-			impl $impl_type;
-
-			as_ref(result) { result }
-
-			$($stuff)*
-		}
-	};
-
-	{
-		@impl
-		slot $slot:ident;
-		impl $impl_type:ty;
-	} => { /* empty uwu */ };
 }
-pub(crate) use gen_slot_impl;
+pub(crate) use gen_slot_read;
 
 /// macro for the boilerplate of calling `SlotUnchecked::read`
 /// followed by conversion to `&JsValue`
@@ -834,36 +618,7 @@ macro_rules! gen_builder_fn {
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
-			T: Slot<$slot<'h2>>
-		{
-			unsafe { self.$fn_name_unchecked($field) }
-		}
-
-		#[doc = concat!(
-			"Setter for [`",
-			stringify!($field),
-			"`](Self::",
-			stringify!($field),
-			") with much, _much_ looser type restrictions"
-		)]
-		#[doc = ""]
-		#[doc = concat!(
-			"See the safer setter ([`",
-			stringify!($field),
-			"`](Self::",
-			stringify!($field),
-			")) for more information."
-		)]
-		#[inline(always)]
-		$(#[$meta_unchecked])*
-		pub unsafe fn $fn_name_unchecked<'h2, T>(
-			self,
-			$field: T
-		) -> $struct_name<'h2, S::$field_init<T>>
-		where
-			'h: 'h2,
-			S::$field_state: IsUninit,
-			T: SlotUnchecked<$slot<'h2>>
+			T: SlotWrite<$slot<'h2>>
 		{
 			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
 		}
@@ -939,7 +694,7 @@ macro_rules! gen_call_fn {
 				$($fields)*
 
 				field
-				{ $field_state: SlotUnchecked<$slot<'h>>, }
+				{ $field_state: SlotRead<$slot<'h>>, }
 				{ Init<$field_state> }
 				{ $field_name: $field_state }
 				{}

@@ -21,6 +21,20 @@ gen_slot! {
 	slot ValueSlot;
 }
 
+gen_slot_read! {
+	slot ValueSlot;
+	type Idunnololtododeleteme;
+	result ();
+
+	read(_slot) {
+		todo!()
+	}
+
+	as_ref(_ersulrul) {
+		todo!()
+	}
+}
+
 gen_builder_fns! {
 	struct ExternObject;
 
