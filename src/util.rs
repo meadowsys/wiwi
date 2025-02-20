@@ -271,21 +271,12 @@ macro_rules! gen_slot {
 
 		gen_slot_impl! {
 			slot $slot;
-			unsafe impl &'h ExternAny;
+			impl &'h ExternAny;
 
 			result &'h ExternAny;
 
-			write(self, slot) {
-				*slot = $slot { any: self }
-			}
-
-			read(slot) {
-				unsafe { slot.any }
-			}
-
-			as_ref(result) {
-				result
-			}
+			simple_rw any;
+			autoderef;
 		}
 	};
 }
@@ -295,21 +286,9 @@ macro_rules! gen_slot_impl {
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
-		impl $impl_type:ty;
+		safe impl $impl_type:ty;
 
-		result $result_type:ty;
-
-		write($write_self:ident, $write_slot:ident) {
-			$($write_impl:tt)*
-		}
-
-		read($read_slot:ident) {
-			$($read_impl:tt)*
-		}
-
-		as_ref($as_ref_result:ident) {
-			$($as_ref_impl:tt)*
-		}
+		$($stuff:tt)*
 	} => {
 		$(#[$meta])*
 		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
@@ -319,63 +298,194 @@ macro_rules! gen_slot_impl {
 			slot $slot;
 			impl $impl_type;
 
-			result $result_type;
-
-			write($write_self, $write_slot) {
-				$($write_impl)*
-			}
-
-			read($read_slot) {
-				$($read_impl)*
-			}
-
-			as_ref($as_ref_result) {
-				$($as_ref_impl)*
-			}
+			$($stuff)*
 		}
 	};
 
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
-		unsafe impl $impl_type:ty;
+		impl $impl_type:ty;
+
+		$($stuff:tt)*
+	} => {
+		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $impl_type {
+			gen_slot_impl! {
+				@impl
+				slot $slot;
+				impl $impl_type;
+
+				$($stuff)*
+			}
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
 
 		result $result_type:ty;
 
-		write($write_self:ident, $write_slot:ident) {
+		$($stuff:tt)*
+	} => {
+		type Result = $result_type;
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		write($self:ident, $write_slot:ident) {
 			$($write_impl:tt)*
 		}
+
+		$($stuff:tt)*
+	} => {
+		#[inline(always)]
+		unsafe fn write($self, $write_slot: &mut $slot<'h>) {
+			$($write_impl)*
+		}
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
 
 		read($read_slot:ident) {
 			$($read_impl:tt)*
 		}
 
+		$($stuff:tt)*
+	} => {
+		#[inline(always)]
+		unsafe fn read($read_slot: $slot<'h>) -> Self::Result {
+			$($read_impl)*
+		}
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
 		as_ref($as_ref_result:ident) {
 			$($as_ref_impl:tt)*
 		}
+
+		$($stuff:tt)*
 	} => {
-		$(#[$meta])*
-		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $impl_type {
-			type Result = $result_type;
+		#[inline(always)]
+		fn as_ref($as_ref_result: &Self::Result) -> &ExternAny {
+			$($as_ref_impl)*
+		}
 
-			#[inline(always)]
-			unsafe fn write($write_self, $write_slot: &mut $slot<'h>) {
-				$($write_impl)*
-			}
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
 
-			#[inline(always)]
-			unsafe fn read($read_slot: $slot<'h>) -> $result_type {
-				$($read_impl)*
-			}
-
-			#[inline(always)]
-			fn as_ref<'as_ref>(
-				$as_ref_result: &'as_ref $result_type
-			) -> &'as_ref ExternAny {
-				$($as_ref_impl)*
-			}
+			$($stuff)*
 		}
 	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		simple_w $field:ident;
+
+		$($stuff:tt)*
+	} => {
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			write(self, slot) {
+				*slot = $slot { $field: self }
+			}
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		simple_rw $field:ident;
+
+		$($stuff:tt)*
+	} => {
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			simple_w $field;
+
+			read(slot) {
+				unsafe { slot.$field }
+			}
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		autoderef;
+
+		$($stuff:tt)*
+	} => {
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			as_ref(result) { result }
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+	} => { /* empty uwu */ };
 }
 pub(crate) use gen_slot_impl;
 
