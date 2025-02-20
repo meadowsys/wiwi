@@ -110,16 +110,16 @@ where
 /// contains the actual implementation functionality. This trait is "only"
 /// a marker trait for those who implement [`SlotUnchecked`], and can guarantee
 /// that all values of the type are valid for this slot.
-pub unsafe trait Slot<T>
+pub unsafe trait Slot<S>
 where
-	Self: SlotUnchecked<T>
+	Self: SlotUnchecked<S>
 {}
 
 /// Types that can be used for slots of type `T`, just like [`Slot`], but much,
 /// _much_ looser in restrictions in which types can implement this trait
 ///
 /// See documentation on [`Slot`] for more details on these two traits.
-pub unsafe trait SlotUnchecked<T>
+pub unsafe trait SlotUnchecked<S>
 where
 	Self: Sized
 {
@@ -145,7 +145,7 @@ where
 	///
 	/// [`read`]: SlotUnchecked::read
 	/// [`write`]: SlotUnchecked::write
-	unsafe fn write(self, slot: &mut T);
+	unsafe fn write(self, slot: &mut S);
 
 	/// Reads back what was written to `slot` in [`write`], then processes it
 	/// into the read output type as necessary
@@ -159,7 +159,7 @@ where
 	/// to this function.
 	///
 	/// [`write`]: SlotUnchecked::write
-	unsafe fn read(slot: T) -> Self::Result;
+	unsafe fn read(slot: S) -> Self::Result;
 
 	/// Converts the read output type into a reference of type
 	/// [`&ExternAny`](crate::ExternAny)
