@@ -123,6 +123,9 @@ pub unsafe trait SlotUnchecked<T>
 where
 	Self: Sized
 {
+	/// Type to store in the state parameter (should almost always be just `Self`)
+	type State;
+
 	/// Output type of reading from a slot previously written to (can be anything)
 	type Result: Sized;
 
@@ -273,6 +276,7 @@ macro_rules! gen_slot {
 			slot $slot;
 			impl &'h ExternAny;
 
+			state Self;
 			result &'h ExternAny;
 
 			simple_rw any;
@@ -326,6 +330,26 @@ macro_rules! gen_slot_impl {
 
 				$($stuff)*
 			}
+		}
+	};
+
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		state $state_type:ty;
+
+		$($stuff:tt)*
+	} => {
+		type State = $state_type;
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
 		}
 	};
 
