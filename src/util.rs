@@ -866,6 +866,7 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
+			fn_name call_fn;
 			fields {}
 
 			$($rest)*
@@ -878,6 +879,7 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		fn_name $fn_name:ident;
 		fields { $($fields:tt)* }
 
 		field $field_name:ident;
@@ -892,6 +894,7 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
+			fn_name $fn_name;
 			fields {
 				$($fields)*
 
@@ -912,6 +915,7 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		fn_name $fn_name:ident;
 		fields { $($fields:tt)* }
 
 		field $field_name:ident;
@@ -926,6 +930,7 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
+			fn_name $fn_name;
 			fields {
 				$($fields)*
 
@@ -946,6 +951,33 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		fn_name $old_fn_name:ident;
+		fields { $($fields:tt)* }
+
+		fn_construct;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call $raw_call;
+			return $return_type;
+
+			fn_name construct;
+			fields { $($fields)* }
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call $raw_call:expr;
+		return $return_type:ty;
+
+		fn_name $fn_name:ident;
 		fields {
 			$(
 				field
@@ -963,7 +995,7 @@ macro_rules! gen_call_fn {
 			$($($struct_param)*),*
 		>> {
 			#[inline(always)]
-			pub fn call_fn(self) -> $return_type {
+			pub fn $fn_name(self) -> $return_type {
 				unsafe_read_slots! {
 					self
 					$($($unsafe_read_slots_input)*)*
