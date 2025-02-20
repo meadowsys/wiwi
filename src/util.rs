@@ -196,14 +196,24 @@ pub(crate) type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
 macro_rules! gen_struct {
 	{
 		$(#[$meta:meta])*
+		// name of "builder" struct
 		struct $struct_name:ident;
 
+		// generates deref impl if this is present
 		$(
 			deref $deref_type:ty;
+			// uses this expression to initialise the value on first deref
 			deref_value $deref_value:expr;
 		)?
 
-		$(field $field:ident: $slot:ident;)*
+
+		$(
+			field
+			// field name
+			$field:ident
+			// name of generated slot type (without generics etc)
+			$slot:ident;
+		)*
 	} => {
 		#[repr(transparent)]
 		pub struct $struct_name<'h, S: State> {
@@ -221,6 +231,8 @@ macro_rules! gen_struct {
 			pub(super) fn new() -> Self {
 				Self {
 					inner: Inner {
+						// its `None::<$deref_type>` and not just `None` so rust knows
+						// to base the presence of this field on it
 						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_type>),)?
 						$($field: $slot::uninit()),*
 					},
@@ -240,7 +252,8 @@ macro_rules! gen_struct {
 				fn deref(&self) -> &$deref_type {
 					// SAFETY: we are not thread safe so taking mut ref like
 					// this of the inner value of UnsafeCell temporarily is fine,
-					// we won't ever have two mut references
+					// we won't ever have two mut references (the closure in the call
+					// to `get_or_insert_with` can't access `self`)
 					unsafe {
 						(*self.inner.__deref.get())
 							.get_or_insert_with(|| $deref_value)
@@ -255,8 +268,15 @@ pub(crate) use gen_struct;
 macro_rules! gen_slot {
 	{
 		$(#[$meta:meta])*
+		// name of slot struct
 		slot $slot:ident;
-		$(field $field:ident: $field_type:ty;)*
+		$(
+			field
+			// name of field
+			$field:ident
+			// type of the field to store (can use 'h lifetime in the type)
+			$field_type:ty;
+		)*
 	} => {
 		$(#[$meta])*
 		pub union $slot<'h> {
@@ -268,10 +288,13 @@ macro_rules! gen_slot {
 		impl $slot<'static> {
 			#[inline(always)]
 			pub(crate) fn uninit() -> Self {
+				// totally not stolen from MaybeUninit uwu
 				Self { uninit: () }
 			}
 		}
 
+		// generates unchecked slot impl for ExternAny automatically
+		// so there is always _some_ way to use this slot
 		gen_slot_impl! {
 			slot $slot;
 			impl &'h ExternAny;
@@ -287,6 +310,7 @@ macro_rules! gen_slot {
 pub(crate) use gen_slot;
 
 macro_rules! gen_slot_impl {
+	// generates safe slot impl in addition to unchecked one
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
@@ -306,6 +330,9 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// generates only safe slot impl (relies on existing unchecked impl from
+	// somewhere else, ex. the type accepts any type so add this onto the
+	// impl from `gen_slot!` output)
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
@@ -315,6 +342,7 @@ macro_rules! gen_slot_impl {
 		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
 	};
 
+	// generates unchecked slot impl
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
@@ -333,6 +361,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// SlotUnchecked::State
 	{
 		@impl
 		slot $slot:ident;
@@ -353,6 +382,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// SlotUnchecked::Result
 	{
 		@impl
 		slot $slot:ident;
@@ -373,6 +403,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// SlotUnchecked::write
 	{
 		@impl
 		slot $slot:ident;
@@ -398,6 +429,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// SlotUnchecked::read
 	{
 		@impl
 		slot $slot:ident;
@@ -423,6 +455,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// SlotUnchecked::as_ref
 	{
 		@impl
 		slot $slot:ident;
@@ -448,6 +481,9 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// *slot = Slot { field: self }
+	// does rely on simple assignment syntax to the field
+	// (autoderef if needed etc.)
 	{
 		@impl
 		slot $slot:ident;
@@ -470,6 +506,8 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// simple_w, additionally just reading the slot field in read
+	// unsafe { slot.field }
 	{
 		@impl
 		slot $slot:ident;
@@ -494,6 +532,8 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// implements SlotUnchecked::as_ref via just returning result
+	// (autoderef if needed etc.)
 	{
 		@impl
 		slot $slot:ident;

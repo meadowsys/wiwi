@@ -9,7 +9,7 @@ gen_struct! {
 		ExternAny::from_js_value(value)
 	};
 
-	field value: ValueSlot;
+	field value ValueSlot;
 }
 
 gen_state! {
