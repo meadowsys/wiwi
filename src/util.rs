@@ -240,7 +240,7 @@ macro_rules! gen_struct {
 			{
 				type Target = $deref_type;
 
-				#[inline(always)]
+				#[inline]
 				fn deref(&self) -> &$deref_type {
 					// SAFETY: we are not thread safe so taking mut ref like
 					// this of the inner value of UnsafeCell temporarily is fine,
@@ -332,12 +332,12 @@ macro_rules! gen_slot_read {
 		unsafe impl<'h> SlotRead<$slot<'h>> for $slot_read {
 			type Result = $result_type;
 
-			#[inline(always)]
+			#[inline]
 			unsafe fn read($read_slot: $slot<'h>) -> Self::Result {
 				$($read_impl)*
 			}
 
-			#[inline(always)]
+			#[inline]
 			fn as_ref($result: &Self::Result) -> &ExternAny {
 				$($as_ref_impl)*
 			}
