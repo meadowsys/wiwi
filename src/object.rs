@@ -25,8 +25,6 @@ gen_builder_fns! {
 	slot ValueSlot;
 
 	field value;
-
-	field_unchecked value_unchecked;
 }
 
 gen_call_fn! {

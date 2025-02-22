@@ -310,7 +310,7 @@ macro_rules! gen_slot {
 pub(crate) use gen_slot;
 
 macro_rules! gen_slot_impl {
-	// generates unchecked slot impl
+	// generates slot impl
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
@@ -772,9 +772,6 @@ macro_rules! gen_builder_fns {
 
 			$(#[$meta:meta])*
 			field $field:ident;
-
-			$(#[$meta_unchecked:meta])*
-			field_unchecked $fn_name_unchecked:ident;
 		)*
 	} => {
 		impl<'h, S: State> $struct_name<'h, S> {
@@ -790,9 +787,6 @@ macro_rules! gen_builder_fns {
 
 					$(#[$meta:meta])*
 					field $field;
-
-					$(#[$meta_unchecked:meta])*
-					field_unchecked $fn_name_unchecked;
 				}
 			)*
 		}
@@ -810,9 +804,6 @@ macro_rules! gen_builder_fn {
 
 		$(#[$meta:meta])*
 		field $field:ident;
-
-		$(#[$meta_unchecked:meta])*
-		field_unchecked $fn_name_unchecked:ident;
 	} => {
 		#[inline(always)]
 		$(#[$meta])*
