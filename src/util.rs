@@ -326,6 +326,48 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
+	// Slot::TypeMarker = ()
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		no_type_marker;
+
+		$($stuff:tt)*
+	} => {
+		type TypeMarker = ();
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
+		}
+	};
+
+	// Slot::TypeMarker
+	{
+		@impl
+		slot $slot:ident;
+		impl $impl_type:ty;
+
+		type_marker $type_marker:ty;
+
+		$($stuff:tt)*
+	} => {
+		type TypeMarker = $type_marker;
+
+		gen_slot_impl! {
+			@impl
+			slot $slot;
+			impl $impl_type;
+
+			$($stuff)*
+		}
+	};
+
 	// Slot::write
 	{
 		@impl
