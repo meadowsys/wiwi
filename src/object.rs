@@ -1,7 +1,7 @@
 use crate::prelude_internal::*;
 
 gen_struct! {
-	struct ExternObject;
+	struct ExternObjectNs;
 
 	deref ExternAny;
 	deref_value {
@@ -18,7 +18,7 @@ gen_state! {
 }
 
 gen_builder_fns! {
-	struct ExternObject;
+	struct ExternObjectNs;
 
 	state Value;
 	init ValueInit;
@@ -30,7 +30,7 @@ gen_builder_fns! {
 }
 
 gen_call_fn! {
-	struct ExternObject;
+	struct ExternObjectNs;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -43,7 +43,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObject;
+	struct ExternObjectNs;
 	raw_call {
 		todo!()
 	};

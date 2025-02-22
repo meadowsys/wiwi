@@ -29,7 +29,7 @@
 pub use self::any::ExternAny;
 // pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 #[doc(inline)]
-pub use self::object::ExternObject;
+pub use self::object::ExternObjectNs;
 // pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
 // #[doc(inline)]
 // pub use self::reflect::{ ExternReflectNs, reflect };
@@ -57,7 +57,8 @@ wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 	reason = "prelude"
 )]
 mod prelude_internal {
-	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
+	// pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
+	pub use crate::{ ExternAny, wasm_bindgen };
 	pub use crate::util::*;
 	// pub use core::mem::{ ManuallyDrop, MaybeUninit, transmute };
 	// pub use core::ops::Deref;
