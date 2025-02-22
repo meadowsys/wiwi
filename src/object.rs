@@ -17,10 +17,6 @@ gen_state! {
 	init ValueInit;
 }
 
-gen_slot! {
-	slot ValueSlot;
-}
-
 gen_builder_fns! {
 	struct ExternObject;
 
@@ -56,6 +52,10 @@ gen_call_fn! {
 	field value;
 	state Value;
 	init Uninit;
+}
+
+gen_slot! {
+	slot ValueSlot;
 }
 
 mod raw {
