@@ -34,6 +34,9 @@ macro_rules! gen_markers {
 }
 
 gen_markers! {
+	"any"
+	AnyMarker
+
 	"string"
 	StringMarker
 

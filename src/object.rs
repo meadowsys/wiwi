@@ -30,19 +30,6 @@ gen_builder_fns! {
 gen_call_fn! {
 	struct ExternObjectNs;
 	raw_call {
-		let _ = value;
-		todo!()
-	};
-	return Result<ExternAny, ExternAny>;
-
-	field value;
-	state Value;
-	init Init<ValueSlot>;
-}
-
-gen_call_fn! {
-	struct ExternObjectNs;
-	raw_call {
 		todo!()
 	};
 	return Result<ExternAny, ExternAny>;
@@ -52,8 +39,32 @@ gen_call_fn! {
 	init Uninit;
 }
 
+gen_call_fn! {
+	struct ExternObjectNs;
+	raw_call {
+		let _ = value;
+		todo!()
+	};
+	return ExternAny;
+
+	field value;
+	state Value;
+	init Init<ValueSlot, marker::AnyMarker>;
+}
+
 gen_slot! {
 	slot ValueSlot;
+}
+
+gen_slot_impl! {
+	slot ValueSlot;
+	impl &'h ExternAny;
+
+	type_marker marker::AnyMarker;
+	result &'h ExternAny;
+
+	simple_rw any;
+	autoderef;
 }
 
 mod raw {
