@@ -23,7 +23,7 @@
 // - impl block for builder fns, `change_state`, internal functions etc
 // - target slot union definitions (will want `uninit`, likely will
 //   want `any`, and whatever other incompatible types in there), and
-//   associated impls (`Slot` and `SlotUnchecked` impls etc)
+//   associated impls (`Slot` impls etc)
 
 pub use core::marker::PhantomData;
 
@@ -33,12 +33,16 @@ pub struct Uninit {
 }
 
 /// Marker struct for a field in the initialised state, optionally
-/// containing more state in the form of another type `T`
-pub struct Init<T = ()>
+/// containing more state in the form of another type `S`, and a more
+/// "general" type that can be "matched upon" in implementations, in `T`
+pub struct Init<T = (), G = ()>
 where
-	T: ?Sized
+	T: ?Sized,
+	G: ?Sized
 {
-	__marker: PhantomDataInvariant<T>
+	// need two seperate markers because `T` and `G` are `?Sized`
+	__marker_t: PhantomDataInvariant<T>,
+	__marker_g: PhantomDataInvariant<G>
 }
 
 /// Trait for marker structs to hold state about if a field in
@@ -64,9 +68,10 @@ unsafe impl InitStatus for Uninit {
 }
 
 // SAFETY: `Init` represents initialised
-unsafe impl<T> InitStatus for Init<T>
+unsafe impl<T, G> InitStatus for Init<T, G>
 where
-	T: ?Sized
+	T: ?Sized,
+	G: ?Sized
 {
 	const IS_INIT: bool = true;
 }
@@ -97,32 +102,16 @@ where
 	T: ?Sized
 {}
 
-/// Types that can be used safely for slots of type `T`, just like
-/// [`SlotUnchecked`], but can only be implemented on types for which it is
-/// correct to use
+/// Types that can be used safely for slots of type `T`
 ///
-/// For example, if we have an API that is expecting a string, we would only
-/// implement this trait for string types, but we can still implement
-/// [`SlotUnchecked`] for types that isn't guaranteed to be a string,
-/// like [`ExternAny`](crate::ExternAny).
-///
-/// To implement this trait, implement [`SlotUnchecked`] first, as that trait
-/// contains the actual implementation functionality. This trait is "only"
-/// a marker trait for those who implement [`SlotUnchecked`], and can guarantee
-/// that all values of the type are valid for this slot.
+/// For example, if we have an API that is expecting a string, we would
+/// implement this trait for string types.
 pub unsafe trait Slot<S>
-where
-	Self: SlotUnchecked<S>
-{}
-
-/// Types that can be used for slots of type `T`, just like [`Slot`], but much,
-/// _much_ looser in restrictions in which types can implement this trait
-///
-/// See documentation on [`Slot`] for more details on these two traits.
-pub unsafe trait SlotUnchecked<S>
 where
 	Self: Sized
 {
+	type GeneralType;
+
 	/// Output type of reading from a slot previously written to (can be anything)
 	type Result: Sized;
 
@@ -140,8 +129,8 @@ where
 	/// but even with that, there is no _strict_ requirement that callers only
 	/// call [`write`] once.
 	///
-	/// [`read`]: SlotUnchecked::read
-	/// [`write`]: SlotUnchecked::write
+	/// [`read`]: Slot::read
+	/// [`write`]: Slot::write
 	unsafe fn write(self, slot: &mut S);
 
 	/// Reads back what was written to `slot` in [`write`], then processes it
@@ -155,7 +144,7 @@ where
 	/// Callers must call [`write`] on this slot first, before passing it
 	/// to this function.
 	///
-	/// [`write`]: SlotUnchecked::write
+	/// [`write`]: Slot::write
 	unsafe fn read(slot: S) -> Self::Result;
 
 	/// Converts the read output type into a reference of type
@@ -289,55 +278,11 @@ macro_rules! gen_slot {
 				Self { uninit: () }
 			}
 		}
-
-		// generates unchecked slot impl for ExternAny automatically
-		// so there is always _some_ way to use this slot
-		gen_slot_impl! {
-			slot $slot;
-			impl &'h ExternAny;
-
-			result &'h ExternAny;
-
-			simple_rw any;
-			autoderef;
-		}
 	};
 }
 pub(crate) use gen_slot;
 
 macro_rules! gen_slot_impl {
-	// generates safe slot impl in addition to unchecked one
-	{
-		$(#[$meta:meta])*
-		slot $slot:ident;
-		safe impl $impl_type:ty;
-
-		$($stuff:tt)*
-	} => {
-		$(#[$meta])*
-		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
-
-		gen_slot_impl! {
-			$(#[$meta])*
-			slot $slot;
-			impl $impl_type;
-
-			$($stuff)*
-		}
-	};
-
-	// generates only safe slot impl (relies on existing unchecked impl from
-	// somewhere else, ex. the type accepts any type so add this onto the
-	// impl from `gen_slot!` output)
-	{
-		$(#[$meta:meta])*
-		slot $slot:ident;
-		safe_only impl $impl_type:ty;
-	} => {
-		$(#[$meta])*
-		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {}
-	};
-
 	// generates unchecked slot impl
 	{
 		$(#[$meta:meta])*
@@ -346,7 +291,7 @@ macro_rules! gen_slot_impl {
 
 		$($stuff:tt)*
 	} => {
-		unsafe impl<'h> SlotUnchecked<$slot<'h>> for $impl_type {
+		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {
 			gen_slot_impl! {
 				@impl
 				slot $slot;
@@ -357,7 +302,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
-	// SlotUnchecked::Result
+	// Slot::Result
 	{
 		@impl
 		slot $slot:ident;
@@ -378,7 +323,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
-	// SlotUnchecked::write
+	// Slot::write
 	{
 		@impl
 		slot $slot:ident;
@@ -404,7 +349,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
-	// SlotUnchecked::read
+	// Slot::read
 	{
 		@impl
 		slot $slot:ident;
@@ -430,7 +375,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
-	// SlotUnchecked::as_ref
+	// Slot::as_ref
 	{
 		@impl
 		slot $slot:ident;
@@ -507,7 +452,7 @@ macro_rules! gen_slot_impl {
 		}
 	};
 
-	// implements SlotUnchecked::as_ref via just returning result
+	// implements Slot::as_ref via just returning result
 	// (autoderef if needed etc.)
 	{
 		@impl
@@ -537,7 +482,7 @@ macro_rules! gen_slot_impl {
 }
 pub(crate) use gen_slot_impl;
 
-/// macro for the boilerplate of calling `SlotUnchecked::read`
+/// macro for the boilerplate of calling `Slot::read`
 /// followed by conversion to `&JsValue`
 ///
 /// # Examples
@@ -606,7 +551,7 @@ macro_rules! gen_state {
 		pub trait State {
 			$(
 				type $field: InitStatus;
-				type $field_init<S: ?Sized>: State;
+				type $field_init<T: ?Sized, G: ?Sized>: State;
 			)*
 		}
 
@@ -714,9 +659,9 @@ macro_rules! gen_state {
 		}
 	} => {
 		type $field = $field;
-		type $field_init<S: ?Sized> = StateContainer<
+		type $field_init<T: ?Sized, G: ?Sized> = StateContainer<
 			$($field_prev,)*
-			Init<S>,
+			Init<T, G>,
 			$field_next,
 			$($field_rest),*
 		>;
@@ -739,9 +684,9 @@ macro_rules! gen_state {
 		{}
 	} => {
 		type $field = $field;
-		type $field_init<S: ?Sized> = StateContainer<
+		type $field_init<T: ?Sized, G: ?Sized> = StateContainer<
 			$($field_prev,)*
-			Init<S>
+			Init<T, G>
 		>;
 	};
 }
@@ -805,40 +750,11 @@ macro_rules! gen_builder_fn {
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
-		) -> $struct_name<'h2, S::$field_init<T>>
+		) -> $struct_name<'h2, S::$field_init<T, T::GeneralType>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
 			T: Slot<$slot<'h2>>
-		{
-			unsafe { self.$fn_name_unchecked($field) }
-		}
-
-		#[doc = concat!(
-			"Setter for [`",
-			stringify!($field),
-			"`](Self::",
-			stringify!($field),
-			") with much, _much_ looser type restrictions"
-		)]
-		#[doc = ""]
-		#[doc = concat!(
-			"See the safer setter ([`",
-			stringify!($field),
-			"`](Self::",
-			stringify!($field),
-			")) for more information."
-		)]
-		#[inline(always)]
-		$(#[$meta_unchecked])*
-		pub unsafe fn $fn_name_unchecked<'h2, T>(
-			self,
-			$field: T
-		) -> $struct_name<'h2, S::$field_init<T>>
-		where
-			'h: 'h2,
-			S::$field_state: IsUninit,
-			T: SlotUnchecked<$slot<'h2>>
 		{
 			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
 		}
@@ -882,6 +798,7 @@ macro_rules! gen_call_fn {
 			return $return_type;
 
 			fn_name call_fn;
+
 			fields {}
 
 			$($rest)*
@@ -894,7 +811,9 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		$(#[$meta:meta])*
 		fn_name $fn_name:ident;
+
 		fields { $($fields:tt)* }
 
 		field $field_name:ident;
@@ -909,12 +828,14 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
+			$(#[$meta])*
 			fn_name $fn_name;
+
 			fields {
 				$($fields)*
 
 				field
-				{ $field_state: SlotUnchecked<$slot<'h>>, }
+				{ $field_state: Slot<$slot<'h>>, }
 				{ Init<$field_state> }
 				{ $field_name: $field_state }
 				{}
@@ -930,7 +851,89 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		$(#[$meta:meta])*
 		fn_name $fn_name:ident;
+
+		fields { $($fields:tt)* }
+
+		field $field_name:ident;
+		state $field_state:ident;
+		init Init<$slot:ident, $general_type:ty>;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call $raw_call;
+			return $return_type;
+
+			$(#[$meta])*
+			fn_name $fn_name;
+
+			fields {
+				$($fields)*
+
+				field
+				{ $field_state: Slot<$slot<'h>>, }
+				{ Init<$field_state, $general_type> }
+				{ $field_name: $field_state }
+				{}
+			}
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call $raw_call:expr;
+		return $return_type:ty;
+
+		$(#[$meta:meta])*
+		fn_name $fn_name:ident;
+
+		fields { $($fields:tt)* }
+
+		field $field_name:ident;
+		state $field_state:ident;
+		init Init<$slot:ident, any $general_type:ident>;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call $raw_call;
+			return $return_type;
+
+			$(#[$meta])*
+			fn_name $fn_name;
+
+			fields {
+				$($fields)*
+
+				field
+				{ $field_state: Slot<$slot<'h>>, $general_type, }
+				{ Init<$field_state, $general_type> }
+				{ $field_name: $field_state }
+				{}
+			}
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call $raw_call:expr;
+		return $return_type:ty;
+
+		$(#[$meta:meta])*
+		fn_name $fn_name:ident;
+
 		fields { $($fields:tt)* }
 
 		field $field_name:ident;
@@ -945,7 +948,9 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
+			$(#[$meta])*
 			fn_name $fn_name;
+
 			fields {
 				$($fields)*
 
@@ -966,10 +971,13 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		$(#[$old_meta:meta])*
 		fn_name $old_fn_name:ident;
+
 		fields { $($fields:tt)* }
 
-		fn_construct;
+		$(#[$meta:meta])*
+		fn;
 
 		$($stuff:tt)*
 	} => {
@@ -979,7 +987,10 @@ macro_rules! gen_call_fn {
 			raw_call $raw_call;
 			return $return_type;
 
-			fn_name construct;
+			$(#[$old_meta])*
+			$(#[$meta])*
+			fn_name $old_fn_name;
+
 			fields { $($fields)* }
 
 			$($stuff)*
@@ -992,7 +1003,41 @@ macro_rules! gen_call_fn {
 		raw_call $raw_call:expr;
 		return $return_type:ty;
 
+		$(#[$old_meta:meta])*
+		fn_name $old_fn_name:ident;
+
+		fields { $($fields:tt)* }
+
+		$(#[$meta:meta])*
+		fn $fn_name:ident;
+
+		$($stuff:tt)*
+	} => {
+		gen_call_fn! {
+			@impl nom_fields
+			struct $struct_name;
+			raw_call $raw_call;
+			return $return_type;
+
+			$(#[$old_meta])*
+			$(#[$meta])*
+			fn_name $fn_name;
+
+			fields { $($fields)* }
+
+			$($stuff)*
+		}
+	};
+
+	{
+		@impl nom_fields
+		struct $struct_name:ident;
+		raw_call $raw_call:expr;
+		return $return_type:ty;
+
+		$(#[$meta:meta])*
 		fn_name $fn_name:ident;
+
 		fields {
 			$(
 				field
@@ -1010,6 +1055,7 @@ macro_rules! gen_call_fn {
 			$($($struct_param)*),*
 		>> {
 			#[inline(always)]
+			$(#[$meta])*
 			pub fn $fn_name(self) -> $return_type {
 				unsafe_read_slots! {
 					self
