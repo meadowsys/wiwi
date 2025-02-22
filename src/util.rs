@@ -25,7 +25,10 @@
 //   want `any`, and whatever other incompatible types in there), and
 //   associated impls (`Slot` impls etc)
 
+pub use self::marker::TypeMarker;
 pub use core::marker::PhantomData;
+
+pub mod marker;
 
 /// Marker struct for a field in the uninitialised state
 pub struct Uninit {
@@ -35,14 +38,14 @@ pub struct Uninit {
 /// Marker struct for a field in the initialised state, optionally
 /// containing more state in the form of another type `S`, and a more
 /// "general" type that can be "matched upon" in implementations, in `T`
-pub struct Init<T = (), G = ()>
+pub struct Init<T = (), M = ()>
 where
 	T: ?Sized,
-	G: ?Sized
+	M: ?Sized + TypeMarker
 {
-	// need two seperate markers because `T` and `G` are `?Sized`
+	// need two seperate markers because `T` and `M` are `?Sized`
 	__marker_t: PhantomDataInvariant<T>,
-	__marker_g: PhantomDataInvariant<G>
+	__marker_g: PhantomDataInvariant<M>
 }
 
 /// Trait for marker structs to hold state about if a field in
@@ -68,10 +71,10 @@ unsafe impl InitStatus for Uninit {
 }
 
 // SAFETY: `Init` represents initialised
-unsafe impl<T, G> InitStatus for Init<T, G>
+unsafe impl<T, M> InitStatus for Init<T, M>
 where
 	T: ?Sized,
-	G: ?Sized
+	M: ?Sized + TypeMarker
 {
 	const IS_INIT: bool = true;
 }
@@ -110,7 +113,7 @@ pub unsafe trait Slot<S>
 where
 	Self: Sized
 {
-	type GeneralType;
+	type TypeMarker: TypeMarker;
 
 	/// Output type of reading from a slot previously written to (can be anything)
 	type Result: Sized;
@@ -551,7 +554,7 @@ macro_rules! gen_state {
 		pub trait State {
 			$(
 				type $field: InitStatus;
-				type $field_init<T: ?Sized, G: ?Sized>: State;
+				type $field_init<T: ?Sized, M: ?Sized + TypeMarker>: State;
 			)*
 		}
 
@@ -659,9 +662,9 @@ macro_rules! gen_state {
 		}
 	} => {
 		type $field = $field;
-		type $field_init<T: ?Sized, G: ?Sized> = StateContainer<
+		type $field_init<T: ?Sized, M: ?Sized + TypeMarker> = StateContainer<
 			$($field_prev,)*
-			Init<T, G>,
+			Init<T, M>,
 			$field_next,
 			$($field_rest),*
 		>;
@@ -684,9 +687,9 @@ macro_rules! gen_state {
 		{}
 	} => {
 		type $field = $field;
-		type $field_init<T: ?Sized, G: ?Sized> = StateContainer<
+		type $field_init<T: ?Sized, M: ?Sized + TypeMarker> = StateContainer<
 			$($field_prev,)*
-			Init<T, G>
+			Init<T, M>
 		>;
 	};
 }
@@ -750,7 +753,7 @@ macro_rules! gen_builder_fn {
 		pub fn $field<'h2, T>(
 			self,
 			$field: T
-		) -> $struct_name<'h2, S::$field_init<T, T::GeneralType>>
+		) -> $struct_name<'h2, S::$field_init<T, T::TypeMarker>>
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
@@ -915,7 +918,7 @@ macro_rules! gen_call_fn {
 				$($fields)*
 
 				field
-				{ $field_state: Slot<$slot<'h>>, $general_type, }
+				{ $field_state: Slot<$slot<'h>>, $general_type: TypeMarker, }
 				{ Init<$field_state, $general_type> }
 				{ $field_name: $field_state }
 				{}
