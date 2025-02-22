@@ -195,6 +195,10 @@ macro_rules! gen_struct {
 			deref_value $deref_value:expr;
 		)?
 
+		// generates a different deref impl if this is present
+		// only this or the one above can be present, of course
+		$(untracked_deref $untracked_field_deref:ident: $untracked_field_deref_type:ty;)?
+
 
 		$(
 			field
@@ -203,6 +207,8 @@ macro_rules! gen_struct {
 			// name of generated slot type (without generics etc)
 			$slot:ident;
 		)*
+
+		$(untracked_field $untracked_field:ident: $untracked_field_type:ty;)*
 	} => {
 		#[repr(transparent)]
 		pub struct $struct_name<'h, S: State> {
@@ -212,18 +218,22 @@ macro_rules! gen_struct {
 
 		struct Inner<'h> {
 			$(__deref: ::core::cell::UnsafeCell<::core::option::Option<$deref_type>>,)?
-			$($field: $slot<'h>),*
+			$($field: $slot<'h>,)*
+			$($untracked_field: $untracked_field_type),*
 		}
 
 		impl $struct_name<'static, StateUninit> {
 			#[inline(always)]
-			pub(super) fn new() -> Self {
+			pub(super) fn _new(
+				$($untracked_field: $untracked_field_type),*
+			) -> Self {
 				Self {
 					inner: Inner {
 						// its `None::<$deref_type>` and not just `None` so rust knows
 						// to base the presence of this field on it
 						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_type>),)?
-						$($field: $slot::uninit()),*
+						$($field: $slot::uninit(),)*
+						$($untracked_field),*
 					},
 					__marker: PhantomData
 				}
@@ -247,6 +257,20 @@ macro_rules! gen_struct {
 						(*self.inner.__deref.get())
 							.get_or_insert_with(|| $deref_value)
 					}
+				}
+			}
+		)?
+
+		$(
+			impl<'h, S> ::core::ops::Deref for $struct_name<'h, S>
+			where
+				S: State
+			{
+				type Target = $untracked_field_deref_type;
+
+				#[inline(always)]
+				fn deref(&self) -> &$untracked_field_deref_type {
+					&self.inner.$untracked_field_deref
 				}
 			}
 		)?
