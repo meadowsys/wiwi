@@ -27,26 +27,36 @@
 )]
 
 pub use self::any::ExternAny;
+#[doc(inline)]
+pub use self::bigint::ExternBigInt;
 // pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 #[doc(inline)]
+pub use self::boolean::ExternBoolean;
+#[doc(inline)]
 pub use self::object::ExternObjectNs;
+#[doc(inline)]
+pub use self::number::ExternNumber;
 // pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
-// #[doc(inline)]
+#[doc(inline)]
+pub use self::reflect::ExternReflect;
 // pub use self::reflect::{ ExternReflectNs, reflect };
+#[doc(inline)]
+pub use self::string::ExternString;
 // pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
+pub use self::symbol::ExternSymbol;
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 mod any;
 // pub mod extern_crates;
 pub mod util;
 
-mod bigint;
-mod boolean;
+pub mod bigint;
+pub mod boolean;
 pub mod object;
-mod number;
+pub mod number;
 pub mod reflect;
-mod string;
-mod symbol;
+pub mod string;
+pub mod symbol;
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
