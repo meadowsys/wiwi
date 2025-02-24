@@ -4,7 +4,7 @@ use crate::prelude_internal::*;
 use super::raw;
 
 gen_struct! {
-	struct ExternObjectNs;
+	struct ExternObjectNs ExternObjectNsWithState;
 
 	deref ExternAny;
 	deref_value {
@@ -21,7 +21,7 @@ gen_state! {
 }
 
 gen_builder_fns! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 
 	state Value;
 	init ValueInit;
@@ -31,12 +31,11 @@ gen_builder_fns! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		todo!()
 	};
-	// todo better return type
-	return ExternObject<'static, crate::object::StateUninit>;
+	return ExternObject;
 
 	field value;
 	state Value;
@@ -44,7 +43,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -58,13 +57,13 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
 	};
 	// todo better return type
-	return crate::ExternBigInt<'static, crate::bigint::StateUninit>;
+	return crate::ExternBigInt;
 
 	field value;
 	state Value;
@@ -72,13 +71,13 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
 	};
 	// todo better return type
-	return crate::ExternBoolean<'static, crate::boolean::StateUninit>;
+	return crate::ExternBoolean;
 
 	field value;
 	state Value;
@@ -86,7 +85,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -100,7 +99,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -114,7 +113,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -128,7 +127,7 @@ gen_call_fn! {
 }
 
 gen_call_fn! {
-	struct ExternObjectNs;
+	struct ExternObjectNsWithState;
 	raw_call {
 		let _ = value;
 		todo!()
@@ -160,7 +159,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl {
 		S: crate::bigint::State
-	} &'h crate::ExternBigInt<'h, S>;
+	} &'h crate::ExternBigIntWithState<'h, S>;
 
 	type_marker BigIntMarker;
 	result &'h crate::ExternAny;
@@ -173,7 +172,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl {
 		S: crate::boolean::State
-	} &'h crate::ExternBoolean<'h, S>;
+	} &'h crate::ExternBooleanWithState<'h, S>;
 
 	type_marker BooleanMarker;
 	result &'h crate::ExternAny;
@@ -186,7 +185,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl {
 		S: crate::number::State
-	} &'h crate::ExternNumber<'h, S>;
+	} &'h crate::ExternNumberWithState<'h, S>;
 
 	type_marker NumberMarker;
 	result &'h crate::ExternAny;
@@ -199,7 +198,7 @@ gen_slot_impl! {
 // 	slot ValueSlot;
 // 	impl {
 // 		S: crate::object::State
-// 	} &'h crate::ExternObject<'h, S>;
+// 	} &'h crate::ExternObjectWithState<'h, S>;
 //
 // 	type_marker ObjectMarker;
 // 	result &'h crate::ExternAny;
@@ -212,7 +211,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl {
 		S: crate::string::State
-	} &'h crate::ExternString<'h, S>;
+	} &'h crate::ExternStringWithState<'h, S>;
 
 	type_marker StringMarker;
 	result &'h crate::ExternAny;
@@ -225,7 +224,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl {
 		S: crate::symbol::State
-	} &'h crate::ExternSymbol<'h, S>;
+	} &'h crate::ExternSymbolWithState<'h, S>;
 
 	type_marker SymbolMarker;
 	result &'h crate::ExternAny;

@@ -186,7 +186,7 @@ macro_rules! gen_struct {
 	{
 		$(#[$meta:meta])*
 		// name of "builder" struct
-		struct $struct_name:ident;
+		struct $struct_name_without_state:ident $struct_name:ident;
 
 		// generates deref impl if this is present
 		$(
@@ -209,6 +209,8 @@ macro_rules! gen_struct {
 
 		$(untracked_field $untracked_field:ident: $untracked_field_type:ty;)*
 	} => {
+		pub type $struct_name_without_state = $struct_name<'static, StateUninit>;
+
 		#[repr(transparent)]
 		pub struct $struct_name<'h, S: State> {
 			inner: Inner<'h>,

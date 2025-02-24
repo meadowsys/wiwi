@@ -28,23 +28,23 @@
 
 pub use self::any::ExternAny;
 #[doc(inline)]
-pub use self::bigint::ExternBigInt;
+pub use self::bigint::{ ExternBigInt, ExternBigIntWithState };
 // pub use self::bigint::{ ExternBigint, ExternBigintNs, bigint };
 #[doc(inline)]
-pub use self::boolean::ExternBoolean;
+pub use self::boolean::{ ExternBoolean, ExternBooleanWithState };
 #[doc(inline)]
-pub use self::object::{ ExternObject, ExternObjectNs };
+pub use self::object::{ ExternObject, ExternObjectWithState, ExternObjectNs, ExternObjectNsWithState };
 #[doc(inline)]
-pub use self::number::ExternNumber;
+pub use self::number::{ ExternNumber, ExternNumberWithState };
 // pub use self::number::{ ExternNumber, ExternNumberNs, ExternNumberObject, number };
 #[doc(inline)]
-pub use self::reflect::ExternReflect;
+pub use self::reflect::{ ExternReflect, ExternReflectWithState };
 // pub use self::reflect::{ ExternReflectNs, reflect };
 #[doc(inline)]
-pub use self::string::ExternString;
+pub use self::string::{ ExternString, ExternStringWithState };
 // pub use self::string::{ ExternString, ExternStringNs, ExternStringObject };
 #[doc(inline)]
-pub use self::symbol::ExternSymbol;
+pub use self::symbol::{ ExternSymbol, ExternSymbolWithState };
 pub use wasm_bindgen::prelude::wasm_bindgen;
 
 mod any;

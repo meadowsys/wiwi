@@ -3,7 +3,7 @@
 use crate::prelude_internal::*;
 
 gen_struct! {
-	struct ExternSymbol;
+	struct ExternSymbol ExternSymbolWithState;
 
 	deref ExternAny;
 	deref_value todo!();

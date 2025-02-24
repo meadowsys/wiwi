@@ -3,7 +3,7 @@
 use crate::prelude_internal::*;
 
 gen_struct! {
-	struct ExternBigInt;
+	struct ExternBigInt ExternBigIntWithState;
 
 	deref ExternAny;
 	deref_value todo!();

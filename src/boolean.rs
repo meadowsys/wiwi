@@ -3,7 +3,7 @@
 use crate::prelude_internal::*;
 
 gen_struct! {
-	struct ExternBoolean;
+	struct ExternBoolean ExternBooleanWithState;
 
 	deref ExternAny;
 	deref_value todo!();
