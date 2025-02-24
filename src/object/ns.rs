@@ -35,7 +35,7 @@ gen_call_fn! {
 	raw_call {
 		todo!()
 	};
-	return Result<ExternAny, ExternAny>;
+	return ExternAny;
 
 	field value;
 	state Value;
@@ -65,6 +65,17 @@ gen_slot_impl! {
 
 	type_marker AnyMarker;
 	result &'h ExternAny;
+
+	simple_rw any;
+	autoderef;
+}
+
+gen_slot_impl! {
+	slot ValueSlot;
+	impl{ S: crate::bigint::State } &'h crate::ExternBigInt<'h, S>;
+
+	type_marker BigIntMarker;
+	result &'h crate::ExternAny;
 
 	simple_rw any;
 	autoderef;

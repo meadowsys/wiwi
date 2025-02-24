@@ -320,11 +320,11 @@ macro_rules! gen_slot_impl {
 	{
 		$(#[$meta:meta])*
 		slot $slot:ident;
-		impl $impl_type:ty;
+		impl$({ $($generics:tt)* })? $impl_type:ty;
 
 		$($stuff:tt)*
 	} => {
-		unsafe impl<'h> Slot<$slot<'h>> for $impl_type {
+		unsafe impl<'h $(, $($generics)*)?> Slot<$slot<'h>> for $impl_type {
 			gen_slot_impl! {
 				@impl
 				slot $slot;

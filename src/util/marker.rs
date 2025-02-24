@@ -37,17 +37,20 @@ gen_markers! {
 	"any"
 	AnyMarker
 
-	"string"
-	StringMarker
-
-	"number"
-	NumberMarker
-
 	"bigint"
 	BigIntMarker
 
 	"boolean"
 	BooleanMarker
+
+	"object"
+	ObjectMarker
+
+	"number"
+	NumberMarker
+
+	"string"
+	StringMarker
 
 	"symbol"
 	SymbolMarker
