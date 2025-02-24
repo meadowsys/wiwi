@@ -217,6 +217,7 @@ macro_rules! gen_struct {
 		}
 
 		struct Inner<'h> {
+			__use_h: PhantomData<&'h ()>,
 			$(__deref: ::core::cell::UnsafeCell<::core::option::Option<$deref_type>>,)?
 			$($field: $slot<'h>,)*
 			$($untracked_field: $untracked_field_type),*
@@ -229,6 +230,7 @@ macro_rules! gen_struct {
 			) -> Self {
 				Self {
 					inner: Inner {
+						__use_h: PhantomData,
 						// its `None::<$deref_type>` and not just `None` so rust knows
 						// to base the presence of this field on it
 						$(__deref: ::core::cell::UnsafeCell::new(None::<$deref_type>),)?
@@ -700,6 +702,13 @@ macro_rules! gen_state {
 			$($uninit_type),*
 		>;
 	};
+
+	{
+		@impl state_init_types
+		{}
+		{}
+		{}
+	} => {};
 
 	{
 		@impl state_init_types

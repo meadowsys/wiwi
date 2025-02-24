@@ -40,13 +40,13 @@ mod any;
 // pub mod extern_crates;
 pub mod util;
 
-// mod bigint;
-// mod boolean;
+mod bigint;
+mod boolean;
 pub mod object;
-// mod number;
-// pub mod reflect;
-// mod string;
-// mod symbol;
+mod number;
+pub mod reflect;
+mod string;
+mod symbol;
 
 #[cfg(test)]
 wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
