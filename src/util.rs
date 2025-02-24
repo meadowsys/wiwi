@@ -778,9 +778,10 @@ macro_rules! gen_builder_fns {
 			state $field_state:ident;
 			init $field_init:ident;
 			slot $slot:ident;
+			$(extra_bounds { $($extra_bounds:tt)* };)?
 
 			$(#[$meta:meta])*
-			field $field:ident;
+			field $field:ident $($no_lifetime:ident)?;
 		)*
 	} => {
 		impl<'h, S: State> $struct_name<'h, S> {
@@ -793,9 +794,10 @@ macro_rules! gen_builder_fns {
 					state $field_state;
 					init $field_init;
 					slot $slot;
+					$(extra_bounds { $($extra_bounds)* };)?
 
 					$(#[$meta:meta])*
-					field $field;
+					field $field $($no_lifetime)?;
 				}
 			)*
 		}
@@ -810,6 +812,7 @@ macro_rules! gen_builder_fn {
 		state $field_state:ident;
 		init $field_init:ident;
 		slot $slot:ident;
+		$(extra_bounds { $($extra_bounds:tt)* };)?
 
 		$(#[$meta:meta])*
 		field $field:ident;
@@ -823,7 +826,34 @@ macro_rules! gen_builder_fn {
 		where
 			'h: 'h2,
 			S::$field_state: IsUninit,
-			T: Slot<$slot<'h2>>
+			T: Slot<$slot<'h2>>,
+			$($($extra_bounds)*)?
+		{
+			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
+		}
+	};
+
+	{
+		struct $struct_name:ident;
+
+		state $field_state:ident;
+		init $field_init:ident;
+		slot $slot:ident;
+		$(extra_bounds { $($extra_bounds:tt)* };)?
+
+		$(#[$meta:meta])*
+		field $field:ident no_lifetime;
+	} => {
+		#[inline(always)]
+		$(#[$meta])*
+		pub fn $field<T>(
+			self,
+			$field: T
+		) -> $struct_name<'h, S::$field_init<T, T::TypeMarker>>
+		where
+			S::$field_state: IsUninit,
+			T: Slot<$slot<'h>>,
+			$($($extra_bounds)*)?
 		{
 			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
 		}
