@@ -52,7 +52,7 @@ gen_call_fn! {
 
 	field value;
 	state Value;
-	init Init<ValueSlot, marker::AnyMarker>;
+	init Init<ValueSlot, AnyMarker>;
 }
 
 gen_slot! {
@@ -63,7 +63,7 @@ gen_slot_impl! {
 	slot ValueSlot;
 	impl &'h ExternAny;
 
-	type_marker marker::AnyMarker;
+	type_marker AnyMarker;
 	result &'h ExternAny;
 
 	simple_rw any;

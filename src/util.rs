@@ -25,7 +25,7 @@
 //   want `any`, and whatever other incompatible types in there), and
 //   associated impls (`Slot` impls etc)
 
-pub use self::marker::TypeMarker;
+pub use self::marker::*;
 pub use core::marker::PhantomData;
 
 pub mod marker;
