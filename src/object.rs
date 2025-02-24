@@ -75,7 +75,7 @@ mod raw {
 	extern {
 		#[wasm_bindgen(
 			thread_local_v2,
-			js_name = Object
+			js_name = "Object"
 		)]
 		pub(crate) static OBJECT: JsValue;
 	}
