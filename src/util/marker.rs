@@ -43,11 +43,11 @@ gen_markers! {
 	"boolean"
 	BooleanMarker
 
-	"object"
-	ObjectMarker
-
 	"number"
 	NumberMarker
+
+	"object"
+	ObjectMarker
 
 	"string"
 	StringMarker
