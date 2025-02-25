@@ -160,15 +160,12 @@ where
 	fn as_ref(result: &Self::Result) -> &crate::ExternAny;
 }
 
-/// [`PhantomData`] but covariant over `'h`, invariant over `T`,
-/// and marks the type as `!Send` and `!Sync`.
+/// [`PhantomData`] but invariant over `T` and marks the type as `!Send` and `!Sync`.
 ///
 /// To construct values of this type, you still must use the expression
 /// `PhantomData`, as Rust doesn't like using type definitions as unit struct
 /// constructors.
-pub(crate) type PhantomDataBuilder<'h, S> = PhantomData<(
-	// `'h` covariant
-	fn() -> &'h (),
+pub(crate) type PhantomDataBuilder<S> = PhantomData<(
 	// `S` invariant
 	fn(S) -> S,
 	// `!Send` and `!Sync`
@@ -214,7 +211,7 @@ macro_rules! gen_struct {
 		#[repr(transparent)]
 		pub struct $struct_name<'h, S: State> {
 			inner: Inner<'h>,
-			__marker: PhantomDataBuilder<'h, S>
+			__marker: PhantomDataBuilder<S>
 		}
 
 		struct Inner<'h> {
@@ -842,33 +839,6 @@ macro_rules! gen_builder_fn {
 
 		$(#[$meta:meta])*
 		field $field:ident;
-	} => {
-		#[inline(always)]
-		$(#[$meta])*
-		pub fn $field<'h2, T>(
-			self,
-			$field: T
-		) -> $struct_name<'h2, S::$field_init<T, T::TypeMarker>>
-		where
-			'h: 'h2,
-			S::$field_state: IsUninit,
-			T: Slot<$slot<'h2>>,
-			$($($extra_bounds)*)?
-		{
-			unsafe { self.change_state(|b| $field.write(&mut b.inner.$field)) }
-		}
-	};
-
-	{
-		struct $struct_name:ident;
-
-		state $field_state:ident;
-		init $field_init:ident;
-		slot $slot:ident;
-		$(extra_bounds { $($extra_bounds:tt)* };)?
-
-		$(#[$meta:meta])*
-		field $field:ident no_lifetime;
 	} => {
 		#[inline(always)]
 		$(#[$meta])*
