@@ -23,15 +23,13 @@ std = [
 workspace = true
 
 [package.metadata.docs.rs]
-# https://docs.rs/about/metadata
-
-# https://users.rust-lang.org/t/how-to-document-optional-features-in-api-docs/64577
-rustdoc-args = ["--cfg", "docsrs"]
-
+rustdoc-args = [
+	"--cfg",
+	"docsrs"
+]
 features = [
 	"std"
 ]
-
 targets = [
 	"wasm32-unknown-unknown",
 	"wasm32-wasip2",

@@ -3,6 +3,7 @@ name = "wiwi"
 description = "A library, of, Stuff™"
 version = { workspace = true }
 edition = { workspace = true }
+rust-version = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
@@ -42,13 +43,8 @@ nightly = []
 workspace = true
 
 [package.metadata.docs.rs]
-# https://docs.rs/about/metadata
-
-# https://users.rust-lang.org/t/how-to-document-optional-features-in-api-docs/64577
 rustdoc-args = ["--cfg", "docsrs"]
-
 features = []
-
 targets = [
 	"aarch64-apple-darwin",
 	"x86_64-apple-darwin",
