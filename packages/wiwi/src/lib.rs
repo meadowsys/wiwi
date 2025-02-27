@@ -1,6 +1,6 @@
 #![no_implicit_prelude]
 
-#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 #![cfg_attr(all(docsrs, kiwingay), doc = "")]
 #![cfg_attr(
@@ -49,3 +49,6 @@ pub mod slice;
 pub mod string;
 pub mod tuple;
 pub mod vh;
+
+#[cfg(feature = "nightly")]
+pub fn testwefioajoiwfej() {}
