@@ -606,12 +606,17 @@ pub(crate) use gen_slot_impl;
 /// ```
 ///
 /// Well... not quite, but, good enough for purposes of demonstration.
+///
+/// # Safety
+///
+/// The fields/slots you pass in must actually be valid for reading.
 macro_rules! unsafe_read_slots {
 	{
 		$self:ident
 		$($ident:ident: $ty:ident)*
 	} => {
 		$(
+			// SAFETY: caller guarantees this slot is valid to read from
 			let $ident = unsafe { $ty::read($self.inner.$ident) };
 			let $ident = $ty::as_ref(&$ident).as_js_value();
 		)*
@@ -1152,6 +1157,8 @@ macro_rules! gen_call_fn {
 			#[inline(always)]
 			$(#[$meta])*
 			pub fn $fn_name(self) -> $return_type {
+				// SAFETY: provided slots are valid for reading,
+				// enforced by type system
 				unsafe_read_slots! {
 					self
 					$($($unsafe_read_slots_input)*)*
@@ -1161,6 +1168,10 @@ macro_rules! gen_call_fn {
 					#[allow(
 						clippy::drop_non_drop,
 						reason = "automatically generated"
+					)]
+					#[expect(
+						clippy::allow_attributes,
+						reason = "automatically generated (lint might not actually trigger)"
 					)]
 					drop(self.inner.$unused_fields);
 				)*)*

@@ -67,6 +67,10 @@ wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 	unused_imports,
 	reason = "prelude"
 )]
+#[expect(
+	clippy::allow_attributes,
+	reason = "might not actually trigger"
+)]
 mod prelude_internal {
 	pub use crate::{ ExternAny, ExternObject, wasm_bindgen };
 	pub use crate::util::*;
@@ -78,6 +82,10 @@ mod prelude_internal {
 	dead_code,
 	unused_imports,
 	reason = "prelude"
+)]
+#[expect(
+	clippy::allow_attributes,
+	reason = "might not actually trigger"
 )]
 #[cfg(test)]
 mod prelude_test {
