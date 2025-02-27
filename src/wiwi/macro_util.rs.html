@@ -1,355 +1,177 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/macro_util.rs`."><title>macro_util.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-46132b98.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wiwi" data-themes="meadow" data-resource-suffix="" data-rustdoc-version="1.85.0-nightly (4ba4ac612 2024-12-18)" data-channel="nightly" data-search-js="search-036cda7a.js" data-settings-js="settings-0f613d39.js" ><script src="../../static.files/storage-59e33391.js"></script><script defer src="../../static.files/src-script-56102188.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-5f194d8c.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">wiwi/</div>macro_util.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap"><div data-nosnippet><pre class="src-line-numbers">
-<a href="#1" id="1">1</a>
-<a href="#2" id="2">2</a>
-<a href="#3" id="3">3</a>
-<a href="#4" id="4">4</a>
-<a href="#5" id="5">5</a>
-<a href="#6" id="6">6</a>
-<a href="#7" id="7">7</a>
-<a href="#8" id="8">8</a>
-<a href="#9" id="9">9</a>
-<a href="#10" id="10">10</a>
-<a href="#11" id="11">11</a>
-<a href="#12" id="12">12</a>
-<a href="#13" id="13">13</a>
-<a href="#14" id="14">14</a>
-<a href="#15" id="15">15</a>
-<a href="#16" id="16">16</a>
-<a href="#17" id="17">17</a>
-<a href="#18" id="18">18</a>
-<a href="#19" id="19">19</a>
-<a href="#20" id="20">20</a>
-<a href="#21" id="21">21</a>
-<a href="#22" id="22">22</a>
-<a href="#23" id="23">23</a>
-<a href="#24" id="24">24</a>
-<a href="#25" id="25">25</a>
-<a href="#26" id="26">26</a>
-<a href="#27" id="27">27</a>
-<a href="#28" id="28">28</a>
-<a href="#29" id="29">29</a>
-<a href="#30" id="30">30</a>
-<a href="#31" id="31">31</a>
-<a href="#32" id="32">32</a>
-<a href="#33" id="33">33</a>
-<a href="#34" id="34">34</a>
-<a href="#35" id="35">35</a>
-<a href="#36" id="36">36</a>
-<a href="#37" id="37">37</a>
-<a href="#38" id="38">38</a>
-<a href="#39" id="39">39</a>
-<a href="#40" id="40">40</a>
-<a href="#41" id="41">41</a>
-<a href="#42" id="42">42</a>
-<a href="#43" id="43">43</a>
-<a href="#44" id="44">44</a>
-<a href="#45" id="45">45</a>
-<a href="#46" id="46">46</a>
-<a href="#47" id="47">47</a>
-<a href="#48" id="48">48</a>
-<a href="#49" id="49">49</a>
-<a href="#50" id="50">50</a>
-<a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a></pre></div><pre class="rust"><code><span class="kw">extern crate </span>wiwiwiwiwi;
-<span class="kw">extern crate </span>wiwiwiwiwiwiwiwiwiwi;
-
-<span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::macro_recurse;
-<span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::void;
-
-<span class="doccomment">/// Executes code with cloned values, so the executed code
-/// can take ownership of the value without moving the original
-///
-/// Read on if you want to know why I wrote this smol macro and what problems
-/// it's designed to fix, but for those just wanting to use the thing:
-///
-/// ```
-/// # use wiwi::macro_util::with_cloned;
-/// let s1 = String::from("a string");
-/// let s2 = String::from("another string");
-///
-/// let new = with_cloned! { mut s1, s2 in
-///    // you may specify one or more variables to be cloned in a comma-seperated list
-///    // s1 and s2 are cloned in here, and you can optionally specify `mut`
-///
-///    // do something with the cloned values, using any arbitrary code...
-///    let mut joined = s2; // moves `s2`
-///    joined.push_str(&amp;s1);
-///    // demonstrate that it is indeed a clone
-///    drop::&lt;String&gt;(s1); // moves `s1`
-///
-///    // you can also "return" values out of the macro
-///    joined
-/// };
-///
-/// // originals are not modified or moved out,
-/// // despite the bindings within the macro being moved
-/// assert_eq!(s1, "a string");
-/// assert_eq!(s2, "another string");
-///
-/// // returned value from macro
-/// assert_eq!(new, "another stringa string");
-/// ```
-///
-/// Now onto ramble. Let's say you have some code...
-///
-/// ```
-/// # use std::sync::{ Arc, Mutex };
-/// # use std::thread;
-/// let shared_data = Arc::new(Mutex::new(42));
-///
-/// // send a copy to another thread to concurrently mutate...
-/// let _shared_data = shared_data.clone();
-/// let join_handle = thread::spawn(move || {
-///    // do something with this data...
-///    *_shared_data.lock().unwrap() *= 2;
-/// });
-///
-/// // ... while keeping one to use
-/// *shared_data.lock().unwrap() *= 5;
-///
-/// join_handle.join().unwrap();
-</span><span class="comment">//  ...wait, this was not intentional lol
-</span><span class="doccomment">/// assert_eq!(*shared_data.lock().unwrap(), 420);
-/// ```
-///
-/// ... this is not great, since you'd have to use `_shared_data`, which is
-/// different from the original one, and the underscore might look kind of ugly,
-/// and it's just not ideal.
-///
-/// It can also be done with a temporary scope:
-///
-/// ```
-/// # use std::sync::{ Arc, Mutex };
-/// # use std::thread;
-/// # let shared_data = Arc::new(Mutex::new(42));
-/// let join_handle = {
-///    let shared_data = shared_data.clone();
-///    thread::spawn(move || {
-///       *shared_data.lock().unwrap() *= 2;
-///    })
-/// };
-///
-/// *shared_data.lock().unwrap() *= 5;
-///
-/// join_handle.join().unwrap();
-/// assert_eq!(*shared_data.lock().unwrap(), 420);
-/// ```
-///
-/// ... not really what we would do (really only minor style preferences, nothing
-/// actually relating to function), but still has some boilerplate, and not the
-/// most optimal either way.
-///
-/// In our short(...ish?) time writing rust code, I've already noticed I use this
-/// pattern a lot when dealing with shared state across threads. There are likely
-/// patterns that we don't know about, that would do something similar here (clone
-/// a value, then consume the clone, then access original). Or maybe we do know
-/// about them, but we haven't thought about it at time of writing this documentation
-/// :p. Needing to write all that boilerplate code for an otherwise very simple
-/// operation, doesn't feel very ergonomic or elegant, and quickly gets repetitive.
-///
-/// This macro can help with that:
-///
-/// ```
-/// # use std::sync::{ Arc, Mutex };
-/// # use std::thread;
-/// # use wiwi::macro_util::with_cloned;
-/// # let shared_data = Arc::new(Mutex::new(42));
-/// let join_handle = with_cloned! { shared_data in
-///    // `shared_data` in here will refer to a clone, shadowing the original,
-///    // and I can do whatever, including taking ownership of it
-///    thread::spawn(move || {
-///       *shared_data.lock().unwrap() *= 2;
-///    })
-/// };
-///
-/// // original is not touched, this is no problem
-/// *shared_data.lock().unwrap() *= 5;
-///
-/// join_handle.join().unwrap();
-/// assert_eq!(*shared_data.lock().unwrap(), 420);
-/// ```
-///
-/// It cut out most of the boilerplate, and just feels a lot nicer to use.
-///
-/// The syntax of the macro is, first a (comma seperated) list of the variables
-/// that should have a cloned version available, followed by keyword `in`, then
-/// any statements you would like to run. Essentially, you can think of the stuff
-/// after `in` as just a regular block. Those who know what [swift closures] look
-/// like may recognise this syntax hehe
-///
-/// [swift closures]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/closures#Closure-Expression-Syntax
-///
-/// You can also bind the cloned values mutably, as well as return values out
-/// of the macro:
-///
-/// ```
-/// # use wiwi::macro_util::with_cloned;
-/// let string = String::new();
-///
-/// let modified_string = with_cloned! { mut string in
-///    //                                ^^^
-///
-///    // do whatever
-///    string.push_str("uwu");
-///
-///    assert_eq!(string, "uwu");
-///    string
-/// };
-///
-/// // original is untounched
-/// assert_eq!(string, "");
-///
-/// // returned the modified version from within the macro
-/// assert_eq!(modified_string, "uwu");
-/// ```
-///
-/// Ideally you could bind variables mutably or not on a per variable basis,
-/// but unfortunately, I can't seem to find a way to do so elegantly &gt;~&lt; so it's
-/// all or nothing for now.
-///
-/// Random, but the below code snippets are equivalent:
-///
-/// ```
-/// # use wiwi::macro_util::with_cloned;
-/// # let value = String::new();
-/// let cloned1 = value.clone();
-/// // macro clones it for the inner code, but the inner code
-/// // just returns it... so it is just a clone
-/// let cloned2 = with_cloned! { value in value };
-///
-/// assert_eq!(value, cloned1);
-/// assert_eq!(value, cloned2);
-/// ```
-</span><span class="attr">#[doc(inline)]
-</span><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned;
-
-<span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_2;
-<span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_3;
-<span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_4;
-<span class="kw">pub use </span>wiwiwiwiwi::with_cloned <span class="kw">as </span>with_cloned_proc;
-</code></pre></div></section></main></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `packages/wiwi/src/macro_util.rs`."><title>macro_util.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="wiwi" data-themes="meadow" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (85abb2763 2025-02-25)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-d8ac8691.js"></script><script defer src="../../static.files/src-script-b8d3f215.js"></script><script defer src="../../src-files.js"></script><script defer src="../../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">wiwi/</div>macro_util.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">extern crate </span>wiwiwiwiwi;
+<a href=#2 id=2 data-nosnippet>2</a><span class="kw">extern crate </span>wiwiwiwiwiwiwiwiwiwi;
+<a href=#3 id=3 data-nosnippet>3</a>
+<a href=#4 id=4 data-nosnippet>4</a><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::macro_recurse;
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::void;
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a><span class="doccomment">/// Executes code with cloned values, so the executed code
+<a href=#8 id=8 data-nosnippet>8</a>/// can take ownership of the value without moving the original
+<a href=#9 id=9 data-nosnippet>9</a>///
+<a href=#10 id=10 data-nosnippet>10</a>/// Read on if you want to know why I wrote this smol macro and what problems
+<a href=#11 id=11 data-nosnippet>11</a>/// it's designed to fix, but for those just wanting to use the thing:
+<a href=#12 id=12 data-nosnippet>12</a>///
+<a href=#13 id=13 data-nosnippet>13</a>/// ```
+<a href=#14 id=14 data-nosnippet>14</a>/// # use wiwi::macro_util::with_cloned;
+<a href=#15 id=15 data-nosnippet>15</a>/// let s1 = String::from("a string");
+<a href=#16 id=16 data-nosnippet>16</a>/// let s2 = String::from("another string");
+<a href=#17 id=17 data-nosnippet>17</a>///
+<a href=#18 id=18 data-nosnippet>18</a>/// let new = with_cloned! { mut s1, s2 in
+<a href=#19 id=19 data-nosnippet>19</a>///    // you may specify one or more variables to be cloned in a comma-seperated list
+<a href=#20 id=20 data-nosnippet>20</a>///    // s1 and s2 are cloned in here, and you can optionally specify `mut`
+<a href=#21 id=21 data-nosnippet>21</a>///
+<a href=#22 id=22 data-nosnippet>22</a>///    // do something with the cloned values, using any arbitrary code...
+<a href=#23 id=23 data-nosnippet>23</a>///    let mut joined = s2; // moves `s2`
+<a href=#24 id=24 data-nosnippet>24</a>///    joined.push_str(&amp;s1);
+<a href=#25 id=25 data-nosnippet>25</a>///    // demonstrate that it is indeed a clone
+<a href=#26 id=26 data-nosnippet>26</a>///    drop::&lt;String&gt;(s1); // moves `s1`
+<a href=#27 id=27 data-nosnippet>27</a>///
+<a href=#28 id=28 data-nosnippet>28</a>///    // you can also "return" values out of the macro
+<a href=#29 id=29 data-nosnippet>29</a>///    joined
+<a href=#30 id=30 data-nosnippet>30</a>/// };
+<a href=#31 id=31 data-nosnippet>31</a>///
+<a href=#32 id=32 data-nosnippet>32</a>/// // originals are not modified or moved out,
+<a href=#33 id=33 data-nosnippet>33</a>/// // despite the bindings within the macro being moved
+<a href=#34 id=34 data-nosnippet>34</a>/// assert_eq!(s1, "a string");
+<a href=#35 id=35 data-nosnippet>35</a>/// assert_eq!(s2, "another string");
+<a href=#36 id=36 data-nosnippet>36</a>///
+<a href=#37 id=37 data-nosnippet>37</a>/// // returned value from macro
+<a href=#38 id=38 data-nosnippet>38</a>/// assert_eq!(new, "another stringa string");
+<a href=#39 id=39 data-nosnippet>39</a>/// ```
+<a href=#40 id=40 data-nosnippet>40</a>///
+<a href=#41 id=41 data-nosnippet>41</a>/// Now onto ramble. Let's say you have some code...
+<a href=#42 id=42 data-nosnippet>42</a>///
+<a href=#43 id=43 data-nosnippet>43</a>/// ```
+<a href=#44 id=44 data-nosnippet>44</a>/// # use std::sync::{ Arc, Mutex };
+<a href=#45 id=45 data-nosnippet>45</a>/// # use std::thread;
+<a href=#46 id=46 data-nosnippet>46</a>/// let shared_data = Arc::new(Mutex::new(42));
+<a href=#47 id=47 data-nosnippet>47</a>///
+<a href=#48 id=48 data-nosnippet>48</a>/// // send a copy to another thread to concurrently mutate...
+<a href=#49 id=49 data-nosnippet>49</a>/// let _shared_data = shared_data.clone();
+<a href=#50 id=50 data-nosnippet>50</a>/// let join_handle = thread::spawn(move || {
+<a href=#51 id=51 data-nosnippet>51</a>///    // do something with this data...
+<a href=#52 id=52 data-nosnippet>52</a>///    *_shared_data.lock().unwrap() *= 2;
+<a href=#53 id=53 data-nosnippet>53</a>/// });
+<a href=#54 id=54 data-nosnippet>54</a>///
+<a href=#55 id=55 data-nosnippet>55</a>/// // ... while keeping one to use
+<a href=#56 id=56 data-nosnippet>56</a>/// *shared_data.lock().unwrap() *= 5;
+<a href=#57 id=57 data-nosnippet>57</a>///
+<a href=#58 id=58 data-nosnippet>58</a>/// join_handle.join().unwrap();
+<a href=#59 id=59 data-nosnippet>59</a></span><span class="comment">//  ...wait, this was not intentional lol
+<a href=#60 id=60 data-nosnippet>60</a></span><span class="doccomment">/// assert_eq!(*shared_data.lock().unwrap(), 420);
+<a href=#61 id=61 data-nosnippet>61</a>/// ```
+<a href=#62 id=62 data-nosnippet>62</a>///
+<a href=#63 id=63 data-nosnippet>63</a>/// ... this is not great, since you'd have to use `_shared_data`, which is
+<a href=#64 id=64 data-nosnippet>64</a>/// different from the original one, and the underscore might look kind of ugly,
+<a href=#65 id=65 data-nosnippet>65</a>/// and it's just not ideal.
+<a href=#66 id=66 data-nosnippet>66</a>///
+<a href=#67 id=67 data-nosnippet>67</a>/// It can also be done with a temporary scope:
+<a href=#68 id=68 data-nosnippet>68</a>///
+<a href=#69 id=69 data-nosnippet>69</a>/// ```
+<a href=#70 id=70 data-nosnippet>70</a>/// # use std::sync::{ Arc, Mutex };
+<a href=#71 id=71 data-nosnippet>71</a>/// # use std::thread;
+<a href=#72 id=72 data-nosnippet>72</a>/// # let shared_data = Arc::new(Mutex::new(42));
+<a href=#73 id=73 data-nosnippet>73</a>/// let join_handle = {
+<a href=#74 id=74 data-nosnippet>74</a>///    let shared_data = shared_data.clone();
+<a href=#75 id=75 data-nosnippet>75</a>///    thread::spawn(move || {
+<a href=#76 id=76 data-nosnippet>76</a>///       *shared_data.lock().unwrap() *= 2;
+<a href=#77 id=77 data-nosnippet>77</a>///    })
+<a href=#78 id=78 data-nosnippet>78</a>/// };
+<a href=#79 id=79 data-nosnippet>79</a>///
+<a href=#80 id=80 data-nosnippet>80</a>/// *shared_data.lock().unwrap() *= 5;
+<a href=#81 id=81 data-nosnippet>81</a>///
+<a href=#82 id=82 data-nosnippet>82</a>/// join_handle.join().unwrap();
+<a href=#83 id=83 data-nosnippet>83</a>/// assert_eq!(*shared_data.lock().unwrap(), 420);
+<a href=#84 id=84 data-nosnippet>84</a>/// ```
+<a href=#85 id=85 data-nosnippet>85</a>///
+<a href=#86 id=86 data-nosnippet>86</a>/// ... not really what we would do (really only minor style preferences, nothing
+<a href=#87 id=87 data-nosnippet>87</a>/// actually relating to function), but still has some boilerplate, and not the
+<a href=#88 id=88 data-nosnippet>88</a>/// most optimal either way.
+<a href=#89 id=89 data-nosnippet>89</a>///
+<a href=#90 id=90 data-nosnippet>90</a>/// In our short(...ish?) time writing rust code, I've already noticed I use this
+<a href=#91 id=91 data-nosnippet>91</a>/// pattern a lot when dealing with shared state across threads. There are likely
+<a href=#92 id=92 data-nosnippet>92</a>/// patterns that we don't know about, that would do something similar here (clone
+<a href=#93 id=93 data-nosnippet>93</a>/// a value, then consume the clone, then access original). Or maybe we do know
+<a href=#94 id=94 data-nosnippet>94</a>/// about them, but we haven't thought about it at time of writing this documentation
+<a href=#95 id=95 data-nosnippet>95</a>/// :p. Needing to write all that boilerplate code for an otherwise very simple
+<a href=#96 id=96 data-nosnippet>96</a>/// operation, doesn't feel very ergonomic or elegant, and quickly gets repetitive.
+<a href=#97 id=97 data-nosnippet>97</a>///
+<a href=#98 id=98 data-nosnippet>98</a>/// This macro can help with that:
+<a href=#99 id=99 data-nosnippet>99</a>///
+<a href=#100 id=100 data-nosnippet>100</a>/// ```
+<a href=#101 id=101 data-nosnippet>101</a>/// # use std::sync::{ Arc, Mutex };
+<a href=#102 id=102 data-nosnippet>102</a>/// # use std::thread;
+<a href=#103 id=103 data-nosnippet>103</a>/// # use wiwi::macro_util::with_cloned;
+<a href=#104 id=104 data-nosnippet>104</a>/// # let shared_data = Arc::new(Mutex::new(42));
+<a href=#105 id=105 data-nosnippet>105</a>/// let join_handle = with_cloned! { shared_data in
+<a href=#106 id=106 data-nosnippet>106</a>///    // `shared_data` in here will refer to a clone, shadowing the original,
+<a href=#107 id=107 data-nosnippet>107</a>///    // and I can do whatever, including taking ownership of it
+<a href=#108 id=108 data-nosnippet>108</a>///    thread::spawn(move || {
+<a href=#109 id=109 data-nosnippet>109</a>///       *shared_data.lock().unwrap() *= 2;
+<a href=#110 id=110 data-nosnippet>110</a>///    })
+<a href=#111 id=111 data-nosnippet>111</a>/// };
+<a href=#112 id=112 data-nosnippet>112</a>///
+<a href=#113 id=113 data-nosnippet>113</a>/// // original is not touched, this is no problem
+<a href=#114 id=114 data-nosnippet>114</a>/// *shared_data.lock().unwrap() *= 5;
+<a href=#115 id=115 data-nosnippet>115</a>///
+<a href=#116 id=116 data-nosnippet>116</a>/// join_handle.join().unwrap();
+<a href=#117 id=117 data-nosnippet>117</a>/// assert_eq!(*shared_data.lock().unwrap(), 420);
+<a href=#118 id=118 data-nosnippet>118</a>/// ```
+<a href=#119 id=119 data-nosnippet>119</a>///
+<a href=#120 id=120 data-nosnippet>120</a>/// It cut out most of the boilerplate, and just feels a lot nicer to use.
+<a href=#121 id=121 data-nosnippet>121</a>///
+<a href=#122 id=122 data-nosnippet>122</a>/// The syntax of the macro is, first a (comma seperated) list of the variables
+<a href=#123 id=123 data-nosnippet>123</a>/// that should have a cloned version available, followed by keyword `in`, then
+<a href=#124 id=124 data-nosnippet>124</a>/// any statements you would like to run. Essentially, you can think of the stuff
+<a href=#125 id=125 data-nosnippet>125</a>/// after `in` as just a regular block. Those who know what [swift closures] look
+<a href=#126 id=126 data-nosnippet>126</a>/// like may recognise this syntax hehe
+<a href=#127 id=127 data-nosnippet>127</a>///
+<a href=#128 id=128 data-nosnippet>128</a>/// [swift closures]: https://docs.swift.org/swift-book/documentation/the-swift-programming-language/closures#Closure-Expression-Syntax
+<a href=#129 id=129 data-nosnippet>129</a>///
+<a href=#130 id=130 data-nosnippet>130</a>/// You can also bind the cloned values mutably, as well as return values out
+<a href=#131 id=131 data-nosnippet>131</a>/// of the macro:
+<a href=#132 id=132 data-nosnippet>132</a>///
+<a href=#133 id=133 data-nosnippet>133</a>/// ```
+<a href=#134 id=134 data-nosnippet>134</a>/// # use wiwi::macro_util::with_cloned;
+<a href=#135 id=135 data-nosnippet>135</a>/// let string = String::new();
+<a href=#136 id=136 data-nosnippet>136</a>///
+<a href=#137 id=137 data-nosnippet>137</a>/// let modified_string = with_cloned! { mut string in
+<a href=#138 id=138 data-nosnippet>138</a>///    //                                ^^^
+<a href=#139 id=139 data-nosnippet>139</a>///
+<a href=#140 id=140 data-nosnippet>140</a>///    // do whatever
+<a href=#141 id=141 data-nosnippet>141</a>///    string.push_str("uwu");
+<a href=#142 id=142 data-nosnippet>142</a>///
+<a href=#143 id=143 data-nosnippet>143</a>///    assert_eq!(string, "uwu");
+<a href=#144 id=144 data-nosnippet>144</a>///    string
+<a href=#145 id=145 data-nosnippet>145</a>/// };
+<a href=#146 id=146 data-nosnippet>146</a>///
+<a href=#147 id=147 data-nosnippet>147</a>/// // original is untounched
+<a href=#148 id=148 data-nosnippet>148</a>/// assert_eq!(string, "");
+<a href=#149 id=149 data-nosnippet>149</a>///
+<a href=#150 id=150 data-nosnippet>150</a>/// // returned the modified version from within the macro
+<a href=#151 id=151 data-nosnippet>151</a>/// assert_eq!(modified_string, "uwu");
+<a href=#152 id=152 data-nosnippet>152</a>/// ```
+<a href=#153 id=153 data-nosnippet>153</a>///
+<a href=#154 id=154 data-nosnippet>154</a>/// Ideally you could bind variables mutably or not on a per variable basis,
+<a href=#155 id=155 data-nosnippet>155</a>/// but unfortunately, I can't seem to find a way to do so elegantly &gt;~&lt; so it's
+<a href=#156 id=156 data-nosnippet>156</a>/// all or nothing for now.
+<a href=#157 id=157 data-nosnippet>157</a>///
+<a href=#158 id=158 data-nosnippet>158</a>/// Random, but the below code snippets are equivalent:
+<a href=#159 id=159 data-nosnippet>159</a>///
+<a href=#160 id=160 data-nosnippet>160</a>/// ```
+<a href=#161 id=161 data-nosnippet>161</a>/// # use wiwi::macro_util::with_cloned;
+<a href=#162 id=162 data-nosnippet>162</a>/// # let value = String::new();
+<a href=#163 id=163 data-nosnippet>163</a>/// let cloned1 = value.clone();
+<a href=#164 id=164 data-nosnippet>164</a>/// // macro clones it for the inner code, but the inner code
+<a href=#165 id=165 data-nosnippet>165</a>/// // just returns it... so it is just a clone
+<a href=#166 id=166 data-nosnippet>166</a>/// let cloned2 = with_cloned! { value in value };
+<a href=#167 id=167 data-nosnippet>167</a>///
+<a href=#168 id=168 data-nosnippet>168</a>/// assert_eq!(value, cloned1);
+<a href=#169 id=169 data-nosnippet>169</a>/// assert_eq!(value, cloned2);
+<a href=#170 id=170 data-nosnippet>170</a>/// ```
+<a href=#171 id=171 data-nosnippet>171</a></span><span class="attr">#[doc(inline)]
+<a href=#172 id=172 data-nosnippet>172</a></span><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned;
+<a href=#173 id=173 data-nosnippet>173</a>
+<a href=#174 id=174 data-nosnippet>174</a><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_2;
+<a href=#175 id=175 data-nosnippet>175</a><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_3;
+<a href=#176 id=176 data-nosnippet>176</a><span class="kw">pub use </span>wiwiwiwiwiwiwiwiwiwi::with_cloned_4;
+<a href=#177 id=177 data-nosnippet>177</a><span class="kw">pub use </span>wiwiwiwiwi::with_cloned <span class="kw">as </span>with_cloned_proc;</code></pre></div></section></main></body></html>
