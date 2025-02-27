@@ -6,9 +6,3 @@ publish = false
 
 [dependencies]
 wiwi = { path = ".." }
-
-[[bin]]
-name = "generate-hex-table-decoder"
-
-[[bin]]
-name = "generate-z85-table-decoder"

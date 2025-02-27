@@ -64,8 +64,8 @@ targets = [
 
 [workspace]
 members = [
-	"decl-macro",
-	"proc-macro",
+	"packages/macro-decl",
+	"packages/macro-proc",
 	"scripts"
 ]
 
@@ -77,8 +77,8 @@ repository = "https://github.com/meadowsys/wiwi"
 license = "MIT"
 
 [workspace.dependencies]
-wiwiwiwiwi = { path = "proc-macro", version = "=0.11.0-pre.2" }
-wiwiwiwiwiwiwiwiwiwi = { path = "decl-macro", version = "=0.11.0-pre.2" }
+wiwiwiwiwi = { path = "packages/macro-proc", version = "=0.11.0-pre.2" }
+wiwiwiwiwiwiwiwiwiwi = { path = "packages/macro-decl", version = "=0.11.0-pre.2" }
 
 chrono = { version = "0.4.38", features = ["clock"] }
 criterion = { version = "0.5.1", features = ["html_reports"] }
