@@ -37,7 +37,7 @@ z85 = "3.0.5"
 [workspace.lints.rust]
 # missing_docs = "warn"
 unconditional_recursion = "warn"
-unexpected_cfgs = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kiwingay)"] }
 unfulfilled_lint_expectations = "warn"
 unsafe_op_in_unsafe_fn = "warn"
 unused_unsafe = "warn"
