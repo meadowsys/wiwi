@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ExternObjectNsWithState","StateContainer"],"trait":["State"],"type":["ExternObjectNs","StateUninit"],"union":["ValueSlot"]};

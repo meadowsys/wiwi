@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["ExternStringWithState","StateContainer"],"trait":["State"],"type":["ExternString","StateUninit"]};
