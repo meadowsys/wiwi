@@ -1,18 +1,12 @@
 [package]
 name = "wiwi-wasm"
 description = "Nicer, higher level APIs for working with JavaScript from Rust (WASM), mostly revolving around builder-style APIs"
-version = "0.1.0"
-authors = ["Meadow Liu <meadowsys@kiwin.gay>"]
-repository = "https://github.com/meadowsys/wiwi-wasm"
-license = "MIT"
-edition = "2024"
-rust-version = "1.85"
-exclude = [
-	".cargo",
-	".github",
-	".gitignore",
-	"rust-toolchain.toml"
-]
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
 
 [dependencies]
 wasm-bindgen = { version = "0.2.100", default-features = false, features = ["msrv"] }
@@ -25,16 +19,19 @@ std = [
 	"wasm-bindgen/std"
 ]
 
+[lints]
+workspace = true
+
 [package.metadata.docs.rs]
 # https://docs.rs/about/metadata
 
-rustdoc-args = [
-	"--cfg",
-	"docsrs"
-]
+# https://users.rust-lang.org/t/how-to-document-optional-features-in-api-docs/64577
+rustdoc-args = ["--cfg", "docsrs"]
+
 features = [
 	"std"
 ]
+
 targets = [
 	"wasm32-unknown-unknown",
 	"wasm32-wasip2",

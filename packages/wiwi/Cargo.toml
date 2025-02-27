@@ -6,12 +6,6 @@ edition = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
-exclude = [
-	".cargo",
-	".github",
-	"codecov.yml",
-	"rust-toolchain.toml"
-]
 categories = [
 	"rust-patterns"
 ]
@@ -34,15 +28,15 @@ parking_lot = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 
-[features]
-nightly = []
-# unstable = []
-
 [dev-dependencies]
 criterion = { workspace = true }
 hex = { workspace = true }
 rand = { workspace = true }
 z85 = { workspace = true }
+
+[features]
+nightly = []
+# unstable = []
 
 [lints]
 workspace = true

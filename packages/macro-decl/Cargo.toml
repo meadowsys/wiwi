@@ -3,6 +3,7 @@ name = "wiwiwiwiwiwiwiwiwiwi"
 description = "declarative macros for wiwi, a library, of, Stuff™ (implementation detail; do not depend on this crate directly)"
 version = { workspace = true }
 edition = { workspace = true }
+rust-version = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }
 license = { workspace = true }
