@@ -1,0 +1,113 @@
+name: push ci
+on:
+  push:
+    branches:
+    - "**"
+  workflow_dispatch:
+
+concurrency:
+  cancel-in-progress: true
+  group: push-ci-${{ github.event.ref }}
+
+jobs:
+  test:
+    runs-on: ${{ matrix.env.runs-on }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        env:
+        # - runs-on: macos-15
+        # - runs-on: macos-14
+        - runs-on: ubuntu-24.04
+        # these are disabled for now because they are so
+        # extremely slow to run compared to macos and ubuntu
+        # - runs-on: windows-2022
+        # - runs-on: windows-2025
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: setup rust
+      run: rustc --version
+
+    - name: install wasm-bindgen-cli
+      run: cargo install wasm-bindgen-cli
+      env:
+        # for CI use, optimise more for compilation speed rather than runtime speed
+        # could probably be made more optimal
+        RUSTFLAGS: -Clto=off -Copt-level=1 -Ccodegen-units=1024 -Cpanic=unwind
+
+    - name: build (std)
+      run: cargo build --verbose --features std
+
+    - name: test (std)
+      run: cargo test --verbose --features std --target wasm32-unknown-unknown -Zdoctest-xcompile
+
+    - name: build (no std)
+      run: cargo build --verbose
+
+    - name: test (no std)
+      run: cargo test --verbose --target wasm32-unknown-unknown -Zdoctest-xcompile
+
+  docs:
+    needs:
+    - test
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: setup rust
+      run: rustc --version
+
+    - name: install fish shell
+      run: |
+        sudo add-apt-repository -yn ppa:fish-shell/release-3
+        sudo apt-get update
+        sudo apt-get install fish
+
+    - name: generate docs
+      shell: fish {0}
+      run: |
+        set -gx RUSTDOCFLAGS "--cfg docsrs --cfg kiwingay -Z unstable-options --enable-index-page"
+        set -gx KIWINGAY_DEPLOY_COMMIT_SHORT (string sub --length 8 $KIWINGAY_DEPLOY_COMMIT)
+        cargo doc --verbose --no-deps --lib
+      env:
+        KIWINGAY_DEPLOY_COMMIT: ${{ github.sha }}
+
+    - name: checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      with:
+        path: gh-pages
+        ref: gh-pages
+
+    - name: deploy docs
+      shell: fish {0}
+      run: |
+        rm -rf gh-pages/*
+        mv gh-pages/.git gh-pages/git
+        rm -rf gh-pages/.*
+        mv gh-pages/git gh-pages/.git
+
+        cp -R target/doc/* gh-pages
+        cp -R target/doc/.* gh-pages
+        cp .gitignore gh-pages/.gitignore
+        touch gh-pages/.nojekyll
+        echo wasm.wiwi.kiwin.gay > gh-pages/CNAME
+
+        set COMMIT_MESSAGE "(automated) deploy from commit "(git rev-parse HEAD)
+
+        cd gh-pages
+
+        git config --global user.name "smol"
+        git config --global user.email "107521333+a-tiny-kirin@users.noreply.github.com"
+        echo https://meadowsys:${{ secrets.GHPAT }}@github.com > .git/credentials
+        git config --global credential.helper "store --file=.git/credentials"
+        git config --unset-all http.https://github.com/.extraheader # https://stackoverflow.com/a/69979203
+
+        git add -A
+        git commit -m "$COMMIT_MESSAGE" --allow-empty
+        git push
