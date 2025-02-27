@@ -103,7 +103,7 @@ jobs:
       run: |
         set -gx RUSTDOCFLAGS "--cfg docsrs --cfg kiwingay -Z unstable-options --enable-index-page --theme "(pwd)"/.cargo/rustdoc-custom-theme/meadow.css"
         set -gx KIWINGAY_DEPLOY_COMMIT_SHORT (string sub --length 8 $KIWINGAY_DEPLOY_COMMIT)
-        cargo doc --verbose --no-deps --lib -p wiwi -p wiwiwiwiwi -p wiwiwiwiwiwiwiwiwiwi
+        cargo doc --verbose --no-deps --lib
       env:
         KIWINGAY_DEPLOY_COMMIT: ${{ github.sha }}
 
