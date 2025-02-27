@@ -1,0 +1,63 @@
+[package]
+name = "wiwi"
+description = "A library, of, Stuff™"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+exclude = [
+	".cargo",
+	".github",
+	"codecov.yml",
+	"rust-toolchain.toml"
+]
+categories = [
+	"rust-patterns"
+]
+keywords = [
+	"fundamental",
+	"general",
+	"general-purpose",
+	"z85"
+]
+
+[dependencies]
+wiwiwiwiwi = { workspace = true }
+wiwiwiwiwiwiwiwiwiwi = { workspace = true }
+
+cfg-if = { workspace = true }
+chrono = { workspace = true }
+hashbrown = { workspace = true }
+home = { workspace = true }
+parking_lot = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+
+[features]
+nightly = []
+# unstable = []
+
+[dev-dependencies]
+criterion = { workspace = true }
+hex = { workspace = true }
+rand = { workspace = true }
+z85 = { workspace = true }
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+# https://docs.rs/about/metadata
+
+# https://users.rust-lang.org/t/how-to-document-optional-features-in-api-docs/64577
+rustdoc-args = ["--cfg", "docsrs"]
+
+features = []
+
+targets = [
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc"
+]

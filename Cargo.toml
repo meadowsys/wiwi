@@ -1,68 +1,5 @@
-[package]
-name = "wiwi"
-description = "A library, of, Stuff™"
-version = { workspace = true }
-edition = { workspace = true }
-authors = { workspace = true }
-repository = { workspace = true }
-license = { workspace = true }
-exclude = [
-	".cargo",
-	".github",
-	"codecov.yml",
-	"rust-toolchain.toml"
-]
-categories = [
-	"rust-patterns"
-]
-keywords = [
-	"fundamental",
-	"general",
-	"general-purpose",
-	"z85"
-]
-
-[dependencies]
-wiwiwiwiwi = { workspace = true }
-wiwiwiwiwiwiwiwiwiwi = { workspace = true }
-
-cfg-if = "1.0.0"
-chrono = { workspace = true }
-hashbrown = { workspace = true }
-home = { workspace = true }
-parking_lot = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
-
-[features]
-nightly = []
-# unstable = []
-
-[dev-dependencies]
-criterion = { workspace = true }
-hex = { workspace = true }
-rand = { workspace = true }
-z85 = { workspace = true }
-
-[lints]
-workspace = true
-
-[package.metadata.docs.rs]
-# https://docs.rs/about/metadata
-
-# https://users.rust-lang.org/t/how-to-document-optional-features-in-api-docs/64577
-rustdoc-args = ["--cfg", "docsrs"]
-
-features = []
-
-targets = [
-	"aarch64-apple-darwin",
-	"x86_64-apple-darwin",
-	"x86_64-unknown-linux-gnu",
-	"x86_64-pc-windows-msvc"
-]
-
 [workspace]
+resolver = "3"
 members = [
 	"packages/macro-decl",
 	"packages/macro-proc",
@@ -77,9 +14,11 @@ repository = "https://github.com/meadowsys/wiwi"
 license = "MIT"
 
 [workspace.dependencies]
+wiwi = { path = "packages/wiwi" }
 wiwiwiwiwi = { path = "packages/macro-proc", version = "=0.11.0-pre.2" }
 wiwiwiwiwiwiwiwiwiwi = { path = "packages/macro-decl", version = "=0.11.0-pre.2" }
 
+cfg-if = "1.0.0"
 chrono = { version = "0.4.38", features = ["clock"] }
 criterion = { version = "0.5.1", features = ["html_reports"] }
 darling = "0.20.10"
