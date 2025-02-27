@@ -13,7 +13,7 @@ implementation for free.</p>
 
 <span class="macro">assert_eq!</span>(five, i.to_string());</code></pre></div>
 </div></details></div><h2 id="implementors" class="section-header">Implementors<a href="#implementors" class="anchor">§</a></h2><div id="implementors-list"><section id="impl-ToString-for-T" class="impl"><span class="rightside"><span class="since" title="Stable since Rust version 1.0.0">1.0.0</span> · <a class="src" href="https://doc.rust-lang.org/nightly/src/alloc/string.rs.html#2757">Source</a></span><a href="#impl-ToString-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="../trait.ToString.html" title="trait wiwi::prelude::ToString">ToString</a> for T<div class="where">where
-    T: <a class="trait" href="../trait.Display.html" title="trait wiwi::prelude::Display">Display</a> + ?<a class="trait" href="../trait.Sized.html" title="trait wiwi::prelude::Sized">Sized</a>,</div></h3><div class="docblock"><h4 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h4>
+    T: <a class="trait" href="../trait.Display.html" title="trait wiwi::prelude::Display">Display</a> + ?<a class="trait" href="../trait.Sized.html" title="trait wiwi::prelude::Sized">Sized</a>,</div></h3><span class="item-info"><div class="stab portability">Available on <strong>non-<code>no_global_oom_handling</code></strong> only.</div></span><div class="docblock"><h4 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h4>
 <p>In this implementation, the <code>to_string</code> method panics
 if the <code>Display</code> implementation returns an error.
 This indicates an incorrect <code>Display</code> implementation
