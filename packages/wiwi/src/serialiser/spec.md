@@ -26,11 +26,11 @@ Then, there must be a serialised value. There _must_ only be one. If you want mu
 
 ## `none`
 
-A `none` value, also known as `null`, `nil`, or `None`. This is encoded with the byte `0xea`.
+A `none` value, also known as `null`, `nil`, or `None`. This is encoded with the byte `0xe9`.
 
 ## bool values
 
-`true` is encoded with `0xe9`, and false is encoded with `0xe8`.
+`true` is encoded with `0xeb`, and false is encoded with `0xea`.
 
 ## int values
 
