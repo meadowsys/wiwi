@@ -1,5 +1,5 @@
 [package]
-name = "wiwi-scripts"
+name = "scripts"
 version = { workspace = true }
 edition = { workspace = true }
 publish = false
