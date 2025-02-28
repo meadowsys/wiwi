@@ -231,9 +231,9 @@
 11100110 - i96
 11100111 - arbitrary length bigint (unsigned)
 11101000 - arbitrary length bigint (signed)
-11101001 - true
+11101001 - none
 11101010 - false
-11101011 - none
+11101011 - true
 11101100 - f16
 11101101 - f32
 11101110 - f64
