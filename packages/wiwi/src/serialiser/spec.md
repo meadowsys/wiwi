@@ -16,7 +16,7 @@
 
 ## High level binary layout
 
-The serialised format may begin with a "magic number" and a version to help identify it. This can be ommitted if it is clear to the receiving end what the format of the data is. This is signaled by the byte `0xf5`, followed by "wi" and 0 byte (bytes `0x77`, `0x69`, `0x00`).
+The serialised format may begin with a "magic number" and a version to help identify it. This can be ommitted if it is clear to the receiving end what the format of the data is. This is signaled by the byte `0xf6`, followed by "wi" and 0 byte (bytes `0x77`, `0x69`, `0x00`).
 
 Following that, there may be a body length / checksum value. See below for details.
 
