@@ -9,9 +9,8 @@ extern crate wiwi_macro_decl;
 use crate::prelude::*;
 
 use crate::chain::GenericChainConversion as _;
-use crate::rc::RcThread;
 use self::ident::{ Ident, IdentIncrementer };
-use self::private::{ SealedStruct, SealedTrait };
+// use self::private::{ SealedStruct, SealedTrait };
 
 pub use wiwi_macro_decl::state;
 

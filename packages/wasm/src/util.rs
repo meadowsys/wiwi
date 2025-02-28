@@ -658,6 +658,10 @@ macro_rules! gen_state {
 			unused_parens,
 			reason = "automatically generated"
 		)]
+		#[expect(
+			clippy::allow_attributes,
+			reason = "automatically generated (lint might not actually trigger, depending on input)"
+		)]
 		$($(#[$container_meta])*)?
 		pub struct StateContainer<$($field),*> {
 			__marker: PhantomDataInvariant<(
@@ -1171,7 +1175,7 @@ macro_rules! gen_call_fn {
 					)]
 					#[expect(
 						clippy::allow_attributes,
-						reason = "automatically generated (lint might not actually trigger)"
+						reason = "automatically generated (lint might not actually trigger, depending on input)"
 					)]
 					drop(self.inner.$unused_fields);
 				)*)*
