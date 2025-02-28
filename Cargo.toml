@@ -10,7 +10,7 @@ members = [
 
 [workspace.package]
 version = "0.11.0-pre.2"
-edition = "2021"
+edition = "2024"
 rust-version = "1.85"
 authors = ["Meadowsys <meadowsys@kiwin.gay>"]
 repository = "https://github.com/meadowsys/wiwi"
@@ -39,6 +39,7 @@ z85 = "3.0.5"
 
 [workspace.lints.rust]
 # missing_docs = "warn"
+rust_2024_compatibility = "warn"
 unconditional_recursion = "warn"
 unexpected_cfgs = { level = "warn", check-cfg = ["cfg(kiwingay)"] }
 unfulfilled_lint_expectations = "warn"
