@@ -277,8 +277,8 @@ A `none` value, also known as `null`, `nil`, or `None`. This is encoded with the
 - 11100100 (`0xe4`) - i48
 - 11100101 (`0xe5`) - i64
 - 11100110 (`0xe6`) - i96
-- 11100111 (`0xe7`) - arbitrary length bigint (unsigned)
-- 11101000 (`0xe8`) - arbitrary length bigint (signed)
+- 11100111 (`0xe7`) - arbitrary length bigint (unsigned, using u24 length supports ~134M bits)
+- 11101000 (`0xe8`) - arbitrary length bigint (signed, using u24 length supports ~134M bits)
 - 11101001 (`0xe9`) - none
 - 11101010 (`0xea`) - false
 - 11101011 (`0xeb`) - true
