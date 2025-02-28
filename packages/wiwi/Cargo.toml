@@ -18,8 +18,8 @@ keywords = [
 ]
 
 [dependencies]
-wiwiwiwiwi = { workspace = true }
-wiwiwiwiwiwiwiwiwiwi = { workspace = true }
+wiwi-macro-decl = { workspace = true }
+wiwi-macro-proc = { workspace = true }
 
 cfg-if = { workspace = true }
 chrono = { workspace = true }

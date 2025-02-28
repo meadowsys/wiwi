@@ -1,5 +1,5 @@
 [package]
-name = "wiwiwiwiwiwiwiwiwiwi"
+name = "wiwi-macro-decl"
 description = "declarative macros for wiwi, a library, of, Stuff™ (implementation detail; do not depend on this crate directly)"
 version = { workspace = true }
 edition = { workspace = true }

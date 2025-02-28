@@ -1134,21 +1134,17 @@ dependencies = [
  "rand",
  "thiserror",
  "tokio",
- "wiwiwiwiwi",
- "wiwiwiwiwiwiwiwiwiwi",
+ "wiwi-macro-decl",
+ "wiwi-macro-proc",
  "z85",
 ]
 
 [[package]]
-name = "wiwi-wasm"
+name = "wiwi-macro-decl"
 version = "0.11.0-pre.2"
-dependencies = [
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
 
 [[package]]
-name = "wiwiwiwiwi"
+name = "wiwi-macro-proc"
 version = "0.11.0-pre.2"
 dependencies = [
  "darling",
@@ -1158,8 +1154,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "wiwiwiwiwiwiwiwiwiwi"
+name = "wiwi-wasm"
 version = "0.11.0-pre.2"
+dependencies = [
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+]
 
 [[package]]
 name = "z85"

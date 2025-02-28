@@ -1,5 +1,5 @@
 [package]
-name = "wiwiwiwiwi"
+name = "wiwi-macro-proc"
 description = "proc macros for wiwi, a library, of, Stuff™ (implementation detail; do not depend on this crate directly)"
 version = { workspace = true }
 edition = { workspace = true }

@@ -1,8 +1,8 @@
-extern crate wiwiwiwiwi;
-extern crate wiwiwiwiwiwiwiwiwiwi;
+extern crate wiwi_macro_decl;
+extern crate wiwi_macro_proc;
 
-pub use wiwiwiwiwiwiwiwiwiwi::macro_recurse;
-pub use wiwiwiwiwiwiwiwiwiwi::void;
+pub use wiwi_macro_decl::macro_recurse;
+pub use wiwi_macro_decl::void;
 
 /// Executes code with cloned values, so the executed code
 /// can take ownership of the value without moving the original
@@ -169,9 +169,9 @@ pub use wiwiwiwiwiwiwiwiwiwi::void;
 /// assert_eq!(value, cloned2);
 /// ```
 #[doc(inline)]
-pub use wiwiwiwiwiwiwiwiwiwi::with_cloned;
+pub use wiwi_macro_decl::with_cloned;
 
-pub use wiwiwiwiwiwiwiwiwiwi::with_cloned_2;
-pub use wiwiwiwiwiwiwiwiwiwi::with_cloned_3;
-pub use wiwiwiwiwiwiwiwiwiwi::with_cloned_4;
-pub use wiwiwiwiwi::with_cloned as with_cloned_proc;
+pub use wiwi_macro_decl::with_cloned_2;
+pub use wiwi_macro_decl::with_cloned_3;
+pub use wiwi_macro_decl::with_cloned_4;
+pub use wiwi_macro_proc::with_cloned as with_cloned_proc;

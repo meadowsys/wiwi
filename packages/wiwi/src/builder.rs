@@ -18,12 +18,12 @@
 //!     (`build()` calls `finish_init(..)`)
 //!   - impl block, same as previous one in headers and stuffs, for the internal fns
 
-extern crate wiwiwiwiwi;
+extern crate wiwi_macro_proc;
 
 use crate::prelude::*;
 use self::private::*;
 
-pub use wiwiwiwiwi::builder;
+pub use wiwi_macro_proc::builder;
 
 pub struct Uninit {
 	__private: ()
