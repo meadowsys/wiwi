@@ -34,6 +34,7 @@ pub mod aoc;
 pub mod builder;
 pub mod chain;
 pub mod clock_timer;
+pub mod cron;
 pub mod encoding;
 pub mod filetypes;
 pub mod lazy_wrap;
