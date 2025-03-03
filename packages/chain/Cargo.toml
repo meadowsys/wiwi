@@ -1,0 +1,29 @@
+[package]
+name = "wiwi-chain"
+description = "wiwi's dependency-less APIs"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+
+[dependencies]
+wiwi-util = { workspace = true }
+
+[features]
+nightly = []
+# unstable = []
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+features = []
+targets = [
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc"
+]

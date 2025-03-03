@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+	"packages/chain",
 	"packages/macro-decl",
 	"packages/macro-proc",
 	"packages/util",
@@ -22,6 +23,7 @@ wiwi = { path = "packages/wiwi" }
 wiwi-macro-decl = { path = "packages/macro-decl", version = "=0.11.0-pre.2" }
 wiwi-macro-proc = { path = "packages/macro-proc", version = "=0.11.0-pre.2" }
 
+wiwi-chain = { path = "packages/chain", version = "=0.11.0-pre.2" }
 wiwi-util = { path = "packages/util", version = "=0.11.0-pre.2" }
 
 cfg-if = "1.0.0"
