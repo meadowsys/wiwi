@@ -1,5 +1,3 @@
-extern crate std;
-
 pub use std::marker::Sized;
 pub use std::slice::*;
 

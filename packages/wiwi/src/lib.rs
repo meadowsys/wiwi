@@ -30,9 +30,6 @@ compile_error!("16-bit platforms are not supported yet (but please do file an is
 extern crate wiwi_util;
 pub use wiwi_util::*;
 
-pub mod prelude;
-pub mod prelude_std;
-
 pub mod aoc;
 pub mod builder;
 pub mod chain;
@@ -49,7 +46,6 @@ pub mod num;
 pub mod parser;
 pub mod rc;
 pub mod serialiser;
-pub mod slice;
 pub mod string;
 pub mod tuple;
 pub mod vh;
