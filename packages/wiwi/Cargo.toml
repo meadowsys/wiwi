@@ -21,6 +21,8 @@ keywords = [
 wiwi-macro-decl = { workspace = true }
 wiwi-macro-proc = { workspace = true }
 
+wiwi-util = { workspace = true }
+
 cfg-if = { workspace = true }
 chrono = { workspace = true }
 hashbrown = { workspace = true }
