@@ -1,5 +1,9 @@
 use self::sealed::Sealed;
 
+pub use self::vec::VecChain;
+
+mod vec;
+
 pub trait Chain: Sized + Sealed {
 	type Inner: ChainInner<Chain = Self>;
 
@@ -72,17 +76,54 @@ macro_rules! decl_chain {
 		inner $inner:ty;
 	} => {
 		$crate::decl_chain! {
-			struct $chain;
+			struct $chain[];
 			impl[] $chain;
 			inner $inner;
 		}
 	};
 
 	{
-		struct $chain:ty;
+		struct $chain:ident[$($chain_decl_generics:tt)*];
 		impl[$($chain_impl_generics:tt)*] $chain_impl:ty;
 		inner $inner:ty;
-	} => {};
+	} => {
+		pub struct $chain<$($chain_decl_generics)*> {
+			__inner: $inner
+		}
+
+		impl<$($chain_impl_generics)*> $crate::sealed::Sealed for $chain_impl {}
+		impl<$($chain_impl_generics)*> $crate::sealed::Sealed for $inner {}
+
+		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl {
+			type Inner = $inner;
+
+			#[inline]
+			fn from_inner(inner: $inner) -> Self {
+				Self { __inner: inner }
+			}
+
+			#[inline]
+			fn as_inner(&self) -> &$inner {
+				&self.__inner
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut $inner {
+				&mut self.__inner
+			}
+		}
+
+		impl<$($chain_impl_generics)*> $crate::ChainInner for $inner {
+			type Chain = $chain_impl;
+
+			#[inline]
+			fn from_chain(chain: $chain_impl) -> Self {
+				chain.__inner
+			}
+		}
+
+		// todo standard traits?
+	};
 }
 use decl_chain;
 
