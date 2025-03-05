@@ -74,14 +74,44 @@ where
 	Self: Sized + ChainConversionsSealed
 {
 	type Inner: Sized;
-	// type MutChain<'h>: Sized
-	// where
-	// 	Self: 'h;
+	type MutChain<'mut_chain>: Sized
+	where
+		Self: 'mut_chain;
 
 	fn as_inner(&self) -> &Self::Inner;
 	fn as_inner_mut(&mut self) -> &mut Self::Inner;
-	// fn as_mut_chain<'h>(&'h mut self) -> Self::MutChain<'h>;
+	fn as_mut_chain(&mut self) -> Self::MutChain<'_>;
 }
+
+impl<T> ChainConversions for &mut T
+where
+	T: ChainConversions
+{
+	type Inner = T::Inner;
+	type MutChain<'mut_chain> = T::MutChain<'mut_chain>
+	where
+		Self: 'mut_chain;
+
+	#[inline]
+	fn as_inner(&self) -> &Self::Inner {
+		(**self).as_inner()
+	}
+
+	#[inline]
+	fn as_inner_mut(&mut self) -> &mut Self::Inner {
+		(**self).as_inner_mut()
+	}
+
+	#[inline]
+	fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
+		(**self).as_mut_chain()
+	}
+}
+
+impl<T> ChainConversionsSealed for &mut T
+where
+	T: ChainConversionsSealed
+{}
 
 pub trait WithSelf: Sized {
 	/// Takes ownership of the value, passing a mutable reference of it to a
@@ -213,38 +243,6 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::ChainConversions for $chain_impl
-		$(where $($where)* )?
-		{
-			type Inner = $inner;
-
-			#[inline]
-			fn as_inner(&self) -> &$inner {
-				&self.__inner
-			}
-
-			#[inline]
-			fn as_inner_mut(&mut self) -> &mut $inner {
-				&mut self.__inner
-			}
-		}
-
-		impl<$($chain_impl_generics)*> $crate::ChainConversions for $inner
-		$(where $($where)* )?
-		{
-			type Inner = $inner;
-
-			#[inline]
-			fn as_inner(&self) -> &$inner {
-				self
-			}
-
-			#[inline]
-			fn as_inner_mut(&mut self) -> &mut $inner {
-				self
-			}
-		}
-
 		impl<$($chain_impl_generics)*> $crate::ChainSealed for $chain_impl
 		$(where $($where)* )?
 		{}
@@ -253,18 +251,92 @@ macro_rules! decl_chain {
 		$(where $($where)* )?
 		{}
 
-		impl<$($chain_impl_generics)*> $crate::ChainConversionsSealed for $chain_impl
-		$(where $($where)* )?
-		{}
-
-		impl<$($chain_impl_generics)*> $crate::ChainConversionsSealed for $inner
-		$(where $($where)* )?
-		{}
 
 		// todo standard traits?
 	};
 }
 use decl_chain;
+
+macro_rules! impl_chain_conversions {
+	{
+		impl chain [$($impl_chain_generics:tt)*] $chain_impl:ty;
+		impl chain_mut [$($impl_chain_mut_generics:tt)*] $chain_mut_impl:ty;
+		impl inner [$($impl_inner_generics:tt)*] $inner_impl:ty;
+		type inner $inner_type:ty;
+		type mut_chain $mut_chain_type:ty;
+	} => {
+		impl<$($impl_chain_generics)*> $crate::ChainConversions for $chain_impl {
+			type Inner = $inner_type;
+			type MutChain<'mut_chain> = $mut_chain_type
+			where
+				Self: 'mut_chain;
+
+			#[inline]
+			fn as_inner(&self) -> &Self::Inner {
+				&self.__inner
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut Self::Inner {
+				&mut self.__inner
+			}
+
+			#[inline]
+			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
+				Self::MutChain { __inner: &mut self.__inner }
+			}
+		}
+
+		impl<$($impl_chain_mut_generics)*> $crate::ChainConversions for $chain_mut_impl {
+			type Inner = $inner_type;
+			type MutChain<'mut_chain> = $mut_chain_type
+			where
+				Self: 'mut_chain;
+
+			#[inline]
+			fn as_inner(&self) -> &Self::Inner {
+				self.__inner
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut Self::Inner {
+				self.__inner
+			}
+
+			#[inline]
+			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
+				Self::MutChain { __inner: self.__inner }
+			}
+		}
+
+		impl<$($impl_inner_generics)*> $crate::ChainConversions for $inner_impl {
+			type Inner = $inner_type;
+			type MutChain<'mut_chain> = $mut_chain_type
+			where
+				Self: 'mut_chain;
+
+			#[inline]
+			fn as_inner(&self) -> &Self::Inner {
+				self
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut Self::Inner {
+				self
+			}
+
+			#[inline]
+			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
+				Self::MutChain { __inner: self }
+			}
+		}
+
+		impl<$($impl_chain_generics)*> $crate::ChainConversionsSealed for $chain_impl {}
+		impl<$($impl_chain_mut_generics)*> $crate::ChainConversionsSealed for $chain_mut_impl {}
+		impl<$($impl_inner_generics)*> $crate::ChainConversionsSealed for $inner_impl {}
+	};
+}
+use impl_chain_conversions;
 
 /// notouchie
 mod sealed {

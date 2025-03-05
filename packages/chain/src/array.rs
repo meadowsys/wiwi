@@ -9,3 +9,11 @@ crate::decl_chain! {
 	impl['h, T, const N: usize] ArrayChainMut<'h, T, N>;
 	inner &'h mut [T; N];
 }
+
+crate::impl_chain_conversions! {
+	impl chain [T, const N: usize] ArrayChain<T, N>;
+	impl chain_mut ['h, T, const N: usize] ArrayChainMut<'h, T, N>;
+	impl inner [T, const N: usize] [T; N];
+	type inner [T; N];
+	type mut_chain ArrayChainMut<'mut_chain, T, N>;
+}
