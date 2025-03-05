@@ -130,10 +130,12 @@ impl<T> OutputSealed<T> for &mut core::mem::MaybeUninit<T> {}
 
 macro_rules! decl_chain {
 	{
+		$(#[$meta:meta])*
 		struct $chain:ident;
 		inner $inner:ty;
 	} => {
 		$crate::decl_chain! {
+			$(#[$meta])*
 			struct $chain[];
 			impl[] $chain;
 			inner $inner;
@@ -141,15 +143,24 @@ macro_rules! decl_chain {
 	};
 
 	{
+		$(#[$meta:meta])*
 		struct $chain:ident[$($chain_decl_generics:tt)*];
 		impl[$($chain_impl_generics:tt)*] $chain_impl:ty;
+		$(where { $($where:tt)* };)?
 		inner $inner:ty;
 	} => {
-		pub struct $chain<$($chain_decl_generics)*> {
+		$(#[$meta])*
+		#[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
+		#[repr(transparent)]
+		pub struct $chain<$($chain_decl_generics)*>
+		$(where $($where)* )?
+		{
 			__inner: $inner
 		}
 
-		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl {
+		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl
+		$(where $($where)* )?
+		{
 			type Inner = $inner;
 
 			#[inline]
@@ -168,7 +179,9 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::ChainInner for $inner {
+		impl<$($chain_impl_generics)*> $crate::ChainInner for $inner
+		$(where $($where)* )?
+		{
 			type Chain = $chain_impl;
 
 			#[inline]
@@ -177,8 +190,13 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::SealedChain for $chain_impl {}
-		impl<$($chain_impl_generics)*> $crate::SealedChainInner for $inner {}
+		impl<$($chain_impl_generics)*> $crate::SealedChain for $chain_impl
+		$(where $($where)* )?
+		{}
+
+		impl<$($chain_impl_generics)*> $crate::SealedChainInner for $inner
+		$(where $($where)* )?
+		{}
 
 		// todo standard traits?
 	};
