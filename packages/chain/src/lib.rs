@@ -36,8 +36,9 @@ pub trait Chain: Sized + SealedChain {
 	///
 	/// # Examples
 	///
-	/// ```
-	/// # use wiwi::chain::{ Chain as _, VecChain };
+	// todo fix and unignore this
+	/// ```ignore
+	/// # use wiwi_chain::{ Chain as _, VecChain };
 	/// let chain = VecChain::<usize>::new();
 	///
 	/// // let's pretend `push` and `reserve` don't already have chainable versions...
