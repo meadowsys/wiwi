@@ -110,7 +110,7 @@ pub unsafe trait Output<T>: Sized + OutputSealed<T> {
 	/// # Safety
 	///
 	/// This must be called once and only once on an output instance.
-	unsafe fn write(self, item: T);
+	fn write(self, item: T);
 }
 
 // SAFETY: we write once to `self`
@@ -120,7 +120,7 @@ unsafe impl<T> Output<T> for &mut T {
 		reason = "same as MaybeUninit::write"
 	)]
 	#[inline(always)]
-	unsafe fn write(self, item: T) {
+	fn write(self, item: T) {
 		*self = item;
 	}
 }
@@ -133,7 +133,7 @@ unsafe impl<T> Output<T> for &mut Option<T> {
 		reason = "same as MaybeUninit::write"
 	)]
 	#[inline(always)]
-	unsafe fn write(self, item: T) {
+	fn write(self, item: T) {
 		*self = Some(item);
 	}
 }
@@ -146,7 +146,7 @@ unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
 		reason = "same as MaybeUninit::write"
 	)]
 	#[inline(always)]
-	unsafe fn write(self, item: T) {
+	fn write(self, item: T) {
 		self.write(item);
 	}
 }
