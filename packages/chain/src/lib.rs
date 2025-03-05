@@ -8,7 +8,7 @@ mod array;
 mod string;
 mod vec;
 
-pub trait Chain: Sized + SealedChain {
+pub trait Chain: Sized + ChainSealed {
 	type Inner: ChainInner<Chain = Self>;
 
 	fn from_inner(inner: Self::Inner) -> Self;
@@ -17,9 +17,6 @@ pub trait Chain: Sized + SealedChain {
 	fn into_inner(self) -> Self::Inner {
 		Self::Inner::from_chain(self)
 	}
-
-	fn as_inner(&self) -> &Self::Inner;
-	fn as_inner_mut(&mut self) -> &mut Self::Inner;
 
 	/// Takes a closure that is called, passing in a reference to the inner value
 	///
@@ -54,17 +51,12 @@ pub trait Chain: Sized + SealedChain {
 	/// assert!(chain.as_inner().len() == 2);
 	/// assert!(chain.as_inner().capacity() >= 10);
 	/// ```
-	#[inline]
-	fn with_inner<F, Void>(mut self, f: F) -> Self
+	fn with_inner<F, Void>(self, f: F) -> Self
 	where
-		F: FnOnce(&mut Self::Inner) -> Void
-	{
-		let _ = f(self.as_inner_mut());
-		self
-	}
+		F: FnOnce(&mut Self::Inner) -> Void;
 }
 
-pub trait ChainInner: Sized + SealedChainInner {
+pub trait ChainInner: Sized + ChainInnerSealed {
 	type Chain: Chain<Inner = Self>;
 
 	fn from_chain(chain: Self::Chain) -> Self;
@@ -73,6 +65,18 @@ pub trait ChainInner: Sized + SealedChainInner {
 	fn into_chain(self) -> Self::Chain {
 		Self::Chain::from_inner(self)
 	}
+}
+
+/// Trait implemented on chains and their inner types, allowing you to get a reference
+/// to the inner type regardless of if the chain or the inner type is passed in
+pub trait AsChainInner
+where
+	Self: Sized + AsChainInnerSealed
+{
+	type Inner: Sized;
+
+	fn as_inner(&self) -> &Self::Inner;
+	fn as_inner_mut(&mut self) -> &mut Self::Inner;
 }
 
 pub trait WithSelf: Sized {
@@ -185,13 +189,12 @@ macro_rules! decl_chain {
 			}
 
 			#[inline]
-			fn as_inner(&self) -> &$inner {
-				&self.__inner
-			}
-
-			#[inline]
-			fn as_inner_mut(&mut self) -> &mut $inner {
-				&mut self.__inner
+			fn with_inner<F, Void>(mut self, f: F) -> Self
+			where
+				F: FnOnce(&mut Self::Inner) -> Void
+			{
+				let _ = f(&mut self.__inner);
+				self
 			}
 		}
 
@@ -206,11 +209,51 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::SealedChain for $chain_impl
+		impl<$($chain_impl_generics)*> $crate::AsChainInner for $chain_impl
+		$(where $($where)* )?
+		{
+			type Inner = $inner;
+
+			#[inline]
+			fn as_inner(&self) -> &$inner {
+				&self.__inner
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut $inner {
+				&mut self.__inner
+			}
+		}
+
+		impl<$($chain_impl_generics)*> $crate::AsChainInner for $inner
+		$(where $($where)* )?
+		{
+			type Inner = $inner;
+
+			#[inline]
+			fn as_inner(&self) -> &$inner {
+				self
+			}
+
+			#[inline]
+			fn as_inner_mut(&mut self) -> &mut $inner {
+				self
+			}
+		}
+
+		impl<$($chain_impl_generics)*> $crate::ChainSealed for $chain_impl
 		$(where $($where)* )?
 		{}
 
-		impl<$($chain_impl_generics)*> $crate::SealedChainInner for $inner
+		impl<$($chain_impl_generics)*> $crate::ChainInnerSealed for $inner
+		$(where $($where)* )?
+		{}
+
+		impl<$($chain_impl_generics)*> $crate::AsChainInnerSealed for $chain_impl
+		$(where $($where)* )?
+		{}
+
+		impl<$($chain_impl_generics)*> $crate::AsChainInnerSealed for $inner
 		$(where $($where)* )?
 		{}
 
@@ -222,11 +265,14 @@ use decl_chain;
 /// notouchie
 mod sealed {
 	/// notouchie
-	pub trait SealedChain {}
+	pub trait ChainSealed {}
 
 	/// notouchie
-	pub trait SealedChainInner {}
+	pub trait ChainInnerSealed {}
 
 	/// notouchie
 	pub trait OutputSealed<T> {}
+
+	/// notouchie
+	pub trait AsChainInnerSealed {}
 }
