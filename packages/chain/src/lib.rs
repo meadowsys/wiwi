@@ -223,6 +223,8 @@ use decl_chain;
 mod sealed {
 	/// notouchie
 	pub trait SealedChain {}
+
+	/// notouchie
 	pub trait SealedChainInner {}
 
 	/// notouchie
