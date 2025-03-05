@@ -70,6 +70,63 @@ pub trait ChainInner: Sized + SealedChainInner {
 	}
 }
 
+/// # Safety
+///
+/// By using this trait, implementors of functions are promising to call
+/// [`write`](Output::write), so that when the function returns, there is a
+/// value written to the output. For example, users can pass a reference to
+/// [`MaybeUninit`](core::mem::MaybeUninit) and rely on the fact that it got
+/// initialised to safely call [`assume_init`](core::mem::MaybeUninit::assume_init).
+///
+/// idk how to enforce the above properly using unsafe etc.
+pub unsafe trait Output<T>: Sized + OutputSealed<T> {
+	/// Stores a value
+	///
+	/// # Safety
+	///
+	/// This must be called once and only once on an output instance.
+	unsafe fn write(self, item: T);
+}
+
+// SAFETY: we write once to `self`
+unsafe impl<T> Output<T> for &mut T {
+	#[expect(
+		clippy::inline_always,
+		reason = "same as MaybeUninit::write"
+	)]
+	#[inline(always)]
+	unsafe fn write(self, item: T) {
+		*self = item;
+	}
+}
+impl<T> OutputSealed<T> for &mut T {}
+
+// SAFETY: we write once to `self`
+unsafe impl<T> Output<T> for &mut Option<T> {
+	#[expect(
+		clippy::inline_always,
+		reason = "same as MaybeUninit::write"
+	)]
+	#[inline(always)]
+	unsafe fn write(self, item: T) {
+		*self = Some(item);
+	}
+}
+impl<T> OutputSealed<T> for &mut Option<T> {}
+
+// SAFETY: we write once to `self`
+unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
+	#[expect(
+		clippy::inline_always,
+		reason = "same as MaybeUninit::write"
+	)]
+	#[inline(always)]
+	unsafe fn write(self, item: T) {
+		self.write(item);
+	}
+}
+impl<T> OutputSealed<T> for &mut core::mem::MaybeUninit<T> {}
+
 macro_rules! decl_chain {
 	{
 		struct $chain:ident;
