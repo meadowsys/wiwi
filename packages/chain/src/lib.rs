@@ -69,14 +69,18 @@ pub trait ChainInner: Sized + ChainInnerSealed {
 
 /// Trait implemented on chains and their inner types, allowing you to get a reference
 /// to the inner type regardless of if the chain or the inner type is passed in
-pub trait AsChainInner
+pub trait ChainConversions
 where
-	Self: Sized + AsChainInnerSealed
+	Self: Sized + ChainConversionsSealed
 {
 	type Inner: Sized;
+	// type MutChain<'h>: Sized
+	// where
+	// 	Self: 'h;
 
 	fn as_inner(&self) -> &Self::Inner;
 	fn as_inner_mut(&mut self) -> &mut Self::Inner;
+	// fn as_mut_chain<'h>(&'h mut self) -> Self::MutChain<'h>;
 }
 
 pub trait WithSelf: Sized {
@@ -209,7 +213,7 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::AsChainInner for $chain_impl
+		impl<$($chain_impl_generics)*> $crate::ChainConversions for $chain_impl
 		$(where $($where)* )?
 		{
 			type Inner = $inner;
@@ -225,7 +229,7 @@ macro_rules! decl_chain {
 			}
 		}
 
-		impl<$($chain_impl_generics)*> $crate::AsChainInner for $inner
+		impl<$($chain_impl_generics)*> $crate::ChainConversions for $inner
 		$(where $($where)* )?
 		{
 			type Inner = $inner;
@@ -249,11 +253,11 @@ macro_rules! decl_chain {
 		$(where $($where)* )?
 		{}
 
-		impl<$($chain_impl_generics)*> $crate::AsChainInnerSealed for $chain_impl
+		impl<$($chain_impl_generics)*> $crate::ChainConversionsSealed for $chain_impl
 		$(where $($where)* )?
 		{}
 
-		impl<$($chain_impl_generics)*> $crate::AsChainInnerSealed for $inner
+		impl<$($chain_impl_generics)*> $crate::ChainConversionsSealed for $inner
 		$(where $($where)* )?
 		{}
 
@@ -274,5 +278,5 @@ mod sealed {
 	pub trait OutputSealed<T> {}
 
 	/// notouchie
-	pub trait AsChainInnerSealed {}
+	pub trait ChainConversionsSealed {}
 }
