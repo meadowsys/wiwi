@@ -1,7 +1,11 @@
 use self::sealed::*;
 
-pub use self::vec::VecChain;
+pub use self::array::{ ArrayChain, ArrayChainMut };
+pub use self::string::{ StringChain, StringChainMut };
+pub use self::vec::{ VecChain, VecChainMut };
 
+mod array;
+mod string;
 mod vec;
 
 pub trait Chain: Sized + SealedChain {
