@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["wiwi",[]]]);
+    var implementors = Object.fromEntries([["wiwi",[]],["wiwi_util",[]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[11]}
+//{"start":57,"fragment_lengths":[11,17]}

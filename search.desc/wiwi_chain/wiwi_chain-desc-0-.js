@@ -1,0 +1,1 @@
+searchState.loadedDescShard("wiwi_chain", 0, "Safety\nReturns the argument unchanged.\nCalls <code>U::from(self)</code>.\nTakes a closure that is called, passing in a reference to …\nStores a value")

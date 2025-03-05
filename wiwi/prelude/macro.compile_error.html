@@ -2,7 +2,7 @@
     ($msg:expr $(,)?) =&gt; { ... };
 }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>Causes compilation to fail with the given error message when encountered.</p>
 <p>This macro should be used when a crate uses a conditional compilation strategy to provide
-better error messages for erroneous conditions. It’s the compiler-level form of <a href="https://doc.rust-lang.org/nightly/core/macro.panic.html" title="macro core::panic"><code>panic!</code></a>,
+better error messages for erroneous conditions. It’s the compiler-level form of <a href="core/macro.panic.html" title="macro wiwi::prelude::core::panic"><code>panic!</code></a>,
 but emits an error during <em>compilation</em> rather than at <em>runtime</em>.</p>
 <h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
 <p>Two such examples are macros and <code>#[cfg]</code> environments.</p>

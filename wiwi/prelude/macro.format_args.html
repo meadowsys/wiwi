@@ -8,12 +8,12 @@ additional parameters to ensure the output can be interpreted as a string
 and canonicalizes the arguments into a single type. Any value that implements
 the <a href="trait.Display.html" title="trait wiwi::prelude::Display"><code>Display</code></a> trait can be passed to <code>format_args!</code>, as can any
 <a href="trait.Debug.html" title="trait wiwi::prelude::Debug"><code>Debug</code></a> implementation be passed to a <code>{:?}</code> within the formatting string.</p>
-<p>This macro produces a value of type <a href="fmt/struct.Arguments.html" title="struct wiwi::prelude::fmt::Arguments"><code>fmt::Arguments</code></a>. This value can be
+<p>This macro produces a value of type <a href="alloc_crate/fmt/struct.Arguments.html" title="struct wiwi::prelude::alloc_crate::fmt::Arguments"><code>fmt::Arguments</code></a>. This value can be
 passed to the macros within <a href="../std/fmt/index.html"><code>std::fmt</code></a> for performing useful redirection.
-All other formatting macros (<a href="../std/macro.format.html"><code>format!</code></a>, <a href="https://doc.rust-lang.org/nightly/core/macro.write.html" title="macro core::write"><code>write!</code></a>, <a href="../std/macro.println.html"><code>println!</code></a>, etc) are
+All other formatting macros (<a href="../std/macro.format.html"><code>format!</code></a>, <a href="core/macro.write.html" title="macro wiwi::prelude::core::write"><code>write!</code></a>, <a href="../std/macro.println.html"><code>println!</code></a>, etc) are
 proxied through this one. <code>format_args!</code>, unlike its derived macros, avoids
 heap allocations.</p>
-<p>You can use the <a href="fmt/struct.Arguments.html" title="struct wiwi::prelude::fmt::Arguments"><code>fmt::Arguments</code></a> value that <code>format_args!</code> returns
+<p>You can use the <a href="alloc_crate/fmt/struct.Arguments.html" title="struct wiwi::prelude::alloc_crate::fmt::Arguments"><code>fmt::Arguments</code></a> value that <code>format_args!</code> returns
 in <code>Debug</code> and <code>Display</code> contexts as seen below. The example also shows
 that <code>Debug</code> and <code>Display</code> format to the same thing: the interpolated
 format string in <code>format_args!</code>.</p>

@@ -10,9 +10,9 @@ drop their data, should use this function to avoid unnecessarily
 trying to drop all their contents when they are destroyed. This might not
 make a difference in release builds (where a loop that has no side-effects
 is easily detected and eliminated), but is often a big win for debug builds.</p>
-<p>Note that <a href="ptr/fn.drop_in_place.html" title="fn wiwi::prelude::ptr::drop_in_place"><code>drop_in_place</code></a> already performs this check, so if your workload
-can be reduced to some small number of <a href="ptr/fn.drop_in_place.html" title="fn wiwi::prelude::ptr::drop_in_place"><code>drop_in_place</code></a> calls, using this is
-unnecessary. In particular note that you can <a href="ptr/fn.drop_in_place.html" title="fn wiwi::prelude::ptr::drop_in_place"><code>drop_in_place</code></a> a slice, and that
+<p>Note that <a href="core/ptr/fn.drop_in_place.html" title="fn wiwi::prelude::core::ptr::drop_in_place"><code>drop_in_place</code></a> already performs this check, so if your workload
+can be reduced to some small number of <a href="core/ptr/fn.drop_in_place.html" title="fn wiwi::prelude::core::ptr::drop_in_place"><code>drop_in_place</code></a> calls, using this is
+unnecessary. In particular note that you can <a href="core/ptr/fn.drop_in_place.html" title="fn wiwi::prelude::core::ptr::drop_in_place"><code>drop_in_place</code></a> a slice, and that
 will do a single needs_drop check for all the values.</p>
 <p>Types like Vec therefore just <code>drop_in_place(&amp;mut self[..])</code> without using
 <code>needs_drop</code> explicitly. Types like <a href="../../std/collections/struct.HashMap.html"><code>HashMap</code></a>, on the other hand, have to drop

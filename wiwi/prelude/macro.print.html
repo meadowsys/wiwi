@@ -4,11 +4,11 @@
 <p>Equivalent to the <a href="macro.println.html" title="macro wiwi::prelude::println"><code>println!</code></a> macro except that a newline is not printed at
 the end of the message.</p>
 <p>Note that stdout is frequently line-buffered by default so it may be
-necessary to use <a href="https://doc.rust-lang.org/nightly/std/io/trait.Write.html#tymethod.flush" title="method std::io::Write::flush"><code>io::stdout().flush()</code></a> to ensure the output is emitted
+necessary to use <a href="std/io/trait.Write.html#tymethod.flush" title="method wiwi::prelude::std::io::Write::flush"><code>io::stdout().flush()</code></a> to ensure the output is emitted
 immediately.</p>
 <p>The <code>print!</code> macro will lock the standard output on each call. If you call
 <code>print!</code> within a hot loop, this behavior may be the bottleneck of the loop.
-To avoid this, lock stdout with <a href="https://doc.rust-lang.org/nightly/std/io/stdio/struct.Stdout.html" title="struct std::io::stdio::Stdout"><code>io::stdout().lock()</code></a>:</p>
+To avoid this, lock stdout with <a href="std/io/struct.Stdout.html" title="struct wiwi::prelude::std::io::Stdout"><code>io::stdout().lock()</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io::{stdout, Write};
 

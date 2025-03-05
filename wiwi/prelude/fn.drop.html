@@ -14,8 +14,8 @@ the function returns.</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span>v = <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
 
 drop(v); <span class="comment">// explicitly drop the vector</span></code></pre></div>
-<p>Since <a href="cell/struct.RefCell.html" title="struct wiwi::prelude::cell::RefCell"><code>RefCell</code></a> enforces the borrow rules at runtime, <code>drop</code> can
-release a <a href="cell/struct.RefCell.html" title="struct wiwi::prelude::cell::RefCell"><code>RefCell</code></a> borrow:</p>
+<p>Since <a href="core/cell/struct.RefCell.html" title="struct wiwi::prelude::core::cell::RefCell"><code>RefCell</code></a> enforces the borrow rules at runtime, <code>drop</code> can
+release a <a href="core/cell/struct.RefCell.html" title="struct wiwi::prelude::core::cell::RefCell"><code>RefCell</code></a> borrow:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::cell::RefCell;
 

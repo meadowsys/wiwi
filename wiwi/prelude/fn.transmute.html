@@ -23,7 +23,7 @@ alignment of the pointed-to values.</p>
 transmuting between <code>*const ()</code> and <code>usize</code>.</p>
 <p>Transmuting <em>pointers to integers</em> in a <code>const</code> context is <a href="../../reference/behavior-considered-undefined.html">undefined behavior</a>, unless
 the pointer was originally created <em>from</em> an integer. (That includes this function
-specifically, integer-to-pointer casts, and helpers like <a href="ptr/fn.dangling.html" title="fn wiwi::prelude::ptr::dangling"><code>dangling</code></a>,
+specifically, integer-to-pointer casts, and helpers like <a href="core/ptr/fn.dangling.html" title="fn wiwi::prelude::core::ptr::dangling"><code>dangling</code></a>,
 but also semantically-equivalent conversions such as punning through <code>repr(C)</code> union
 fields.) Any attempt to use the resulting value for integer operations will abort
 const-evaluation. (And even outside <code>const</code>, such transmutation is touching on many

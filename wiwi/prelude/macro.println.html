@@ -5,10 +5,10 @@
 <p>On all platforms, the newline is the LINE FEED character (<code>\n</code>/<code>U+000A</code>) alone
 (no additional CARRIAGE RETURN (<code>\r</code>/<code>U+000D</code>)).</p>
 <p>This macro uses the same syntax as <a href="macro.format.html" title="macro wiwi::prelude::format"><code>format!</code></a>, but writes to the standard output instead.
-See <a href="fmt/index.html" title="mod wiwi::prelude::fmt"><code>std::fmt</code></a> for more information.</p>
+See <a href="alloc_crate/fmt/index.html" title="mod wiwi::prelude::alloc_crate::fmt"><code>std::fmt</code></a> for more information.</p>
 <p>The <code>println!</code> macro will lock the standard output on each call. If you call
 <code>println!</code> within a hot loop, this behavior may be the bottleneck of the loop.
-To avoid this, lock stdout with <a href="https://doc.rust-lang.org/nightly/std/io/stdio/struct.Stdout.html" title="struct std::io::stdio::Stdout"><code>io::stdout().lock()</code></a>:</p>
+To avoid this, lock stdout with <a href="std/io/struct.Stdout.html" title="struct wiwi::prelude::std::io::Stdout"><code>io::stdout().lock()</code></a>:</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::io::{stdout, Write};
 
@@ -19,7 +19,7 @@ To avoid this, lock stdout with <a href="https://doc.rust-lang.org/nightly/std/i
 <p>See <a href="../std/fmt/index.html">the formatting documentation in <code>std::fmt</code></a>
 for details of the macro argument syntax.</p>
 <h2 id="panics"><a class="doc-anchor" href="#panics">§</a>Panics</h2>
-<p>Panics if writing to <a href="https://doc.rust-lang.org/nightly/std/io/stdio/fn.stdout.html" title="fn std::io::stdio::stdout"><code>io::stdout</code></a> fails.</p>
+<p>Panics if writing to <a href="std/io/fn.stdout.html" title="fn wiwi::prelude::std::io::stdout"><code>io::stdout</code></a> fails.</p>
 <p>Writing to non-blocking stdout can cause an error, which will lead
 this macro to panic.</p>
 <h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2>
