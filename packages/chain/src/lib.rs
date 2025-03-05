@@ -75,6 +75,18 @@ pub trait ChainInner: Sized + SealedChainInner {
 	}
 }
 
+pub trait WithSelf: Sized {
+	/// Takes ownership of the value, passing a mutable reference of it to a
+	/// closure, then returning ownership of the value again
+	#[inline]
+	fn with_self<Void>(mut self, f: impl FnOnce(&mut Self) -> Void) -> Self {
+		let _ = f(&mut self);
+		self
+	}
+}
+
+impl<T> WithSelf for T {}
+
 /// # Safety
 ///
 /// By using this trait, implementors of functions are promising to call
