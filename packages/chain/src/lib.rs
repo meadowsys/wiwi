@@ -1,10 +1,10 @@
-use self::sealed::Sealed;
+use self::sealed::*;
 
 pub use self::vec::VecChain;
 
 mod vec;
 
-pub trait Chain: Sized + Sealed {
+pub trait Chain: Sized + SealedChain {
 	type Inner: ChainInner<Chain = Self>;
 
 	fn from_inner(inner: Self::Inner) -> Self;
@@ -59,7 +59,7 @@ pub trait Chain: Sized + Sealed {
 	}
 }
 
-pub trait ChainInner: Sized + Sealed {
+pub trait ChainInner: Sized + SealedChainInner {
 	type Chain: Chain<Inner = Self>;
 
 	fn from_chain(chain: Self::Chain) -> Self;
@@ -91,9 +91,6 @@ macro_rules! decl_chain {
 			__inner: $inner
 		}
 
-		impl<$($chain_impl_generics)*> $crate::sealed::Sealed for $chain_impl {}
-		impl<$($chain_impl_generics)*> $crate::sealed::Sealed for $inner {}
-
 		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl {
 			type Inner = $inner;
 
@@ -122,6 +119,9 @@ macro_rules! decl_chain {
 			}
 		}
 
+		impl<$($chain_impl_generics)*> $crate::SealedChain for $chain_impl {}
+		impl<$($chain_impl_generics)*> $crate::SealedChainInner for $inner {}
+
 		// todo standard traits?
 	};
 }
@@ -130,5 +130,9 @@ use decl_chain;
 /// notouchie
 mod sealed {
 	/// notouchie
-	pub trait Sealed {}
+	pub trait SealedChain {}
+	pub trait SealedChainInner {}
+
+	/// notouchie
+	pub trait OutputSealed<T> {}
 }
