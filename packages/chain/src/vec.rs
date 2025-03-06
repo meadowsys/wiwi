@@ -28,7 +28,7 @@ crate::chain_fns! {
 	// align_to
 	// align_to_mut
 	// allocator
-
+	underlying_fn "Vec::append"
 	fn append(
 		inner,
 		other: &mut impl ChainConversions<Inner = Vec<T>>
@@ -47,6 +47,8 @@ crate::chain_fns! {
 	// as_ptr
 	// as_slice
 
+	underlying_fn "[T]::binary_search"
+	link_to "slice::binary_search"
 	fn binary_search(
 		inner,
 		x: &T,
@@ -57,6 +59,8 @@ crate::chain_fns! {
 		out.write(inner.binary_search(x))
 	}
 
+	underlying_fn "[T]::binary_search_by"
+	link_to "slice::binary_search_by"
 	fn binary_search_by(
 		inner,
 		f: impl FnMut(&T) -> cmp::Ordering,
@@ -65,6 +69,8 @@ crate::chain_fns! {
 		out.write(inner.binary_search_by(f))
 	}
 
+	underlying_fn "[T]::binary_search_by_key"
+	link_to "slice::binary_search_by_key"
 	fn binary_search_by_key[B](
 		inner,
 		b: &B,
@@ -76,14 +82,17 @@ crate::chain_fns! {
 		out.write(inner.binary_search_by_key(b, f))
 	}
 
+	underlying_fn "Vec::capacity"
 	fn capacity(inner, out: impl Output<usize>) {
 		out.write(inner.capacity())
 	}
 
+	underlying_fn "Vec::clear"
 	fn clear(inner) {
 		inner.clear()
 	}
 
+	underlying_fn "Vec::dedup"
 	fn dedup(inner)
 	where {
 		T: PartialEq
@@ -91,6 +100,7 @@ crate::chain_fns! {
 		inner.dedup()
 	}
 
+	underlying_fn "Vec::dedup_by"
 	fn dedup_by(
 		inner,
 		same_bucket: impl FnMut(&mut T, &mut T) -> bool
@@ -98,6 +108,7 @@ crate::chain_fns! {
 		inner.dedup_by(same_bucket)
 	}
 
+	underlying_fn "Vec::dedup_by_key"
 	fn dedup_by_key[K](inner, key: impl FnMut(&mut T) -> K)
 	where {
 		K: PartialEq
@@ -123,10 +134,12 @@ crate::chain_fns! {
 	// is_empty
 	// leak
 
+	underlying_fn "Vec::len"
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
 
+	underlying_fn "Vec::pop"
 	fn pop(inner, out: impl Output<Option<T>>) {
 		out.write(inner.pop())
 	}
@@ -138,6 +151,7 @@ crate::chain_fns! {
 	// 	out: impl Output<Option<T>>
 	// ) => out.write(inner.pop_if(predicate));
 
+	underlying_fn "Vec::push"
 	fn push(inner, value: T) {
 		inner.push(value)
 	}
@@ -151,12 +165,7 @@ crate::chain_fns! {
 	// retain
 	// retain_mut
 
-	/// Sets the length of the vec to `new_len`
-	///
-	/// # Safety
-	///
-	/// - `new_len` must be less than or equal to `capacity`
-	/// - The first `new_len` elements must be properly initialised for `T`
+	underlying_fn "Vec::set_len"
 	unsafe fn set_len(inner, new_len: usize) {
 		// SAFETY: caller promises to uphold safety invariants
 		unsafe { inner.set_len(new_len) }
