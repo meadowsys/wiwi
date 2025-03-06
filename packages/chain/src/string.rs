@@ -37,9 +37,9 @@ crate::chain_fns! {
 	// char_indices
 	// chars
 
-	fn clear(
-		inner
-	) => inner.clear();
+	fn clear(inner) {
+		inner.clear();
+	}
 
 	// contains
 	// drain
@@ -79,10 +79,9 @@ crate::chain_fns! {
 	// is_empty
 	// leak
 
-	fn len(
-		inner,
-		out: impl Output<usize>
-	) => out.write(inner.len());
+	fn len(inner, out: impl Output<usize>) {
+		out.write(inner.len())
+	}
 
 	// lines
 	// lines_any
@@ -93,15 +92,13 @@ crate::chain_fns! {
 	// parse
 	// pop
 
-	fn push(
-		inner,
-		ch: char
-	) => inner.push(ch);
+	fn push(inner, ch: char) {
+		inner.push(ch)
+	}
 
-	fn push_str(
-		inner,
-		string: &str
-	) => inner.push_str(string);
+	fn push_str(inner, string: &str) {
+		inner.push_str(string)
+	}
 
 	// remove
 	// remove_matches
@@ -110,20 +107,17 @@ crate::chain_fns! {
 	// replace_range
 	// replacen
 
-	fn reserve(
-		inner,
-		additional: usize
-	) => inner.reserve(additional);
+	fn reserve(inner, additional: usize) {
+		inner.reserve(additional)
+	}
 
-	fn reserve_exact(
-		inner,
-		additional: usize
-	) => inner.reserve_exact(additional);
+	fn reserve_exact(inner, additional: usize) {
+		inner.reserve_exact(additional)
+	}
 
-	fn retain(
-		inner,
-		f: impl FnMut(char) -> bool
-	) => inner.retain(f);
+	fn retain(inner, f: impl FnMut(char) -> bool) {
+		inner.retain(f)
+	}
 
 	// rfind
 	// rmatch_indices

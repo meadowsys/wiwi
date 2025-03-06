@@ -398,7 +398,7 @@ macro_rules! chain_fns {
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
-		=> $impl:expr;
+		{ $($impl:tt)* }
 
 		$($stuff:tt)*
 	} => {
@@ -408,7 +408,7 @@ macro_rules! chain_fns {
 		$(where $($where)*)?
 		{
 			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
-			let _: () = $impl;
+			let _: () = { $($impl)* };
 			self
 		}
 
@@ -421,7 +421,7 @@ macro_rules! chain_fns {
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
-		=> $impl:expr;
+		{ $($impl:tt)* }
 
 		$($stuff:tt)*
 	} => {
@@ -431,7 +431,7 @@ macro_rules! chain_fns {
 		$(where $($where)*)?
 		{
 			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
-			let _: () = $impl;
+			let _: () = { $($impl)* };
 			self
 		}
 

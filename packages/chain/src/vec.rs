@@ -32,7 +32,9 @@ crate::chain_fns! {
 	fn append(
 		inner,
 		other: &mut impl ChainConversions<Inner = Vec<T>>
-	) => inner.append(other.as_inner_mut());
+	) {
+		inner.append(other.as_inner_mut())
+	}
 
 	// array_chunks
 	// array_chunks_mut
@@ -51,13 +53,17 @@ crate::chain_fns! {
 		out: impl Output<Result<usize, usize>>
 	) where {
 		T: Ord
-	} => out.write(inner.binary_search(x));
+	} {
+		out.write(inner.binary_search(x))
+	}
 
 	fn binary_search_by(
 		inner,
 		f: impl FnMut(&T) -> cmp::Ordering,
 		out: impl Output<Result<usize, usize>>
-	) => out.write(inner.binary_search_by(f));
+	) {
+		out.write(inner.binary_search_by(f))
+	}
 
 	fn binary_search_by_key[B](
 		inner,
@@ -66,34 +72,38 @@ crate::chain_fns! {
 		out: impl Output<Result<usize, usize>>
 	) where {
 		B: Ord
-	} => out.write(inner.binary_search_by_key(b, f));
+	} {
+		out.write(inner.binary_search_by_key(b, f))
+	}
 
-	fn capacity(
-		inner,
-		out: impl Output<usize>
-	) => out.write(inner.capacity());
+	fn capacity(inner, out: impl Output<usize>) {
+		out.write(inner.capacity())
+	}
 
-	fn clear(
-		inner
-	) => inner.clear();
+	fn clear(inner) {
+		inner.clear()
+	}
 
-	fn dedup(
-		inner
-	) where {
+	fn dedup(inner)
+	where {
 		T: PartialEq
-	} => inner.dedup();
+	} {
+		inner.dedup()
+	}
 
 	fn dedup_by(
 		inner,
 		same_bucket: impl FnMut(&mut T, &mut T) -> bool
-	) => inner.dedup_by(same_bucket);
+	) {
+		inner.dedup_by(same_bucket)
+	}
 
-	fn dedup_by_key[K](
-		inner,
-		key: impl FnMut(&mut T) -> K
-	) where {
+	fn dedup_by_key[K](inner, key: impl FnMut(&mut T) -> K)
+	where {
 		K: PartialEq
-	} => inner.dedup_by_key(key);
+	} {
+		inner.dedup_by_key(key)
+	}
 
 	// drain
 	// extend_from_slice
@@ -113,15 +123,13 @@ crate::chain_fns! {
 	// is_empty
 	// leak
 
-	fn len(
-		inner,
-		out: impl Output<usize>
-	) => out.write(inner.len());
+	fn len(inner, out: impl Output<usize>) {
+		out.write(inner.len())
+	}
 
-	fn pop(
-		inner,
-		out: impl Output<Option<T>>
-	) => out.write(inner.pop());
+	fn pop(inner, out: impl Output<Option<T>>) {
+		out.write(inner.pop())
+	}
 
 	// todo: msrv 1.86
 	// fn pop_if(
@@ -130,10 +138,9 @@ crate::chain_fns! {
 	// 	out: impl Output<Option<T>>
 	// ) => out.write(inner.pop_if(predicate));
 
-	fn push(
-		inner,
-		value: T
-	) => inner.push(value);
+	fn push(inner, value: T) {
+		inner.push(value)
+	}
 
 	// push_within_capacity
 	// remove
@@ -150,13 +157,10 @@ crate::chain_fns! {
 	///
 	/// - `new_len` must be less than or equal to `capacity`
 	/// - The first `new_len` elements must be properly initialised for `T`
-	unsafe fn set_len(
-		inner,
-		new_len: usize
-	) => {
+	unsafe fn set_len(inner, new_len: usize) {
 		// SAFETY: caller promises to uphold safety invariants
 		unsafe { inner.set_len(new_len) }
-	};
+	}
 
 	// shrink_to
 	// shrink_to_fit
