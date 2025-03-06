@@ -40,9 +40,9 @@ crate::chain_fns! {
 	// array_chunks_mut
 	// array_windows
 	// as_array
-	// as_mut_array (as_array_mut? I dunno)
-	// as_mut_ptr
-	// as_mut_slice
+	// as_array_mut
+	// as_ptr_mut
+	// as_slice_mut
 	// as_non_null
 	// as_ptr
 	// as_slice
@@ -184,9 +184,9 @@ crate::chain_fns! {
 	// as_chunks_unchecked_mut
 	// as_flattened
 	// as_flattened_mut
-	// as_mut_array
-	// as_mut_ptr
-	// as_mut_ptr_range
+	// as_array_mut
+	// as_ptr_mut
+	// as_ptr_range_mut
 	// as_ptr
 	// as_ptr_range
 	// as_rchunks
@@ -276,8 +276,8 @@ crate::chain_fns! {
 	// split_at
 	// split_at_checked
 	// split_at_mut
-	// split_at_mut_checked
-	// split_at_mut_unchecked
+	// split_at_checked_mut
+	// split_at_unchecked_mut
 	// split_at_unchecked
 	// split_first
 	// split_first_chunk
