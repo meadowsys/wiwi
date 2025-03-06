@@ -17,3 +17,8 @@ crate::impl_chain_conversions! {
 	type inner [T; N];
 	type mut_chain ArrayMutChain<'mut_chain, T, N>;
 }
+
+crate::chain_fns! {
+	impl chain [T, const N: usize] ArrayChain<T, N>;
+	impl chain_mut ['h, T, const N: usize] ArrayMutChain<'h, T, N>;
+}
