@@ -207,13 +207,13 @@ macro_rules! decl_chain {
 		#[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
 		#[repr(transparent)]
 		pub struct $chain<$($chain_decl_generics)*>
-		$(where $($where)* )?
+		$(where $($where)*)?
 		{
 			__inner: $inner
 		}
 
 		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl
-		$(where $($where)* )?
+		$(where $($where)*)?
 		{
 			type Inner = $inner;
 
@@ -233,7 +233,7 @@ macro_rules! decl_chain {
 		}
 
 		impl<$($chain_impl_generics)*> $crate::ChainInner for $inner
-		$(where $($where)* )?
+		$(where $($where)*)?
 		{
 			type Chain = $chain_impl;
 
@@ -244,11 +244,11 @@ macro_rules! decl_chain {
 		}
 
 		impl<$($chain_impl_generics)*> $crate::ChainSealed for $chain_impl
-		$(where $($where)* )?
+		$(where $($where)*)?
 		{}
 
 		impl<$($chain_impl_generics)*> $crate::ChainInnerSealed for $inner
-		$(where $($where)* )?
+		$(where $($where)*)?
 		{}
 
 
