@@ -47,8 +47,7 @@ crate::chain_fns! {
 	// as_ptr
 	// as_slice
 
-	underlying_fn "[T]::binary_search"
-	link_to "slice::binary_search"
+	underlying_fn "[T]::binary_search" ("slice::binary_search")
 	fn binary_search(
 		inner,
 		x: &T,
@@ -59,8 +58,7 @@ crate::chain_fns! {
 		out.write(inner.binary_search(x))
 	}
 
-	underlying_fn "[T]::binary_search_by"
-	link_to "slice::binary_search_by"
+	underlying_fn "[T]::binary_search_by" ("slice::binary_search_by")
 	fn binary_search_by(
 		inner,
 		f: impl FnMut(&T) -> cmp::Ordering,
@@ -69,8 +67,7 @@ crate::chain_fns! {
 		out.write(inner.binary_search_by(f))
 	}
 
-	underlying_fn "[T]::binary_search_by_key"
-	link_to "slice::binary_search_by_key"
+	underlying_fn "[T]::binary_search_by_key" ("slice::binary_search_by_key")
 	fn binary_search_by_key[B](
 		inner,
 		b: &B,

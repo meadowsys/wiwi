@@ -390,7 +390,7 @@ macro_rules! chain_fns {
 
 	{
 		@impl
-		$(underlying_fn $underlying_fn:literal $(link_to $underlying_fn_link_to:literal)?)?
+		$(underlying_fn $underlying_fn:literal $(($underlying_fn_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -428,7 +428,7 @@ macro_rules! chain_fns {
 
 	{
 		@impl
-		$(underlying_fn $underlying_fn:literal $(link_to $underlying_fn_link_to:literal)?)?
+		$(underlying_fn $underlying_fn:literal $(($underlying_fn_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
