@@ -427,7 +427,7 @@ macro_rules! chain_fns {
 	} => {
 		#[inline]
 		$(#[$meta])*
-		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
+		pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
 		$(where $($where)*)?
 		{
 			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
