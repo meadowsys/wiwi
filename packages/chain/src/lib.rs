@@ -251,6 +251,25 @@ macro_rules! decl_chain {
 		$(where $($where)*)?
 		{}
 
+		impl<$($chain_impl_generics)*> ::core::clone::Clone for $chain_impl
+		where
+			$inner: ::core::clone::Clone
+		{
+			#[inline]
+			fn clone(&self) -> Self {
+				let clone = <$inner as ::core::clone::Clone>::clone(&self.__inner);
+				<Self as $crate::Chain>::from_inner(clone)
+			}
+
+			#[inline]
+			fn clone_from(&mut self, other: &Self) {
+				<$inner as ::core::clone::Clone>::clone_from(
+					&mut self.__inner,
+					&other.__inner
+				);
+			}
+		}
+
 		impl<$($chain_impl_generics)*> ::core::default::Default for $chain_impl
 		where
 			$inner: ::core::default::Default
@@ -261,6 +280,15 @@ macro_rules! decl_chain {
 				<Self as $crate::Chain>::from_inner(default)
 			}
 		}
+
+		// todo this doesn't compile because `String: Copy` is a "trivial bound"
+		// https://github.com/rust-lang/rust/issues/48214
+		// smh
+		//
+		// impl<$($chain_impl_generics)*> ::core::marker::Copy for $chain_impl
+		// where
+		// 	$inner: ::core::marker::Copy
+		// {}
 
 		// todo more standard traits?
 	};
