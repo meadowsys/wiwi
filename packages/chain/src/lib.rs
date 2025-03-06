@@ -166,6 +166,73 @@ unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
 }
 impl<T> OutputSealed<T> for &mut core::mem::MaybeUninit<T> {}
 
+/// Tool for helping to debug [`Output`] trait usage in debug mode (if `out` is
+/// not written to, the function will panic)
+#[inline]
+pub fn out_dbg<T, O: Output<T>>(out: O) -> OutputDebug<T, O> {
+	OutputDebug { inner: out, __marker: std::marker::PhantomData }
+}
+
+#[repr(transparent)]
+pub struct OutputDebug<T, O>
+where
+	O: Output<T>
+{
+	inner: O,
+	__marker: core::marker::PhantomData<fn(T)>
+}
+
+impl<T, O> OutputDebug<T, O>
+where
+	O: Output<T>
+{
+	#[inline]
+	pub fn into_inner(self) -> O {
+		// in cfg(debug_assertions), we have Drop impl,
+		// so we need to do a funny to get `inner` out
+		#[cfg(debug_assertions)]
+		let inner = {
+			let this = core::mem::ManuallyDrop::new(self);
+
+			// SAFETY: ManuallyDrop above prevents double drops
+			unsafe { core::ptr::read(&this.inner) }
+		};
+
+		// in not(cfg(debug_assertions)), we don't have
+		// Drop impl, so we can just normally move it out
+		#[cfg(not(debug_assertions))]
+		let inner = self.inner;
+
+		inner
+	}
+}
+
+// SAFETY: we write once to `self`
+unsafe impl<T, O> Output<T> for OutputDebug<T, O>
+where
+	O: Output<T>
+{
+	#[inline]
+	fn write(self, item: T) {
+		self.into_inner().write(item);
+	}
+}
+impl<T, O> OutputSealed<T> for OutputDebug<T, O>
+where
+	O: Output<T>
+{}
+
+#[cfg(debug_assertions)]
+impl<T, O> Drop for OutputDebug<T, O>
+where
+	O: Output<T>
+{
+	#[inline]
+	fn drop(&mut self) {
+		panic!("`write` not called on created instance of `Output` (this is probably a bug)")
+	}
+}
+
 macro_rules! decl_chain {
 	{
 		$(#[$meta:meta])*
