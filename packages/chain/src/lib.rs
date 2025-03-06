@@ -25,16 +25,6 @@ pub trait Chain: Sized + ChainSealed {
 	/// middle of some chain. It lets you do otherwise nonchainable operations
 	/// inline with other chaining operations, so no need to break the chain c:
 	///
-	/// The closure passed in is allowed to return anything, but the return value
-	/// is simply ignored. This makes it so you can call a function for its side
-	/// effect, even if that function returns something you wouldn't have needed
-	/// anyways.
-	///
-	/// For example, [`MaybeUninit::write`] returns `&mut T`, but you might not
-	/// need that reference, so instead of writing `
-	/// .with_inner(|val| { val.write(...); })`, you can simply write
-	/// `.with_inner(|val| val.write(...))`.
-	///
 	/// # Examples
 	///
 	// todo fix and unignore this
@@ -51,9 +41,7 @@ pub trait Chain: Sized + ChainSealed {
 	/// assert!(chain.as_inner().len() == 2);
 	/// assert!(chain.as_inner().capacity() >= 10);
 	/// ```
-	fn with_inner<F, Void>(self, f: F) -> Self
-	where
-		F: FnOnce(&mut Self::Inner) -> Void;
+	fn with_inner(self, f: impl FnOnce(&mut Self::Inner)) -> Self;
 }
 
 pub trait ChainInner: Sized + ChainInnerSealed {
@@ -219,10 +207,7 @@ macro_rules! decl_chain {
 			}
 
 			#[inline]
-			fn with_inner<F, Void>(mut self, f: F) -> Self
-			where
-				F: FnOnce(&mut Self::Inner) -> Void
-			{
+			fn with_inner(mut self, f: impl FnOnce(&mut Self::Inner)) -> Self {
 				let _ = f(&mut self.__inner);
 				self
 			}
