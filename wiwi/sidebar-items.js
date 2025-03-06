@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"macro":["nominal","nominal_mod","vec_chain"],"mod":["aoc","builder","chain","clock_timer","cron","encoding","filetypes","lazy_wrap","lsl","macro_util","mem_use","nominal","num","parser","prelude","rc","serialiser","string","tuple","vh"]};
+window.SIDEBAR_ITEMS = {"externcrate":["chain"],"macro":["nominal","nominal_mod"],"mod":["aoc","builder","clock_timer","cron","encoding","filetypes","lazy_wrap","lsl","macro_util","mem_use","nominal","num","parser","prelude","rc","serialiser","string","tuple","vh"]};

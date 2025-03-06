@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["VecChain"],"trait":["Chain","ChainInner","Output"]};
+window.SIDEBAR_ITEMS = {"struct":["ArrayChain","ArrayMutChain","StringChain","StringMutChain","VecChain","VecMutChain"],"trait":["Chain","ChainConversions","ChainInner","Output","WithSelf"]};
