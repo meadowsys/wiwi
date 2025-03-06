@@ -34,11 +34,9 @@ crate::chain_fns! {
 	// align_to
 	// align_to_mut
 	// allocator
+
 	underlying_fn "Vec::append"
-	fn append(
-		inner,
-		other: &mut impl ChainConversions<Inner = Vec<T>>
-	) {
+	fn append(inner, other: &mut impl ChainConversions<Inner = Vec<T>>) {
 		inner.append(other.as_inner_mut())
 	}
 
@@ -132,6 +130,19 @@ crate::chain_fns! {
 	// extend_from_slice
 	// extend_from_within
 	// extract_if
+
+	underlying_fn "[T]::fill" ("slice::fill")
+	fn fill(inner, value: T) where {
+		T: Clone
+	} {
+		inner.fill(value)
+	}
+
+	underlying_fn "[T]::fill_with" ("slice::fill_with")
+	fn fill_with(inner, f: impl FnMut() -> T) {
+		inner.fill_with(f)
+	}
+
 	// from_parts
 	// from_parts_in
 	// from_raw_parts
@@ -139,7 +150,7 @@ crate::chain_fns! {
 
 	underlying_fn "Vec::insert"
 	fn insert(inner, index: usize, element: T) {
-		inner.insert(index, element);
+		inner.insert(index, element)
 	}
 
 	// into_boxed_slice
@@ -228,6 +239,35 @@ crate::chain_fns! {
 		unsafe { inner.set_len(new_len) }
 	}
 
+	underlying_fn "[T]::sort" ("slice::sort")
+	fn sort(inner)
+	where {
+		T: Ord
+	} {
+		inner.sort()
+	}
+
+	underlying_fn "[T]::sort_by" ("slice::sort_by")
+	fn sort_by(inner, compare: impl FnMut(&T, &T) -> cmp::Ordering) {
+		inner.sort_by(compare)
+	}
+
+	underlying_fn "[T]::sort_by_key" ("slice::sort_by_key")
+	fn sort_by_key[K](inner, f: impl FnMut(&T) -> K)
+	where {
+		K: Ord
+	} {
+		inner.sort_by_key(f)
+	}
+
+	underlying_fn "[T]::sort_by_cached_key" ("slice::sort_by_cached_key")
+	fn sort_by_cached_key[K](inner, f: impl FnMut(&T) -> K)
+	where {
+		K: Ord
+	} {
+		inner.sort_by_cached_key(f)
+	}
+
 	// shrink_to
 	// shrink_to_fit
 	// spare_capacity_mut
@@ -282,8 +322,6 @@ crate::chain_fns! {
 	// ends_with
 	// eq_ignore_ascii_case
 	// escape_ascii
-	// fill
-	// fill_with
 	// first
 	// first_chunk
 	// first_chunk_mut
@@ -329,10 +367,6 @@ crate::chain_fns! {
 	// select_nth_unstable
 	// select_nth_unstable_by
 	// select_nth_unstable_by_key
-	// sort
-	// sort_by
-	// sort_by_cached_key
-	// sort_by_key
 	// sort_floats
 	// sort_floats
 	// sort_unstable
