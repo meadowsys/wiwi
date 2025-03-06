@@ -338,6 +338,70 @@ macro_rules! impl_chain_conversions {
 }
 use impl_chain_conversions;
 
+macro_rules! chain_fns {
+	{
+		impl chain [$($impl_chain_generics:tt)*] $impl_chain:ty;
+		impl chain_mut [$($impl_chain_mut_generics:tt)*] $impl_chain_mut:ty;
+
+		$($stuff:tt)*
+	} => {
+		impl<$($impl_chain_generics)*> $impl_chain {
+			$crate::chain_fns! { @impl $($stuff)* }
+		}
+
+		impl<$($impl_chain_mut_generics)*> $impl_chain_mut {
+			$crate::chain_fns! { @impl $($stuff)* }
+		}
+	};
+
+	{
+		@impl
+		$(#[$meta:meta])*
+		fn $fn_name:ident$([$($generics:tt)*])?
+		$(where { $($where:tt)* })?
+		($inner:ident $($params:tt)*) => $impl:expr;
+
+		$($rest:tt)*
+	} => {
+		#[inline]
+		$(#[$meta])*
+		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
+		$(where $($where)*)?
+		{
+			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
+			let _: () = $impl;
+			self
+		}
+
+		$crate::chain_fns! { @impl $($rest)* }
+	};
+
+	{
+		@impl
+		$(#[$meta:meta])*
+		unsafe fn $fn_name:ident$([$($generics:tt)*])?
+		$(where { $($where:tt)* })?
+		($inner:ident $($params:tt)*) => $impl:expr;
+
+		$($rest:tt)*
+	} => {
+		#[inline]
+		$(#[$meta])*
+		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
+		$(where $($where)*)?
+		{
+			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
+			let _: () = $impl;
+			self
+		}
+
+		$crate::chain_fns! { @impl $($rest)* }
+	};
+
+	{ @impl } => {};
+}
+use chain_fns;
+
 /// notouchie
 mod sealed {
 	/// notouchie

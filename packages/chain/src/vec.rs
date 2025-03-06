@@ -17,3 +17,8 @@ crate::impl_chain_conversions! {
 	type inner Vec<T>;
 	type mut_chain VecChainMut<'mut_chain, T>;
 }
+
+crate::chain_fns! {
+	impl chain [T] VecChain<T>;
+	impl chain_mut ['h, T] VecChainMut<'h, T>;
+}
