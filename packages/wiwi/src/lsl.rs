@@ -8,7 +8,7 @@ extern crate hashbrown;
 extern crate wiwi_macro_decl;
 use crate::prelude::*;
 
-use crate::chain::GenericChainConversion as _;
+use crate::chain::WithSelf as _;
 use self::ident::{ Ident, IdentIncrementer };
 // use self::private::{ SealedStruct, SealedTrait };
 
@@ -18,9 +18,7 @@ mod ident;
 
 fn script(f: impl FnOnce(ScriptCx)) -> Script {
 	Script::new()
-		.into_generic_chain()
-		.with_inner(|s| f(s.cx()))
-		.into_inner()
+		.with_self(|s| f(s.cx()))
 }
 
 // /// LSL primitive `integer` type

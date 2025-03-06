@@ -30,9 +30,11 @@ compile_error!("16-bit platforms are not supported yet (but please do file an is
 extern crate wiwi_util;
 pub use wiwi_util::*;
 
+// #[cfg(feature = "chain")]
+pub extern crate wiwi_chain as chain;
+
 pub mod aoc;
 pub mod builder;
-pub mod chain;
 pub mod clock_timer;
 pub mod cron;
 pub mod encoding;

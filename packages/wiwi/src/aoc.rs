@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::chain::GenericChainConversion as _;
+use crate::chain::WithSelf as _;
 use std::io::Read;
 
 #[inline]
@@ -11,10 +11,8 @@ pub fn get_input(year: usize, day: usize) -> String {
 pub fn get_input_buf(year: usize, day: usize) -> Vec<u8> {
 	let path = env::current_dir()
 		.expect("failed to get current dir")
-		.into_generic_chain()
-		.with_inner(|p| p.push("input"))
-		.with_inner(|p| p.push(&*format!("{year:04}-{day:02}")))
-		.into_inner();
+		.with_self(|p| p.push("input"))
+		.with_self(|p| p.push(&*format!("{year:04}-{day:02}")));
 
 	let file = fs::OpenOptions::new()
 		.read(true)
@@ -22,13 +20,11 @@ pub fn get_input_buf(year: usize, day: usize) -> Vec<u8> {
 		.unwrap_or_else(|e| panic!("failed to read input file (tried `{path:?}`): {e}"));
 
 	(file, Vec::new())
-		.into_generic_chain()
-		.with_inner(|(f, v)| {
+		.with_self(|(f, v)| {
 			f.read_to_end(v)
 				.unwrap_or_else(|e| panic!("error occured reading input file at `{path:?}`: {e}"))
 		})
-		.map(|(_f, v)| v)
-		.into_inner()
+		.1
 }
 
 #[inline]
