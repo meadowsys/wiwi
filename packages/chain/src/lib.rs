@@ -385,6 +385,7 @@ macro_rules! chain_fns {
 		$($stuff:tt)*
 	} => {
 		#[inline]
+		#[warn(missing_docs)]
 		$(#[$meta])*
 		$(
 			#[doc = ""]
@@ -423,6 +424,7 @@ macro_rules! chain_fns {
 		$($stuff:tt)*
 	} => {
 		#[inline]
+		#[warn(missing_docs)]
 		$(#[$meta])*
 		$(
 			#[doc = ""]
