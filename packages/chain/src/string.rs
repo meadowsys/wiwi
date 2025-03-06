@@ -4,15 +4,15 @@ crate::decl_chain! {
 }
 
 crate::decl_chain! {
-	struct StringChainMut['h];
-	impl['h] StringChainMut<'h>;
+	struct StringMutChain['h];
+	impl['h] StringMutChain<'h>;
 	inner &'h mut String;
 }
 
 crate::impl_chain_conversions! {
 	impl chain [] StringChain;
-	impl chain_mut ['h] StringChainMut<'h>;
+	impl chain_mut ['h] StringMutChain<'h>;
 	impl inner [] String;
 	type inner String;
-	type mut_chain StringChainMut<'mut_chain>;
+	type mut_chain StringMutChain<'mut_chain>;
 }

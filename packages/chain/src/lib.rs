@@ -1,8 +1,8 @@
 use self::sealed::*;
 
-pub use self::array::{ ArrayChain, ArrayChainMut };
-pub use self::string::{ StringChain, StringChainMut };
-pub use self::vec::{ VecChain, VecChainMut };
+pub use self::array::{ ArrayChain, ArrayMutChain };
+pub use self::string::{ StringChain, StringMutChain };
+pub use self::vec::{ VecChain, VecMutChain };
 
 mod array;
 mod string;
