@@ -52,19 +52,7 @@ jobs:
     - name: setup rust
       run: rustc --version
 
-    - name: publish proc macro crate
-      working-directory: proc-macro
-      run: cargo publish --verbose
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-    - name: publish decl macro crate
-      working-directory: decl-macro
-      run: cargo publish --verbose
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-
-    - name: publish
-      run: cargo publish --verbose
+    - name: publish crates
+      run: cargo publish --verbose -p "wiwi*" -Z package-workspace
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
