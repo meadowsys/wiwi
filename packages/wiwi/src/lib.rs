@@ -49,6 +49,3 @@ pub mod serialiser;
 pub mod string;
 pub mod tuple;
 pub mod vh;
-
-#[cfg(feature = "nightly")]
-pub fn testwefioajoiwfej() {}
