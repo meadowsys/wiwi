@@ -400,7 +400,7 @@ macro_rules! chain_fns {
 		$(where { $($where:tt)* })?
 		=> $impl:expr;
 
-		$($rest:tt)*
+		$($stuff:tt)*
 	} => {
 		#[inline]
 		$(#[$meta])*
@@ -412,7 +412,7 @@ macro_rules! chain_fns {
 			self
 		}
 
-		$crate::chain_fns! { @impl $($rest)* }
+		$crate::chain_fns! { @impl $($stuff)* }
 	};
 
 	{
@@ -423,7 +423,7 @@ macro_rules! chain_fns {
 		$(where { $($where:tt)* })?
 		=> $impl:expr;
 
-		$($rest:tt)*
+		$($stuff:tt)*
 	} => {
 		#[inline]
 		$(#[$meta])*
@@ -435,7 +435,7 @@ macro_rules! chain_fns {
 			self
 		}
 
-		$crate::chain_fns! { @impl $($rest)* }
+		$crate::chain_fns! { @impl $($stuff)* }
 	};
 
 	{ @impl } => {};
