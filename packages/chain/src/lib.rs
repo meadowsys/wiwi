@@ -368,8 +368,9 @@ macro_rules! chain_fns {
 		@impl
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
+		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
-		($inner:ident $($params:tt)*) => $impl:expr;
+		=> $impl:expr;
 
 		$($rest:tt)*
 	} => {
@@ -390,8 +391,9 @@ macro_rules! chain_fns {
 		@impl
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
+		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
-		($inner:ident $($params:tt)*) => $impl:expr;
+		=> $impl:expr;
 
 		$($rest:tt)*
 	} => {
