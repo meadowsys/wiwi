@@ -25,6 +25,12 @@ crate::chain_fns! {
 	impl chain [T] VecChain<T>;
 	impl chain_mut ['h, T] VecMutChain<'h, T>;
 
+	underlying_fn "[T]::align_to" ("slice::align_to")
+	unsafe fn align_to[U](inner, cb: impl FnOnce((&[T], &[U], &[T]))) {
+		// SAFETY: caller promises to uphold safety invariants
+		unsafe { cb(inner.align_to()) }
+	}
+
 	// align_to
 	// align_to_mut
 	// allocator
@@ -89,6 +95,15 @@ crate::chain_fns! {
 		inner.clear()
 	}
 
+	// todo concat trait is unstable
+	// fn concat[Item](inner, out: impl Output<<[T] as std::slice::Concat<Item>>::Output>)
+	// where {
+	// 	[T]: std::slice::Concat<Item>,
+	// 	Item: ?Sized
+	// } {
+	// 	out.write(inner.concat())
+	// }
+
 	underlying_fn "Vec::dedup"
 	fn dedup(inner)
 	where {
@@ -121,14 +136,24 @@ crate::chain_fns! {
 	// from_parts_in
 	// from_raw_parts
 	// from_raw_parts_in
-	// insert
+
+	underlying_fn "Vec::insert"
+	fn insert(inner, index: usize, element: T) {
+		inner.insert(index, element);
+	}
+
 	// into_boxed_slice
 	// into_flattened
 	// into_parts
 	// into_parts_with_alloc
 	// into_raw_parts
 	// into_raw_parts_with_alloc
-	// is_empty
+
+	underlying_fn "Vec::is_empty"
+	fn is_empty(inner, out: impl Output<bool>) {
+		out.write(inner.is_empty())
+	}
+
 	// leak
 
 	underlying_fn "Vec::len"
@@ -153,14 +178,49 @@ crate::chain_fns! {
 		inner.push(value)
 	}
 
-	// push_within_capacity
-	// remove
-	// reserve
-	// reserve_exact
-	// resize
-	// resize_with
-	// retain
-	// retain_mut
+	// todo unstable
+	// underlying_fn "Vec::push_within_capacity"
+	// fn push_within_capacity(inner, value: T, out: impl Output<Result<(), T>>) {
+	// 	out.write(inner.push_within_capacity(value))
+	// }
+
+	underlying_fn "Vec::remove"
+	fn remove(inner, index: usize, out: impl Output<T>) {
+		out.write(inner.remove(index))
+	}
+
+	underlying_fn "Vec::reserve"
+	fn reserve(inner, additional: usize) {
+		inner.reserve(additional)
+	}
+
+	underlying_fn "Vec::reserve_exact"
+	fn reserve_exact(inner, additional: usize) {
+		inner.reserve_exact(additional)
+	}
+
+	underlying_fn "Vec::resize"
+	fn resize(inner, new_len: usize, value: T)
+	where {
+		T: Clone
+	} {
+		inner.resize(new_len, value)
+	}
+
+	underlying_fn "Vec::resize_with"
+	fn resize_with(inner, new_len: usize, f: impl FnMut() -> T) {
+		inner.resize_with(new_len, f)
+	}
+
+	underlying_fn "Vec::retain"
+	fn retain(inner, f: impl FnMut(&T) -> bool) {
+		inner.retain(f)
+	}
+
+	underlying_fn "Vec::retain_mut"
+	fn retain_mut(inner, f: impl FnMut(&mut T) -> bool) {
+		inner.retain_mut(f)
+	}
 
 	underlying_fn "Vec::set_len"
 	unsafe fn set_len(inner, new_len: usize) {
