@@ -251,8 +251,18 @@ macro_rules! decl_chain {
 		$(where $($where)*)?
 		{}
 
+		impl<$($chain_impl_generics)*> ::core::default::Default for $chain_impl
+		where
+			$inner: ::core::default::Default
+		{
+			#[inline]
+			fn default() -> Self {
+				let default = <$inner as ::core::default::Default>::default();
+				<Self as $crate::Chain>::from_inner(default)
+			}
+		}
 
-		// todo standard traits?
+		// todo more standard traits?
 	};
 }
 use decl_chain;
