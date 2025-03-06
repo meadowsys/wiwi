@@ -136,10 +136,6 @@ impl<T> WithSelf for T {}
 /// idk how to enforce the above properly using unsafe etc.
 pub unsafe trait Output<T>: Sized + OutputSealed<T> {
 	/// Stores a value
-	///
-	/// # Safety
-	///
-	/// This must be called once and only once on an output instance.
 	fn write(self, item: T);
 }
 
