@@ -259,13 +259,13 @@ use decl_chain;
 
 macro_rules! impl_chain_conversions {
 	{
-		impl chain [$($impl_chain_generics:tt)*] $chain_impl:ty;
-		impl chain_mut [$($impl_chain_mut_generics:tt)*] $chain_mut_impl:ty;
-		impl inner [$($impl_inner_generics:tt)*] $inner_impl:ty;
+		impl chain [$($impl_chain_generics:tt)*] $impl_chain:ty;
+		impl chain_mut [$($impl_chain_mut_generics:tt)*] $impl_chain_mut:ty;
+		impl inner [$($impl_inner_generics:tt)*] $impl_inner:ty;
 		type inner $inner_type:ty;
 		type mut_chain $mut_chain_type:ty;
 	} => {
-		impl<$($impl_chain_generics)*> $crate::ChainConversions for $chain_impl {
+		impl<$($impl_chain_generics)*> $crate::ChainConversions for $impl_chain {
 			type Inner = $inner_type;
 			type MutChain<'mut_chain> = $mut_chain_type
 			where
@@ -287,7 +287,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
-		impl<$($impl_chain_mut_generics)*> $crate::ChainConversions for $chain_mut_impl {
+		impl<$($impl_chain_mut_generics)*> $crate::ChainConversions for $impl_chain_mut {
 			type Inner = $inner_type;
 			type MutChain<'mut_chain> = $mut_chain_type
 			where
@@ -309,7 +309,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
-		impl<$($impl_inner_generics)*> $crate::ChainConversions for $inner_impl {
+		impl<$($impl_inner_generics)*> $crate::ChainConversions for $impl_inner {
 			type Inner = $inner_type;
 			type MutChain<'mut_chain> = $mut_chain_type
 			where
@@ -331,9 +331,9 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
-		impl<$($impl_chain_generics)*> $crate::ChainConversionsSealed for $chain_impl {}
-		impl<$($impl_chain_mut_generics)*> $crate::ChainConversionsSealed for $chain_mut_impl {}
-		impl<$($impl_inner_generics)*> $crate::ChainConversionsSealed for $inner_impl {}
+		impl<$($impl_chain_generics)*> $crate::ChainConversionsSealed for $impl_chain {}
+		impl<$($impl_chain_mut_generics)*> $crate::ChainConversionsSealed for $impl_chain_mut {}
+		impl<$($impl_inner_generics)*> $crate::ChainConversionsSealed for $impl_inner {}
 	};
 }
 use impl_chain_conversions;
