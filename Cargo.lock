@@ -749,7 +749,7 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "scripts"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 dependencies = [
  "wiwi",
 ]
@@ -1122,7 +1122,7 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "wiwi"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 dependencies = [
  "cfg-if",
  "chrono",
@@ -1143,18 +1143,18 @@ dependencies = [
 
 [[package]]
 name = "wiwi-chain"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 dependencies = [
  "wiwi-util",
 ]
 
 [[package]]
 name = "wiwi-macro-decl"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 
 [[package]]
 name = "wiwi-macro-proc"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1164,11 +1164,11 @@ dependencies = [
 
 [[package]]
 name = "wiwi-util"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 
 [[package]]
 name = "wiwi-wasm"
-version = "0.11.0-pre.2"
+version = "0.11.0-pre.3"
 dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-test",

@@ -1,6 +1,6 @@
 [package]
 name = "wiwi-chain"
-description = "wiwi's dependency-less APIs"
+description = "wiwi chaining API"
 version = { workspace = true }
 edition = { workspace = true }
 rust-version = { workspace = true }
