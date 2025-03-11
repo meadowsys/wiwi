@@ -168,9 +168,14 @@ impl<T> OutputSealed<T> for &mut core::mem::MaybeUninit<T> {}
 
 /// Tool for helping to debug [`Output`] trait usage in debug mode (if `out` is
 /// not written to, the function will panic)
+///
+/// This function should optimise out to a no-op in release mode.
 #[inline]
 pub fn out_dbg<T, O: Output<T>>(out: O) -> OutputDebug<T, O> {
-	OutputDebug { inner: out, __marker: std::marker::PhantomData }
+	OutputDebug {
+		inner: out,
+		__marker: std::marker::PhantomData
+	}
 }
 
 #[repr(transparent)]
@@ -186,6 +191,7 @@ impl<T, O> OutputDebug<T, O>
 where
 	O: Output<T>
 {
+	/// Unwraps self and returns the inner output (without ever panicking)
 	#[inline]
 	pub fn into_inner(self) -> O {
 		// in cfg(debug_assertions), we have Drop impl,
@@ -195,7 +201,7 @@ where
 			let this = core::mem::ManuallyDrop::new(self);
 
 			// SAFETY: ManuallyDrop above prevents double drops
-			unsafe { core::ptr::read(&this.inner) }
+			unsafe { core::ptr::read(&raw const this.inner) }
 		};
 
 		// in not(cfg(debug_assertions)), we don't have
@@ -217,6 +223,7 @@ where
 		self.into_inner().write(item);
 	}
 }
+
 impl<T, O> OutputSealed<T> for OutputDebug<T, O>
 where
 	O: Output<T>
@@ -229,6 +236,8 @@ where
 {
 	#[inline]
 	fn drop(&mut self) {
+		// writing to this slot will prevent this panic from being called (via ManuallyDrop)
+		// additionally this drop impl only is enabled if debug assertions is enabled
 		panic!("`write` not called on created instance of `Output` (this is probably a bug)")
 	}
 }
