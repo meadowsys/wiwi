@@ -3,7 +3,7 @@ use crate::prelude_internal::*;
 crate::impl_chain_conversions!([] String);
 
 crate::chain_fns! {
-	[] String;
+	impl [] String;
 
 	// as_ascii
 	// as_bytes

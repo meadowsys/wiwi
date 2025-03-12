@@ -380,7 +380,7 @@ use impl_chain_conversions;
 
 macro_rules! chain_fns {
 	{
-		[$($generics:tt)*] $inner:ty;
+		impl [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {

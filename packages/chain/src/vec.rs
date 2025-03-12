@@ -4,7 +4,7 @@ use core::cmp;
 crate::impl_chain_conversions!([T] Vec<T>);
 
 crate::chain_fns! {
-	[T] Vec<T>;
+	impl [T] Vec<T>;
 
 	underlying_fn "[T]::align_to" ("slice::align_to")
 	unsafe fn align_to[U](inner, cb: impl FnOnce((&[T], &[U], &[T]))) {
