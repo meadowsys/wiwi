@@ -1,21 +1,43 @@
 use self::sealed::*;
 
-pub use self::array::{ ArrayChain, ArrayMutChain };
-pub use self::string::{ StringChain, StringMutChain };
-pub use self::vec::{ VecChain, VecMutChain };
-
 mod array;
 mod string;
 mod vec;
 
-pub trait Chain: Sized + ChainSealed {
-	type Inner: ChainInner<Chain = Self>;
+pub type ArrayChain<T, const N: usize> = Chain<[T; N]>;
+pub type ArrayMutChain<'h, T, const N: usize> = Chain<&'h mut [T; N]>;
 
-	fn from_inner(inner: Self::Inner) -> Self;
+pub type StringChain = Chain<String>;
+pub type StringMutChain<'h> = Chain<&'h mut String>;
+
+pub type VecChain<T> = Chain<Vec<T>>;
+pub type VecMutChain<'h, T> = Chain<&'h mut Vec<T>>;
+
+#[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
+#[repr(transparent)]
+pub struct Chain<T> {
+	inner: T
+}
+
+impl<T> Chain<T> {
+	#[inline]
+	pub fn from_inner(inner: T) -> Self {
+		Self { inner }
+	}
 
 	#[inline]
-	fn into_inner(self) -> Self::Inner {
-		Self::Inner::from_chain(self)
+	pub fn into_inner(self) -> T {
+		T::from_chain(self)
+	}
+
+	#[inline]
+	pub fn as_inner(&self) -> &T {
+		&self.inner
+	}
+
+	#[inline]
+	pub fn as_inner_mut(&mut self) -> &mut T {
+		&mut self.inner
 	}
 
 	/// Takes a closure that is called, passing in a reference to the inner value
@@ -41,19 +63,56 @@ pub trait Chain: Sized + ChainSealed {
 	/// assert!(chain.as_inner().len() == 2);
 	/// assert!(chain.as_inner().capacity() >= 10);
 	/// ```
-	fn with_inner(self, f: impl FnOnce(&mut Self::Inner)) -> Self;
-}
-
-pub trait ChainInner: Sized + ChainInnerSealed {
-	type Chain: Chain<Inner = Self>;
-
-	fn from_chain(chain: Self::Chain) -> Self;
-
 	#[inline]
-	fn into_chain(self) -> Self::Chain {
-		Self::Chain::from_inner(self)
+	pub fn with_inner(mut self, f: impl FnOnce(&mut T)) -> Self {
+		f(&mut self.inner);
+		self
 	}
 }
+
+impl<T> Clone for Chain<T>
+where
+	T: Clone
+{
+	#[inline]
+	fn clone(&self) -> Self {
+		self.as_inner().clone().into_chain()
+	}
+
+	#[inline]
+	fn clone_from(&mut self, source: &Self) {
+		self.as_inner_mut().clone_from(source.as_inner())
+	}
+}
+
+impl<T> Copy for Chain<T>
+where
+	T: Copy
+{}
+
+impl<T> Default for Chain<T>
+where
+	T: Default
+{
+	#[inline]
+	fn default() -> Self {
+		T::default().into_chain()
+	}
+}
+
+pub trait ChainInner: Sized {
+	#[inline]
+	fn from_chain(chain: Chain<Self>) -> Self {
+		chain.inner
+	}
+
+	#[inline]
+	fn into_chain(self) -> Chain<Self> {
+		Chain::from_inner(self)
+	}
+}
+
+impl<T> ChainInner for T {}
 
 /// Trait implemented on chains and their inner types, allowing you to get a reference
 /// to the inner type regardless of if the chain or the inner type is passed in
@@ -105,8 +164,8 @@ pub trait WithSelf: Sized {
 	/// Takes ownership of the value, passing a mutable reference of it to a
 	/// closure, then returning ownership of the value again
 	#[inline]
-	fn with_self<Void>(mut self, f: impl FnOnce(&mut Self) -> Void) -> Self {
-		let _ = f(&mut self);
+	fn with_self(mut self, f: impl FnOnce(&mut Self)) -> Self {
+		f(&mut self);
 		self
 	}
 }
@@ -242,171 +301,57 @@ where
 	}
 }
 
-macro_rules! decl_chain {
-	{
-		$(#[$meta:meta])*
-		struct $chain:ident;
-		inner $inner:ty;
-	} => {
-		$crate::decl_chain! {
-			$(#[$meta])*
-			struct $chain[];
-			impl[] $chain;
-			inner $inner;
-		}
-	};
-
-	{
-		$(#[$meta:meta])*
-		struct $chain:ident[$($chain_decl_generics:tt)*];
-		impl[$($chain_impl_generics:tt)*] $chain_impl:ty;
-		$(where { $($where:tt)* };)?
-		inner $inner:ty;
-	} => {
-		$(#[$meta])*
-		#[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
-		#[repr(transparent)]
-		pub struct $chain<$($chain_decl_generics)*>
-		$(where $($where)*)?
-		{
-			__inner: $inner
-		}
-
-		impl<$($chain_impl_generics)*> $crate::Chain for $chain_impl
-		$(where $($where)*)?
-		{
-			type Inner = $inner;
-
-			#[inline]
-			fn from_inner(inner: $inner) -> Self {
-				Self { __inner: inner }
-			}
-
-			#[inline]
-			fn with_inner(mut self, f: impl FnOnce(&mut Self::Inner)) -> Self {
-				let _ = f(&mut self.__inner);
-				self
-			}
-		}
-
-		impl<$($chain_impl_generics)*> $crate::ChainInner for $inner
-		$(where $($where)*)?
-		{
-			type Chain = $chain_impl;
-
-			#[inline]
-			fn from_chain(chain: $chain_impl) -> Self {
-				chain.__inner
-			}
-		}
-
-		impl<$($chain_impl_generics)*> $crate::ChainSealed for $chain_impl
-		$(where $($where)*)?
-		{}
-
-		impl<$($chain_impl_generics)*> $crate::ChainInnerSealed for $inner
-		$(where $($where)*)?
-		{}
-
-		impl<$($chain_impl_generics)*> ::core::clone::Clone for $chain_impl
-		where
-			$inner: ::core::clone::Clone
-		{
-			#[inline]
-			fn clone(&self) -> Self {
-				let clone = <$inner as ::core::clone::Clone>::clone(&self.__inner);
-				<Self as $crate::Chain>::from_inner(clone)
-			}
-
-			#[inline]
-			fn clone_from(&mut self, other: &Self) {
-				<$inner as ::core::clone::Clone>::clone_from(
-					&mut self.__inner,
-					&other.__inner
-				);
-			}
-		}
-
-		impl<$($chain_impl_generics)*> ::core::default::Default for $chain_impl
-		where
-			$inner: ::core::default::Default
-		{
-			#[inline]
-			fn default() -> Self {
-				let default = <$inner as ::core::default::Default>::default();
-				<Self as $crate::Chain>::from_inner(default)
-			}
-		}
-
-		// todo this doesn't compile because `String: Copy` is a "trivial bound"
-		// https://github.com/rust-lang/rust/issues/48214
-		// smh
-		//
-		// impl<$($chain_impl_generics)*> ::core::marker::Copy for $chain_impl
-		// where
-		// 	$inner: ::core::marker::Copy
-		// {}
-
-		// todo more standard traits?
-	};
-}
-use decl_chain;
-
 macro_rules! impl_chain_conversions {
 	{
-		impl chain [$($impl_chain_generics:tt)*] $impl_chain:ty;
-		impl chain_mut [$($impl_chain_mut_generics:tt)*] $impl_chain_mut:ty;
-		impl inner [$($impl_inner_generics:tt)*] $impl_inner:ty;
-		type inner $inner_type:ty;
-		type mut_chain $mut_chain_type:ty;
+		[$($generics:tt)*] $inner:ty
 	} => {
-		impl<$($impl_chain_generics)*> $crate::ChainConversions for $impl_chain {
-			type Inner = $inner_type;
-			type MutChain<'mut_chain> = $mut_chain_type
+		impl<$($generics)*> $crate::ChainConversions for $crate::Chain<$inner> {
+			type Inner = $inner;
+			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
 			where
 				Self: 'mut_chain;
 
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				&self.__inner
+				&self.inner
 			}
 
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				&mut self.__inner
+				&mut self.inner
 			}
 
 			#[inline]
-			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
-				Self::MutChain { __inner: &mut self.__inner }
+			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
+				$crate::Chain { inner: &mut self.inner }
 			}
 		}
 
-		impl<$($impl_chain_mut_generics)*> $crate::ChainConversions for $impl_chain_mut {
-			type Inner = $inner_type;
-			type MutChain<'mut_chain> = $mut_chain_type
+		impl<'h, $($generics)*> $crate::ChainConversions for $crate::Chain<&'h mut $inner> {
+			type Inner = $inner;
+			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
 			where
 				Self: 'mut_chain;
 
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				self.__inner
+				self.inner
 			}
 
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				self.__inner
+				self.inner
 			}
 
 			#[inline]
-			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
-				Self::MutChain { __inner: self.__inner }
+			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
+				$crate::Chain { inner: self.inner }
 			}
 		}
 
-		impl<$($impl_inner_generics)*> $crate::ChainConversions for $impl_inner {
-			type Inner = $inner_type;
-			type MutChain<'mut_chain> = $mut_chain_type
+		impl<$($generics)*> $crate::ChainConversions for $inner {
+			type Inner = $inner;
+			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
 			where
 				Self: 'mut_chain;
 
@@ -421,30 +366,29 @@ macro_rules! impl_chain_conversions {
 			}
 
 			#[inline]
-			fn as_mut_chain(&mut self) -> Self::MutChain<'_> {
-				Self::MutChain { __inner: self }
+			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
+				$crate::Chain { inner: self }
 			}
 		}
 
-		impl<$($impl_chain_generics)*> $crate::ChainConversionsSealed for $impl_chain {}
-		impl<$($impl_chain_mut_generics)*> $crate::ChainConversionsSealed for $impl_chain_mut {}
-		impl<$($impl_inner_generics)*> $crate::ChainConversionsSealed for $impl_inner {}
+		impl<$($generics)*> $crate::ChainConversionsSealed for $crate::Chain<$inner> {}
+		impl<'h, $($generics)*> $crate::ChainConversionsSealed for $crate::Chain<&'h mut $inner> {}
+		impl<$($generics)*> $crate::ChainConversionsSealed for $inner {}
 	};
 }
 use impl_chain_conversions;
 
 macro_rules! chain_fns {
 	{
-		impl chain [$($impl_chain_generics:tt)*] $impl_chain:ty;
-		impl chain_mut [$($impl_chain_mut_generics:tt)*] $impl_chain_mut:ty;
+		[$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
-		impl<$($impl_chain_generics)*> $impl_chain {
+		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
-		impl<$($impl_chain_mut_generics)*> $impl_chain_mut {
+		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 	};
@@ -545,14 +489,12 @@ macro_rules! chain_fns {
 }
 use chain_fns;
 
+mod prelude_internal {
+	pub use crate::{ ChainConversions, Output };
+}
+
 /// notouchie
 mod sealed {
-	/// notouchie
-	pub trait ChainSealed {}
-
-	/// notouchie
-	pub trait ChainInnerSealed {}
-
 	/// notouchie
 	pub trait OutputSealed<T> {}
 
