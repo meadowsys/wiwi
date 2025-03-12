@@ -22,7 +22,7 @@ pub fn get_input_buf(year: usize, day: usize) -> Vec<u8> {
 	(file, Vec::new())
 		.with_self(|(f, v)| {
 			f.read_to_end(v)
-				.unwrap_or_else(|e| panic!("error occured reading input file at `{path:?}`: {e}"))
+				.unwrap_or_else(|e| panic!("error occured reading input file at `{path:?}`: {e}"));
 		})
 		.1
 }
