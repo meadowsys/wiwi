@@ -110,6 +110,11 @@ pub trait ChainInner: Sized {
 	fn into_chain(self) -> Chain<Self> {
 		Chain::from_inner(self)
 	}
+
+	#[inline]
+	fn chain_mut(&mut self) -> Chain<&mut Self> {
+		Chain::from_inner(self)
+	}
 }
 
 impl<T> ChainInner for T {}
