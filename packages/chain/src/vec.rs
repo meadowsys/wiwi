@@ -1,5 +1,5 @@
 use crate::prelude_internal::*;
-use core::cmp;
+use core::cmp::Ordering;
 use core::mem::MaybeUninit;
 
 crate::impl_chain_conversions!([T] Vec<T>);
@@ -41,7 +41,7 @@ crate::chain_fns! {
 	doc "[T]::binary_search_by" ("slice::binary_search_by")
 	fn binary_search_by(
 		inner,
-		f: impl FnMut(&T) -> cmp::Ordering,
+		f: impl FnMut(&T) -> Ordering,
 		out: impl Output<Result<usize, usize>>
 	) {
 		out.write(inner.binary_search_by(f))
@@ -215,7 +215,7 @@ crate::chain_fns! {
 	}
 
 	doc "[T]::sort_by" ("slice::sort_by")
-	fn sort_by(inner, compare: impl FnMut(&T, &T) -> cmp::Ordering) {
+	fn sort_by(inner, compare: impl FnMut(&T, &T) -> Ordering) {
 		inner.sort_by(compare)
 	}
 
