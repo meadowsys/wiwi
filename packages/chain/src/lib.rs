@@ -407,6 +407,7 @@ macro_rules! chain_fns {
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
+		$(-> $return_type:ty)?
 		{ $($impl:tt)* }
 
 		$($stuff:tt)*
@@ -427,12 +428,11 @@ macro_rules! chain_fns {
 				" for more details on the underlying function."
 			)]
 		)?
-		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
+		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
+		-> $crate::chain_fns! { @return_type_helper $($return_type)? }
 		$(where $($where)*)?
 		{
-			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
-			let _: () = { $($impl)* };
-			self
+			$crate::chain_fns! { @rest_helper self $inner $($return_type)? { $($impl)* } }
 		}
 
 		$crate::chain_fns! { @impl $($stuff)* }
@@ -445,6 +445,7 @@ macro_rules! chain_fns {
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
 		$(where { $($where:tt)* })?
+		$(-> $return_type:ty)?
 		{ $($impl:tt)* }
 
 		$($stuff:tt)*
@@ -479,18 +480,30 @@ macro_rules! chain_fns {
 				" for more details on the underlying function."
 			)]
 		)?
-		pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*) -> Self
+		pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
+		-> $crate::chain_fns! { @return_type_helper $($return_type)? }
 		$(where $($where)*)?
 		{
-			let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut self);
-			let _: () = { $($impl)* };
-			self
+			$crate::chain_fns! { @rest_helper self $inner $($return_type)? { $($impl)* } }
 		}
 
 		$crate::chain_fns! { @impl $($stuff)* }
 	};
 
 	{ @impl } => {};
+
+	{ @return_type_helper } => { Self };
+	{ @return_type_helper $type:ty } => { $type };
+
+	{ @rest_helper $self:ident $inner:ident { $($impl:tt)*} } => {
+		let $inner = $self.as_inner_mut();
+		let _: () = { $($impl)* };
+		$self
+	};
+	{ @rest_helper $self:ident $inner:ident $type:ty { $($impl:tt)*} } => {
+		let $inner = $self.into_inner();
+		$($impl)*
+	};
 }
 use chain_fns;
 
