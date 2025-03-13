@@ -496,7 +496,7 @@ macro_rules! chain_fns {
 	{ @return_type_helper $type:ty } => { $type };
 
 	{ @rest_helper $self:ident $inner:ident { $($impl:tt)*} } => {
-		let $inner = $self.as_inner_mut();
+		let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut $self);
 		let _: () = { $($impl)* };
 		$self
 	};
@@ -508,7 +508,7 @@ macro_rules! chain_fns {
 use chain_fns;
 
 mod prelude_internal {
-	pub use crate::{ ChainConversions, Output };
+	pub use crate::{ Chain, ChainConversions, Output };
 }
 
 /// notouchie
