@@ -19,7 +19,7 @@ crate::chain_fns! {
 	// char_indices
 	// chars
 
-	underlying_fn "String::clear"
+	doc "String::clear"
 	fn clear(inner) {
 		inner.clear();
 	}
@@ -62,7 +62,7 @@ crate::chain_fns! {
 	// is_empty
 	// leak
 
-	underlying_fn "String::len"
+	doc "String::len"
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
@@ -76,12 +76,12 @@ crate::chain_fns! {
 	// parse
 	// pop
 
-	underlying_fn "String::push"
+	doc "String::push"
 	fn push(inner, ch: char) {
 		inner.push(ch)
 	}
 
-	underlying_fn "String::push_str"
+	doc "String::push_str"
 	fn push_str(inner, string: &str) {
 		inner.push_str(string)
 	}
@@ -93,17 +93,17 @@ crate::chain_fns! {
 	// replace_range
 	// replacen
 
-	underlying_fn "String::reserve"
+	doc "String::reserve"
 	fn reserve(inner, additional: usize) {
 		inner.reserve(additional)
 	}
 
-	underlying_fn "String::reserve_exact"
+	doc "String::reserve_exact"
 	fn reserve_exact(inner, additional: usize) {
 		inner.reserve_exact(additional)
 	}
 
-	underlying_fn "String::retain"
+	doc "String::retain"
 	fn retain(inner, f: impl FnMut(char) -> bool) {
 		inner.retain(f)
 	}

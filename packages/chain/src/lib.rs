@@ -395,7 +395,7 @@ macro_rules! chain_fns {
 
 	{
 		@impl
-		$(underlying_fn $underlying_fn:literal $(($underlying_fn_link_to:literal))?)?
+		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -411,11 +411,11 @@ macro_rules! chain_fns {
 			#[doc = ""]
 			#[doc = concat!(
 				"See documentation for [`",
-				$underlying_fn,
+				$doc,
 				"`]",
 				$(
 					"(",
-					$underlying_fn_link_to,
+					$doc_link_to,
 					")",
 				)?
 				" for more details on the underlying function."
@@ -434,7 +434,7 @@ macro_rules! chain_fns {
 
 	{
 		@impl
-		$(underlying_fn $underlying_fn:literal $(($underlying_fn_link_to:literal))?)?
+		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -452,11 +452,11 @@ macro_rules! chain_fns {
 			#[doc = ""]
 			#[doc = concat!(
 				"You must uphold safety invariants of [`",
-				$underlying_fn,
+				$doc,
 				"`]",
 				$(
 					"(",
-					$underlying_fn_link_to,
+					$doc_link_to,
 					")",
 				)?
 				"."
@@ -464,11 +464,11 @@ macro_rules! chain_fns {
 			#[doc = ""]
 			#[doc = concat!(
 				"See documentation for [`",
-				$underlying_fn,
+				$doc,
 				"`]",
 				$(
 					"(",
-					$underlying_fn_link_to,
+					$doc_link_to,
 					")",
 				)?
 				" for more details on the underlying function."

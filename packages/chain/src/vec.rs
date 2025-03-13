@@ -6,7 +6,7 @@ crate::impl_chain_conversions!([T] Vec<T>);
 crate::chain_fns! {
 	impl [T] Vec<T>;
 
-	underlying_fn "[T]::align_to" ("slice::align_to")
+	doc "[T]::align_to" ("slice::align_to")
 	unsafe fn align_to[U](inner, cb: impl FnOnce((&[T], &[U], &[T]))) {
 		// SAFETY: caller promises to uphold safety invariants
 		unsafe { cb(inner.align_to()) }
@@ -16,7 +16,7 @@ crate::chain_fns! {
 	// align_to_mut
 	// allocator
 
-	underlying_fn "Vec::append"
+	doc "Vec::append"
 	fn append(inner, other: &mut impl ChainConversions<Inner = Vec<T>>) {
 		inner.append(other.as_inner_mut())
 	}
@@ -32,7 +32,7 @@ crate::chain_fns! {
 	// as_ptr
 	// as_slice
 
-	underlying_fn "[T]::binary_search" ("slice::binary_search")
+	doc "[T]::binary_search" ("slice::binary_search")
 	fn binary_search(
 		inner,
 		x: &T,
@@ -43,7 +43,7 @@ crate::chain_fns! {
 		out.write(inner.binary_search(x))
 	}
 
-	underlying_fn "[T]::binary_search_by" ("slice::binary_search_by")
+	doc "[T]::binary_search_by" ("slice::binary_search_by")
 	fn binary_search_by(
 		inner,
 		f: impl FnMut(&T) -> cmp::Ordering,
@@ -52,7 +52,7 @@ crate::chain_fns! {
 		out.write(inner.binary_search_by(f))
 	}
 
-	underlying_fn "[T]::binary_search_by_key" ("slice::binary_search_by_key")
+	doc "[T]::binary_search_by_key" ("slice::binary_search_by_key")
 	fn binary_search_by_key[B](
 		inner,
 		b: &B,
@@ -64,12 +64,12 @@ crate::chain_fns! {
 		out.write(inner.binary_search_by_key(b, f))
 	}
 
-	underlying_fn "Vec::capacity"
+	doc "Vec::capacity"
 	fn capacity(inner, out: impl Output<usize>) {
 		out.write(inner.capacity())
 	}
 
-	underlying_fn "Vec::clear"
+	doc "Vec::clear"
 	fn clear(inner) {
 		inner.clear()
 	}
@@ -83,7 +83,7 @@ crate::chain_fns! {
 	// 	out.write(inner.concat())
 	// }
 
-	underlying_fn "Vec::dedup"
+	doc "Vec::dedup"
 	fn dedup(inner)
 	where {
 		T: PartialEq
@@ -91,7 +91,7 @@ crate::chain_fns! {
 		inner.dedup()
 	}
 
-	underlying_fn "Vec::dedup_by"
+	doc "Vec::dedup_by"
 	fn dedup_by(
 		inner,
 		same_bucket: impl FnMut(&mut T, &mut T) -> bool
@@ -99,7 +99,7 @@ crate::chain_fns! {
 		inner.dedup_by(same_bucket)
 	}
 
-	underlying_fn "Vec::dedup_by_key"
+	doc "Vec::dedup_by_key"
 	fn dedup_by_key[K](inner, key: impl FnMut(&mut T) -> K)
 	where {
 		K: PartialEq
@@ -112,14 +112,14 @@ crate::chain_fns! {
 	// extend_from_within
 	// extract_if
 
-	underlying_fn "[T]::fill" ("slice::fill")
+	doc "[T]::fill" ("slice::fill")
 	fn fill(inner, value: T) where {
 		T: Clone
 	} {
 		inner.fill(value)
 	}
 
-	underlying_fn "[T]::fill_with" ("slice::fill_with")
+	doc "[T]::fill_with" ("slice::fill_with")
 	fn fill_with(inner, f: impl FnMut() -> T) {
 		inner.fill_with(f)
 	}
@@ -129,7 +129,7 @@ crate::chain_fns! {
 	// from_raw_parts
 	// from_raw_parts_in
 
-	underlying_fn "Vec::insert"
+	doc "Vec::insert"
 	fn insert(inner, index: usize, element: T) {
 		inner.insert(index, element)
 	}
@@ -141,19 +141,19 @@ crate::chain_fns! {
 	// into_raw_parts
 	// into_raw_parts_with_alloc
 
-	underlying_fn "Vec::is_empty"
+	doc "Vec::is_empty"
 	fn is_empty(inner, out: impl Output<bool>) {
 		out.write(inner.is_empty())
 	}
 
 	// leak
 
-	underlying_fn "Vec::len"
+	doc "Vec::len"
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
 
-	underlying_fn "Vec::pop"
+	doc "Vec::pop"
 	fn pop(inner, out: impl Output<Option<T>>) {
 		out.write(inner.pop())
 	}
@@ -165,33 +165,33 @@ crate::chain_fns! {
 	// 	out: impl Output<Option<T>>
 	// ) => out.write(inner.pop_if(predicate));
 
-	underlying_fn "Vec::push"
+	doc "Vec::push"
 	fn push(inner, value: T) {
 		inner.push(value)
 	}
 
 	// todo unstable
-	// underlying_fn "Vec::push_within_capacity"
+	// doc "Vec::push_within_capacity"
 	// fn push_within_capacity(inner, value: T, out: impl Output<Result<(), T>>) {
 	// 	out.write(inner.push_within_capacity(value))
 	// }
 
-	underlying_fn "Vec::remove"
+	doc "Vec::remove"
 	fn remove(inner, index: usize, out: impl Output<T>) {
 		out.write(inner.remove(index))
 	}
 
-	underlying_fn "Vec::reserve"
+	doc "Vec::reserve"
 	fn reserve(inner, additional: usize) {
 		inner.reserve(additional)
 	}
 
-	underlying_fn "Vec::reserve_exact"
+	doc "Vec::reserve_exact"
 	fn reserve_exact(inner, additional: usize) {
 		inner.reserve_exact(additional)
 	}
 
-	underlying_fn "Vec::resize"
+	doc "Vec::resize"
 	fn resize(inner, new_len: usize, value: T)
 	where {
 		T: Clone
@@ -199,28 +199,28 @@ crate::chain_fns! {
 		inner.resize(new_len, value)
 	}
 
-	underlying_fn "Vec::resize_with"
+	doc "Vec::resize_with"
 	fn resize_with(inner, new_len: usize, f: impl FnMut() -> T) {
 		inner.resize_with(new_len, f)
 	}
 
-	underlying_fn "Vec::retain"
+	doc "Vec::retain"
 	fn retain(inner, f: impl FnMut(&T) -> bool) {
 		inner.retain(f)
 	}
 
-	underlying_fn "Vec::retain_mut"
+	doc "Vec::retain_mut"
 	fn retain_mut(inner, f: impl FnMut(&mut T) -> bool) {
 		inner.retain_mut(f)
 	}
 
-	underlying_fn "Vec::set_len"
+	doc "Vec::set_len"
 	unsafe fn set_len(inner, new_len: usize) {
 		// SAFETY: caller promises to uphold safety invariants
 		unsafe { inner.set_len(new_len) }
 	}
 
-	underlying_fn "[T]::sort" ("slice::sort")
+	doc "[T]::sort" ("slice::sort")
 	fn sort(inner)
 	where {
 		T: Ord
@@ -228,12 +228,12 @@ crate::chain_fns! {
 		inner.sort()
 	}
 
-	underlying_fn "[T]::sort_by" ("slice::sort_by")
+	doc "[T]::sort_by" ("slice::sort_by")
 	fn sort_by(inner, compare: impl FnMut(&T, &T) -> cmp::Ordering) {
 		inner.sort_by(compare)
 	}
 
-	underlying_fn "[T]::sort_by_key" ("slice::sort_by_key")
+	doc "[T]::sort_by_key" ("slice::sort_by_key")
 	fn sort_by_key[K](inner, f: impl FnMut(&T) -> K)
 	where {
 		K: Ord
@@ -241,7 +241,7 @@ crate::chain_fns! {
 		inner.sort_by_key(f)
 	}
 
-	underlying_fn "[T]::sort_by_cached_key" ("slice::sort_by_cached_key")
+	doc "[T]::sort_by_cached_key" ("slice::sort_by_cached_key")
 	fn sort_by_cached_key[K](inner, f: impl FnMut(&T) -> K)
 	where {
 		K: Ord
