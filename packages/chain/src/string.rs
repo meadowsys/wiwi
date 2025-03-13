@@ -5,6 +5,41 @@ crate::impl_chain_conversions!([] String);
 crate::chain_fns! {
 	impl [] String;
 
+	doc "String::clear"
+	fn clear(inner) {
+		inner.clear();
+	}
+
+	doc "String::len"
+	fn len(inner, out: impl Output<usize>) {
+		out.write(inner.len())
+	}
+
+	doc "String::push"
+	fn push(inner, ch: char) {
+		inner.push(ch)
+	}
+
+	doc "String::push_str"
+	fn push_str(inner, string: &str) {
+		inner.push_str(string)
+	}
+
+	doc "String::reserve"
+	fn reserve(inner, additional: usize) {
+		inner.reserve(additional)
+	}
+
+	doc "String::reserve_exact"
+	fn reserve_exact(inner, additional: usize) {
+		inner.reserve_exact(additional)
+	}
+
+	doc "String::retain"
+	fn retain(inner, f: impl FnMut(char) -> bool) {
+		inner.retain(f)
+	}
+
 	// as_ascii
 	// as_bytes
 	// as_bytes_mut
@@ -18,12 +53,6 @@ crate::chain_fns! {
 	// ceil_char_boundary
 	// char_indices
 	// chars
-
-	doc "String::clear"
-	fn clear(inner) {
-		inner.clear();
-	}
-
 	// contains
 	// drain
 	// encode_utf16
@@ -61,12 +90,6 @@ crate::chain_fns! {
 	// is_empty
 	// is_empty
 	// leak
-
-	doc "String::len"
-	fn len(inner, out: impl Output<usize>) {
-		out.write(inner.len())
-	}
-
 	// lines
 	// lines_any
 	// make_ascii_lowercase
@@ -75,39 +98,12 @@ crate::chain_fns! {
 	// matches
 	// parse
 	// pop
-
-	doc "String::push"
-	fn push(inner, ch: char) {
-		inner.push(ch)
-	}
-
-	doc "String::push_str"
-	fn push_str(inner, string: &str) {
-		inner.push_str(string)
-	}
-
 	// remove
 	// remove_matches
 	// repeat
 	// replace
 	// replace_range
 	// replacen
-
-	doc "String::reserve"
-	fn reserve(inner, additional: usize) {
-		inner.reserve(additional)
-	}
-
-	doc "String::reserve_exact"
-	fn reserve_exact(inner, additional: usize) {
-		inner.reserve_exact(additional)
-	}
-
-	doc "String::retain"
-	fn retain(inner, f: impl FnMut(char) -> bool) {
-		inner.retain(f)
-	}
-
 	// rfind
 	// rmatch_indices
 	// rmatches

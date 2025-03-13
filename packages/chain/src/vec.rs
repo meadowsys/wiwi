@@ -1,5 +1,6 @@
 use crate::prelude_internal::*;
 use core::cmp;
+use core::mem::MaybeUninit;
 
 crate::impl_chain_conversions!([T] Vec<T>);
 
@@ -12,25 +13,19 @@ crate::chain_fns! {
 		unsafe { cb(inner.align_to()) }
 	}
 
-	// align_to
-	// align_to_mut
-	// allocator
+	doc "[T]::align_to_mut" ("slice::align_to_mut")
+	unsafe fn align_to_mut[U](
+		inner,
+		cb: impl FnOnce((&mut [T], &mut [U], &mut [T]))
+	) {
+		// SAFETY: caller promises to uphold safety invariants
+		unsafe { cb(inner.align_to_mut()) }
+	}
 
 	doc "Vec::append"
 	fn append(inner, other: &mut impl ChainConversions<Inner = Vec<T>>) {
 		inner.append(other.as_inner_mut())
 	}
-
-	// array_chunks
-	// array_chunks_mut
-	// array_windows
-	// as_array
-	// as_array_mut
-	// as_ptr_mut
-	// as_slice_mut
-	// as_non_null
-	// as_ptr
-	// as_slice
 
 	doc "[T]::binary_search" ("slice::binary_search")
 	fn binary_search(
@@ -107,11 +102,6 @@ crate::chain_fns! {
 		inner.dedup_by_key(key)
 	}
 
-	// drain
-	// extend_from_slice
-	// extend_from_within
-	// extract_if
-
 	doc "[T]::fill" ("slice::fill")
 	fn fill(inner, value: T) where {
 		T: Clone
@@ -124,29 +114,15 @@ crate::chain_fns! {
 		inner.fill_with(f)
 	}
 
-	// from_parts
-	// from_parts_in
-	// from_raw_parts
-	// from_raw_parts_in
-
 	doc "Vec::insert"
 	fn insert(inner, index: usize, element: T) {
 		inner.insert(index, element)
 	}
 
-	// into_boxed_slice
-	// into_flattened
-	// into_parts
-	// into_parts_with_alloc
-	// into_raw_parts
-	// into_raw_parts_with_alloc
-
 	doc "Vec::is_empty"
 	fn is_empty(inner, out: impl Output<bool>) {
 		out.write(inner.is_empty())
 	}
-
-	// leak
 
 	doc "Vec::len"
 	fn len(inner, out: impl Output<usize>) {
@@ -220,6 +196,16 @@ crate::chain_fns! {
 		unsafe { inner.set_len(new_len) }
 	}
 
+	doc "Vec::shrink_to"
+	fn shrink_to(inner, min_capacity: usize) {
+		inner.shrink_to(min_capacity)
+	}
+
+	doc "Vec::shrink_to_fit"
+	fn shrink_to_fit(inner) {
+		inner.shrink_to_fit()
+	}
+
 	doc "[T]::sort" ("slice::sort")
 	fn sort(inner)
 	where {
@@ -249,9 +235,37 @@ crate::chain_fns! {
 		inner.sort_by_cached_key(f)
 	}
 
-	// shrink_to
-	// shrink_to_fit
-	// spare_capacity_mut
+	doc "Vec::spare_capacity_mut"
+	fn spare_capacity_mut(inner, cb: impl FnOnce(&mut [MaybeUninit<T>])) {
+		cb(inner.spare_capacity_mut())
+	}
+
+	// allocator
+	// array_chunks
+	// array_chunks_mut
+	// array_windows
+	// as_array
+	// as_array_mut
+	// as_ptr_mut
+	// as_slice_mut
+	// as_non_null
+	// as_ptr
+	// as_slice
+	// drain
+	// extend_from_slice
+	// extend_from_within
+	// extract_if
+	// from_parts
+	// from_parts_in
+	// from_raw_parts
+	// from_raw_parts_in
+	// into_boxed_slice
+	// into_flattened
+	// into_parts
+	// into_parts_with_alloc
+	// into_raw_parts
+	// into_raw_parts_with_alloc
+	// leak
 	// splice
 	// split_at_spare_mut
 	// split_off
