@@ -389,10 +389,12 @@ macro_rules! chain_fns {
 
 		$($stuff:tt)*
 	} => {
+		#[warn(missing_docs)]
 		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
+		#[warn(missing_docs)]
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
@@ -410,7 +412,6 @@ macro_rules! chain_fns {
 		$($stuff:tt)*
 	} => {
 		#[inline]
-		#[warn(missing_docs)]
 		$(#[$meta])*
 		$(
 			#[doc = ""]
@@ -449,7 +450,6 @@ macro_rules! chain_fns {
 		$($stuff:tt)*
 	} => {
 		#[inline]
-		#[warn(missing_docs)]
 		$(#[$meta])*
 		$(
 			#[doc = ""]
