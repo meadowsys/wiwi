@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["out_dbg"],"struct":["ArrayChain","ArrayMutChain","OutputDebug","StringChain","StringMutChain","VecChain","VecMutChain"],"trait":["Chain","ChainConversions","ChainInner","Output","WithSelf"]};
+window.SIDEBAR_ITEMS = {"fn":["out_dbg"],"struct":["Chain","OutputDebug"],"trait":["ChainConversions","ChainInner","Output","WithSelf"],"type":["ArrayChain","ArrayMutChain","StringChain","StringMutChain","VecChain","VecMutChain"]};
