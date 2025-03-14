@@ -515,7 +515,7 @@ macro_rules! chain_fns {
 	{ @impl } => {};
 
 	{ @return_type_helper } => { Self };
-	{ @return_type_helper $type:ty } => { $type };
+	{ @return_type_helper $type:ty } => { $crate::Chain<$type> };
 
 	{ @rest_helper $self:ident $inner:ident { $($impl:tt)*} } => {
 		let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut $self);
@@ -523,8 +523,14 @@ macro_rules! chain_fns {
 		$self
 	};
 	{ @rest_helper $self:ident $inner:ident $type:ty { $($impl:tt)*} } => {
+		// shushes the unused_mut warning
+		// I could modify the macro more to not emit `mut self` in the parameter
+		// if it isn't needed, but... this is simpler in code I have to type, and
+		// compiler is surely smart enough to remove this
+		let _ = &mut $self;
+
 		let $inner = $self.into_inner();
-		$($impl)*
+		$crate::Chain::from_inner($($impl)*)
 	};
 }
 use chain_fns;
