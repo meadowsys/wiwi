@@ -389,11 +389,33 @@ macro_rules! chain_fns {
 
 		$($stuff:tt)*
 	} => {
+		$crate::chain_fns! {
+			impl owned [$($generics)*] $inner;
+			$($stuff)*
+		}
+
+		$crate::chain_fns! {
+			impl mut [$($generics)*] $inner;
+			$($stuff)*
+		}
+	};
+
+	{
+		impl owned [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
 		#[warn(missing_docs)]
 		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
+	};
 
+	{
+		impl mut [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
 		#[warn(missing_docs)]
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
