@@ -20,7 +20,9 @@
 		const_trait_impl,
 		integer_atomics,
 		f16,
-		f128
+		f128,
+		// used by `rc_nightly`
+		ptr_metadata
 	)
 )]
 
@@ -47,6 +49,8 @@ pub mod nominal;
 pub mod num;
 pub mod parser;
 pub mod rc;
+#[cfg(feature = "nightly")]
+pub mod rc_nightly;
 pub mod serialiser;
 pub mod string;
 pub mod tuple;
