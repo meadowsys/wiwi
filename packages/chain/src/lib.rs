@@ -1,4 +1,5 @@
 use self::sealed::*;
+use core::fmt;
 
 mod array;
 mod string;
@@ -70,6 +71,26 @@ impl<T> Chain<T> {
 	}
 }
 
+impl<T, T2> AsRef<T2> for Chain<T>
+where
+	T: AsRef<T2>
+{
+	#[inline]
+	fn as_ref(&self) -> &T2 {
+		self.inner.as_ref()
+	}
+}
+
+impl<T, T2> AsMut<T2> for Chain<T>
+where
+	T: AsMut<T2>
+{
+	#[inline]
+	fn as_mut(&mut self) -> &mut T2 {
+		self.inner.as_mut()
+	}
+}
+
 impl<T> Clone for Chain<T>
 where
 	T: Clone
@@ -90,6 +111,18 @@ where
 	T: Copy
 {}
 
+impl<T> fmt::Debug for Chain<T>
+where
+	T: fmt::Debug
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		f.debug_struct("Chain<T>")
+			.field("_", self.as_inner())
+			.finish()
+	}
+}
+
 impl<T> Default for Chain<T>
 where
 	T: Default
@@ -99,6 +132,41 @@ where
 		T::default().into_chain()
 	}
 }
+
+impl<T> fmt::Display for Chain<T>
+where
+	T: fmt::Display
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		T::fmt(self.as_inner(), f)
+	}
+}
+
+// todo eq
+
+// todo ord
+
+impl<T, T2> PartialEq<T2> for Chain<T>
+where
+	T: PartialEq<T2>
+{
+	#[inline]
+	fn eq(&self, other: &T2) -> bool {
+		self.as_inner().eq(other)
+	}
+
+	#[expect(
+		clippy::partialeq_ne_impl,
+		reason = "inner might have overridden ne for whatever reason, and we should use it if so"
+	)]
+	#[inline]
+	fn ne(&self, other: &T2) -> bool {
+		self.as_inner().ne(other)
+	}
+}
+
+// todo partialord
 
 pub trait ChainInner: Sized {
 	#[inline]
