@@ -21,6 +21,15 @@ chain_fns! {
 	}
 }
 
+chain_fns! {
+	impl owned [T, const N: usize] [T; N];
+
+	doc "slice::map"
+	fn map[T2](inner, f: impl FnMut(T) -> T2) -> [T2; N] {
+		inner.map(f)
+	}
+}
+
 /*
 Methods
 as_ascii
