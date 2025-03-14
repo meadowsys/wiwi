@@ -1,8 +1,8 @@
 use crate::prelude_internal::*;
 
-crate::impl_chain_conversions!([] String);
+impl_chain_conversions!([] String);
 
-crate::chain_fns! {
+chain_fns! {
 	impl [] String;
 
 	doc "String::clear"

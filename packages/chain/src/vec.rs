@@ -2,9 +2,9 @@ use crate::prelude_internal::*;
 use core::cmp::Ordering;
 use core::mem::MaybeUninit;
 
-crate::impl_chain_conversions!([T] Vec<T>);
+impl_chain_conversions!([T] Vec<T>);
 
-crate::chain_fns! {
+chain_fns! {
 	impl [T] Vec<T>;
 
 	doc "[T]::align_to" ("slice::align_to")

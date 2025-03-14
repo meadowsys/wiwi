@@ -1,8 +1,8 @@
 use crate::prelude_internal::*;
 
-crate::impl_chain_conversions!([T, const N: usize] [T; N]);
+impl_chain_conversions!([T, const N: usize] [T; N]);
 
-crate::chain_fns! {
+chain_fns! {
 	impl [T, const N: usize] [T; N];
 
 	doc "slice::as_slice"

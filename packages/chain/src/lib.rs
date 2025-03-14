@@ -530,7 +530,13 @@ macro_rules! chain_fns {
 use chain_fns;
 
 mod prelude_internal {
-	pub use crate::{ Chain, ChainConversions, Output };
+	pub(crate) use crate::{
+		Chain,
+		ChainConversions,
+		Output,
+		chain_fns,
+		impl_chain_conversions
+	};
 }
 
 /// notouchie
