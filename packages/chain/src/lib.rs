@@ -535,6 +535,14 @@ macro_rules! chain_fns {
 }
 use chain_fns;
 
+#[allow(
+	unused_imports,
+	reason = "internal prelude"
+)]
+#[expect(
+	clippy::allow_attributes,
+	reason = "internal prelude"
+)]
 mod prelude_internal {
 	pub(crate) use crate::{
 		Chain,
