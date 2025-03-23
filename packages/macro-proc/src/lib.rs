@@ -6,7 +6,7 @@ mod with_cloned;
 
 #[proc_macro_attribute]
 pub fn builder(attr: TokenStream, item: TokenStream) -> TokenStream {
-	builder::builder(attr, parse_macro_input!(item)).into()
+	builder::builder(attr.into(), parse_macro_input!(item)).into()
 }
 
 #[proc_macro]
@@ -14,6 +14,11 @@ pub fn with_cloned(input: TokenStream) -> TokenStream {
 	match with_cloned::with_cloned(input.into()) {
 		Ok(ts) | Err(ts) => { ts.into() }
 	}
+}
+
+#[proc_macro]
+pub fn __builder_internal_helper_gen_state(input: TokenStream) -> TokenStream {
+	builder::__builder_internal_helper_gen_state(input.into()).into()
 }
 
 // #[cfg(feature = "memory-usage")]

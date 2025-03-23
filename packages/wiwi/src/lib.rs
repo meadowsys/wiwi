@@ -29,6 +29,9 @@
 #[cfg(target_pointer_width = "16")]
 compile_error!("16-bit platforms are not supported yet (but please do file an issue if for whatever reason you do need it, I would be happy to add support!)");
 
+#[doc(hidden)]
+pub extern crate wiwi_macro_proc as __internal_proc_macros;
+
 extern crate wiwi_util;
 pub use wiwi_util::*;
 

@@ -323,4 +323,36 @@ macro_rules! gen_builder_state {
 }
 pub use gen_builder_state;
 
+#[macro_export]
+macro_rules! gen_builder_state_2 {
+	{
+		$(
+			$(#[$field_meta:meta])*
+			field $field:ident;
+
+			$(
+				$(#[$init_meta:meta])*
+				init;
+			)?
+
+			$(
+				$(#[$init_with_meta:meta])*
+				init_with;
+			)?
+		)*
+	} => {
+		$crate::__internal_proc_macros::__builder_internal_helper_gen_state! {
+			// worst macro syntax ever
+			// but it works lol?
+			$(
+				$(__field_meta { #[$field_meta] })*
+				$($(__init_meta { #[$init_meta] })*)?
+				$($(__init_with_meta { #[$init_with_meta] })*)?
+				$field
+			)*
+		}
+	}
+}
+pub use gen_builder_state_2;
+
 pub type PhantomDataInvariant<T> = PhantomData<fn(T) -> T>;
