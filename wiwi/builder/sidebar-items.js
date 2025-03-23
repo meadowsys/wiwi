@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["builder"],"struct":["Init","Uninit"],"trait":["InitialisationStatus","IsInit","IsUninit"],"type":["PhantomDataInvariant"]};
+window.SIDEBAR_ITEMS = {"macro":["gen_builder_state","gen_builder_state_2"],"struct":["Init","Uninit"],"trait":["InitStatus","IsInit","IsUninit"],"type":["PhantomDataInvariant"]};
