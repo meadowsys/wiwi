@@ -327,15 +327,15 @@ pub use gen_builder_state;
 macro_rules! gen_builder_state_2 {
 	{
 		$(
-			$(#[$field_meta:meta])*
-			field $field:ident;
+			ident $field:ident;
 
 			$(
+				$(#[$field_meta:meta])*
+				field;
+
 				$(#[$init_meta:meta])*
 				init;
-			)?
 
-			$(
 				$(#[$init_with_meta:meta])*
 				init_with;
 			)?
@@ -345,7 +345,7 @@ macro_rules! gen_builder_state_2 {
 			// worst macro syntax ever
 			// but it works lol?
 			$(
-				$(__field_meta { #[$field_meta] })*
+				$($(__field_meta { #[$field_meta] })*)?
 				$($(__init_meta { #[$init_meta] })*)?
 				$($(__init_with_meta { #[$init_with_meta] })*)?
 				$field
