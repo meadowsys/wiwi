@@ -491,6 +491,17 @@ macro_rules! chain_fns {
 	};
 
 	{
+		impl ref [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		#[warn(missing_docs)]
+		impl<'h, $($generics)*> $crate::Chain<&'h $inner> {
+			$crate::chain_fns! { @impl $($stuff)* }
+		}
+	};
+
+	{
 		@impl
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
