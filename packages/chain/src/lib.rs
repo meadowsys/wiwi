@@ -71,6 +71,76 @@ impl<T> Chain<T> {
 	}
 }
 
+impl<T> Chain<&T>
+where
+	T: Clone
+{
+	#[inline]
+	pub fn cloned(&self) -> Chain<T> {
+		Chain { inner: self.inner.clone() }
+	}
+}
+
+impl<T> Chain<&mut T>
+where
+	T: Clone
+{
+	#[inline]
+	pub fn cloned(&self) -> Chain<T> {
+		Chain { inner: self.inner.clone() }
+	}
+}
+
+impl<T> Chain<&T>
+where
+	T: Copy
+{
+	#[inline]
+	pub fn copied(&self) -> Chain<T> {
+		Chain { inner: *self.inner }
+	}
+}
+
+impl<T> Chain<&mut T>
+where
+	T: Copy
+{
+	#[inline]
+	pub fn copied(&self) -> Chain<T> {
+		Chain { inner: *self.inner }
+	}
+}
+
+impl<'h, T> Chain<&'h &'h T> {
+	#[inline]
+	pub fn flatten(self) -> Chain<&'h T> {
+		Chain { inner: self.inner }
+	}
+}
+
+impl<'h, T> Chain<&'h mut &'h mut T> {
+	#[inline]
+	pub fn flatten(self) -> Chain<&'h mut T> {
+		Chain { inner: self.inner }
+	}
+}
+
+// todo I'm not even sure if we should have these below 2 implementations
+
+// impl<'h, T> Chain<&'h &'h mut T> {
+// 	#[inline]
+// 	pub fn flatten(self) -> Chain<&'h T> {
+// 		Chain { inner: self.inner }
+// 	}
+// }
+
+// impl<'h, T> Chain<&'h mut &'h T> {
+// 	#[inline]
+// 	pub fn flatten(self) -> Chain<&'h T> {
+// 		Chain { inner: self.inner }
+// 	}
+// }
+
 impl<T, T2> AsRef<T2> for Chain<T>
 where
 	T: AsRef<T2>
