@@ -1,5 +1,5 @@
-use core::fmt;
-
+use core::fmt::{ self, Debug, Display };
+use core::hash::{ Hash, Hasher };
 mod array;
 mod string;
 mod vec;
@@ -180,12 +180,12 @@ where
 	T: Copy
 {}
 
-impl<T> fmt::Debug for Chain<T>
+impl<T> Debug for Chain<T>
 where
-	T: fmt::Debug
+	T: Debug
 {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		f.debug_struct("Chain<T>")
 			.field("_", self.as_inner())
 			.finish()
@@ -202,17 +202,41 @@ where
 	}
 }
 
-impl<T> fmt::Display for Chain<T>
+impl<T> Display for Chain<T>
 where
-	T: fmt::Display
+	T: Display
 {
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		T::fmt(self.as_inner(), f)
 	}
 }
 
 // todo eq
+
+impl<T> Hash for Chain<T>
+where
+	T: Hash
+{
+	#[inline]
+	fn hash<H: Hasher>(&self, state: &mut H) {
+		self.as_inner().hash(state)
+	}
+
+	#[inline]
+	fn hash_slice<H: Hasher>(data: &[Self], state: &mut H) {
+		#[expect(clippy::as_conversions, reason = "ptr cast")]
+		let ptr = &raw const *data as *const [T];
+
+		// SAFETY: we are repr(transparent),
+		// cast ptr is safe to deref
+		let data = unsafe { &*ptr };
+
+		T::hash_slice(data, state)
+	}
+}
+
+// todo Hasher...?
 
 // todo ord
 
