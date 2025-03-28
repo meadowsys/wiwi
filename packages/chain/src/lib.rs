@@ -1,4 +1,3 @@
-use self::sealed::*;
 use core::fmt;
 
 mod array;
@@ -261,7 +260,7 @@ impl<T> ChainInner for T {}
 /// to the inner type regardless of if the chain or the inner type is passed in
 pub trait ChainConversions
 where
-	Self: Sized + ChainConversionsSealed
+	Self: Sized + self::sealed::chain_conversions::Sealed
 {
 	type Inner: Sized;
 	type MutChain<'mut_chain>: Sized
@@ -298,9 +297,9 @@ where
 	}
 }
 
-impl<T> ChainConversionsSealed for &mut T
+impl<T> self::sealed::chain_conversions::Sealed for &mut T
 where
-	T: ChainConversionsSealed
+	T: self::sealed::chain_conversions::Sealed
 {}
 
 pub trait WithSelf: Sized {
@@ -324,7 +323,7 @@ impl<T> WithSelf for T {}
 /// initialised to safely call [`assume_init`](core::mem::MaybeUninit::assume_init).
 ///
 /// idk how to enforce the above properly using unsafe etc.
-pub unsafe trait Output<T>: Sized + OutputSealed<T> {
+pub unsafe trait Output<T>: Sized + self::sealed::output::Sealed<T> {
 	/// Stores a value
 	fn write(self, item: T);
 }
@@ -340,7 +339,7 @@ unsafe impl<T> Output<T> for &mut T {
 		*self = item;
 	}
 }
-impl<T> OutputSealed<T> for &mut T {}
+impl<T> self::sealed::output::Sealed<T> for &mut T {}
 
 // SAFETY: we write once to `self`
 unsafe impl<T> Output<T> for &mut Option<T> {
@@ -353,7 +352,7 @@ unsafe impl<T> Output<T> for &mut Option<T> {
 		*self = Some(item);
 	}
 }
-impl<T> OutputSealed<T> for &mut Option<T> {}
+impl<T> self::sealed::output::Sealed<T> for &mut Option<T> {}
 
 // SAFETY: we write once to `self`
 unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
@@ -366,7 +365,7 @@ unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
 		self.write(item);
 	}
 }
-impl<T> OutputSealed<T> for &mut core::mem::MaybeUninit<T> {}
+impl<T> self::sealed::output::Sealed<T> for &mut core::mem::MaybeUninit<T> {}
 
 /// Tool for helping to debug [`Output`] trait usage in debug mode (if `out` is
 /// not written to, the function will panic)
@@ -426,7 +425,7 @@ where
 	}
 }
 
-impl<T, O> OutputSealed<T> for OutputDebug<T, O>
+impl<T, O> self::sealed::output::Sealed<T> for OutputDebug<T, O>
 where
 	O: Output<T>
 {}
@@ -514,9 +513,9 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
-		impl<$($generics)*> $crate::ChainConversionsSealed for $crate::Chain<$inner> {}
-		impl<'h, $($generics)*> $crate::ChainConversionsSealed for $crate::Chain<&'h mut $inner> {}
-		impl<$($generics)*> $crate::ChainConversionsSealed for $inner {}
+		impl<$($generics)*> $crate::sealed::chain_conversions::Sealed for $crate::Chain<$inner> {}
+		impl<'h, $($generics)*> $crate::sealed::chain_conversions::Sealed for $crate::Chain<&'h mut $inner> {}
+		impl<$($generics)*> $crate::sealed::chain_conversions::Sealed for $inner {}
 	};
 }
 use impl_chain_conversions;
@@ -706,8 +705,14 @@ mod prelude_internal {
 /// notouchie
 mod sealed {
 	/// notouchie
-	pub trait OutputSealed<T> {}
+	pub mod output {
+		/// notouchie
+		pub trait Sealed<T> {}
+	}
 
 	/// notouchie
-	pub trait ChainConversionsSealed {}
+	pub mod chain_conversions {
+		/// notouchie
+		pub trait Sealed {}
+	}
 }
