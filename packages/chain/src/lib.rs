@@ -302,6 +302,13 @@ where
 	T: self::sealed::chain_conversions::Sealed
 {}
 
+pub trait ChainConversionsOwned: ChainConversions {
+	type OwnedChain: Sized;
+
+	fn into_chain(self) -> Self::OwnedChain;
+	fn into_inner(self) -> Self::Inner;
+}
+
 pub trait WithSelf: Sized {
 	/// Takes ownership of the value, passing a mutable reference of it to a
 	/// closure, then returning ownership of the value again
@@ -510,6 +517,34 @@ macro_rules! impl_chain_conversions {
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
 				$crate::Chain { inner: self }
+			}
+		}
+
+		impl<$($generics)*> $crate::ChainConversionsOwned for $crate::Chain<$inner> {
+			type OwnedChain = $crate::Chain<$inner>;
+
+			#[inline]
+			fn into_chain(self) -> $crate::Chain<$inner> {
+				self
+			}
+
+			#[inline]
+			fn into_inner(self) -> $inner {
+				<$inner as $crate::ChainInner>::from_chain(self)
+			}
+		}
+
+		impl<$($generics)*> $crate::ChainConversionsOwned for $inner {
+			type OwnedChain = $crate::Chain<$inner>;
+
+			#[inline]
+			fn into_chain(self) -> $crate::Chain<$inner> {
+				$crate::Chain::from_inner(self)
+			}
+
+			#[inline]
+			fn into_inner(self) -> $inner {
+				self
 			}
 		}
 
