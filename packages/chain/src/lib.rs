@@ -679,7 +679,8 @@ macro_rules! chain_fns {
 		let _ = &mut $self;
 
 		let $inner = $self.into_inner();
-		$crate::Chain::from_inner($($impl)*)
+		let inner = { $($impl)* };
+		$crate::Chain::from_inner(inner)
 	};
 }
 use chain_fns;
