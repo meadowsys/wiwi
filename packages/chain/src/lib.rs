@@ -70,42 +70,38 @@ impl<T> Chain<T> {
 	}
 }
 
-impl<T> Chain<&T>
-where
-	T: Clone
-{
+impl<T> Chain<&T> {
 	#[inline]
-	pub fn cloned(&self) -> Chain<T> {
+	pub fn cloned(&self) -> Chain<T>
+	where
+		T: Clone
+	{
 		Chain { inner: self.inner.clone() }
 	}
-}
 
-impl<T> Chain<&mut T>
-where
-	T: Clone
-{
 	#[inline]
-	pub fn cloned(&self) -> Chain<T> {
-		Chain { inner: self.inner.clone() }
-	}
-}
-
-impl<T> Chain<&T>
-where
-	T: Copy
-{
-	#[inline]
-	pub fn copied(&self) -> Chain<T> {
+	pub fn copied(&self) -> Chain<T>
+	where
+		T: Copy
+	{
 		Chain { inner: *self.inner }
 	}
 }
 
-impl<T> Chain<&mut T>
-where
-	T: Copy
-{
+impl<T> Chain<&mut T> {
 	#[inline]
-	pub fn copied(&self) -> Chain<T> {
+	pub fn cloned(&self) -> Chain<T>
+	where
+		T: Clone
+	{
+		Chain { inner: self.inner.clone() }
+	}
+
+	#[inline]
+	pub fn copied(&self) -> Chain<T>
+	where
+		T: Copy
+	{
 		Chain { inner: *self.inner }
 	}
 }
