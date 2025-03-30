@@ -591,25 +591,6 @@ macro_rules! chain_fns {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
-		#[warn(missing_docs)]
-		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
-		}
-
-		$crate::chain_fns! { @head $($stuff)* }
-	};
-
-	{
-		@head
-		impl owned [$($generics:tt)*] $inner:ty;
-
-		$($stuff:tt)*
-	} => {
-		#[warn(missing_docs)]
-		impl<$($generics)*> $crate::Chain<$inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
-		}
-
 		$crate::chain_fns! { @head $($stuff)* }
 	};
 
@@ -643,6 +624,25 @@ macro_rules! chain_fns {
 
 	{
 		@head
+		impl and_mut [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		#[warn(missing_docs)]
+		impl<$($generics)*> $crate::Chain<$inner> {
+			$crate::chain_fns! { @impl $($stuff)* }
+		}
+
+		#[warn(missing_docs)]
+		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
+			$crate::chain_fns! { @impl $($stuff)* }
+		}
+
+		$crate::chain_fns! { @head $($stuff)* }
+	};
+
+	{
+		@head
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn
@@ -656,6 +656,10 @@ macro_rules! chain_fns {
 		unsafe fn
 		$($stuff:tt)*
 	} => {};
+
+	{ @head impl $impl_type:ident $($stuff:tt)* } => {
+		compile_error!(concat!("unrecognised impl type found: `", stringify!($impl_type), "`"));
+	};
 
 	{ @head } => {};
 

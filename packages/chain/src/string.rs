@@ -3,7 +3,7 @@ use crate::prelude_internal::*;
 impl_chain_conversions!([] String);
 
 chain_fns! {
-	impl [] String;
+	impl and_mut [] String;
 
 	doc "String::clear"
 	fn clear(inner) {

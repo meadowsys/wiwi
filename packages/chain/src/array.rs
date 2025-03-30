@@ -3,7 +3,7 @@ use crate::prelude_internal::*;
 impl_chain_conversions!([T, const N: usize] [T; N]);
 
 chain_fns! {
-	impl [T, const N: usize] [T; N];
+	impl and_mut [T, const N: usize] [T; N];
 
 	doc "[T; N]::as_slice" ("array::as_slice")
 	fn as_slice(inner, cb: impl FnOnce(&[T])) {
@@ -22,7 +22,7 @@ chain_fns! {
 }
 
 chain_fns! {
-	impl owned [T, const N: usize] [T; N];
+	impl [T, const N: usize] [T; N];
 
 	doc "[T; N]::map" ("array::map")
 	fn map[T2](inner, f: impl FnMut(T) -> T2) -> [T2; N] {

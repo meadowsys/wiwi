@@ -5,7 +5,7 @@ use core::mem::MaybeUninit;
 impl_chain_conversions!([T] Vec<T>);
 
 chain_fns! {
-	impl [T] Vec<T>;
+	impl and_mut [T] Vec<T>;
 
 	doc "[T]::align_to" ("slice::align_to")
 	unsafe fn align_to[U](inner, cb: impl FnOnce((&[T], &[U], &[T]))) {
