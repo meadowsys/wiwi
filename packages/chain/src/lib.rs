@@ -581,22 +581,26 @@ use impl_chain_conversions;
 
 macro_rules! chain_fns {
 	{
+		@head
 		impl [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
-		$crate::chain_fns! {
-			impl owned [$($generics)*] $inner;
-			$($stuff)*
+		#[warn(missing_docs)]
+		impl<$($generics)*> $crate::Chain<$inner> {
+			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
-		$crate::chain_fns! {
-			impl mut [$($generics)*] $inner;
-			$($stuff)*
+		#[warn(missing_docs)]
+		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
+			$crate::chain_fns! { @impl $($stuff)* }
 		}
+
+		$crate::chain_fns! { @head $($stuff)* }
 	};
 
 	{
+		@head
 		impl owned [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
@@ -605,9 +609,12 @@ macro_rules! chain_fns {
 		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
+
+		$crate::chain_fns! { @head $($stuff)* }
 	};
 
 	{
+		@head
 		impl mut [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
@@ -616,9 +623,12 @@ macro_rules! chain_fns {
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
+
+		$crate::chain_fns! { @head $($stuff)* }
 	};
 
 	{
+		@head
 		impl ref [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
@@ -627,6 +637,62 @@ macro_rules! chain_fns {
 		impl<'h, $($generics)*> $crate::Chain<&'h $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
+
+		$crate::chain_fns! { @head $($stuff)* }
+	};
+
+	{
+		@head
+		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(#[$meta:meta])*
+		fn
+		$($stuff:tt)*
+	} => {};
+
+	{
+		@head
+		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(#[$meta:meta])*
+		unsafe fn
+		$($stuff:tt)*
+	} => {};
+
+	{ @head } => {};
+
+	{
+		@impl
+		impl [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		$crate::chain_fns! { @impl $($stuff)* }
+	};
+
+	{
+		@impl
+		impl owned [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		$crate::chain_fns! { @impl $($stuff)* }
+	};
+
+	{
+		@impl
+		impl mut [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		$crate::chain_fns! { @impl $($stuff)* }
+	};
+
+	{
+		@impl
+		impl ref [$($generics:tt)*] $inner:ty;
+
+		$($stuff:tt)*
+	} => {
+		$crate::chain_fns! { @impl $($stuff)* }
 	};
 
 	{
@@ -739,6 +805,10 @@ macro_rules! chain_fns {
 		let $inner = $self.into_inner();
 		let inner = { $($impl)* };
 		$crate::Chain::from_inner(inner)
+	};
+
+	{ $($stuff:tt)* } => {
+		$crate::chain_fns! { @head $($stuff)* }
 	};
 }
 use chain_fns;
