@@ -13,6 +13,7 @@ exclude = [
 ]
 
 [dependencies]
+wiwi-util = { workspace = true }
 
 [features]
 all = [
