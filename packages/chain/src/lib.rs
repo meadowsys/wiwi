@@ -608,11 +608,13 @@ use impl_chain_conversions;
 macro_rules! chain_fns {
 	{
 		@head
+		$(#[$meta:meta])*
 		impl [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
+		$(#[$meta])*
 		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
@@ -622,11 +624,13 @@ macro_rules! chain_fns {
 
 	{
 		@head
+		$(#[$meta:meta])*
 		impl mut [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
+		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
@@ -636,11 +640,13 @@ macro_rules! chain_fns {
 
 	{
 		@head
+		$(#[$meta:meta])*
 		impl ref [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
+		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
@@ -650,21 +656,32 @@ macro_rules! chain_fns {
 
 	{
 		@head
+		$(#[$meta:meta])*
 		impl and_mut [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
+		$(#[$meta])*
 		impl<$($generics)*> $crate::Chain<$inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
 		#[warn(missing_docs)]
+		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
 			$crate::chain_fns! { @impl $($stuff)* }
 		}
 
 		$crate::chain_fns! { @head $($stuff)* }
+	};
+
+	{
+		@head
+		$(#[$meta:meta])*
+		impl $impl_type:ident $($stuff:tt)*
+	} => {
+		compile_error!(concat!("unrecognised impl type found: `", stringify!($impl_type), "`"));
 	};
 
 	{
@@ -683,14 +700,11 @@ macro_rules! chain_fns {
 		$($stuff:tt)*
 	} => {};
 
-	{ @head impl $impl_type:ident $($stuff:tt)* } => {
-		compile_error!(concat!("unrecognised impl type found: `", stringify!($impl_type), "`"));
-	};
-
 	{ @head } => {};
 
 	{
 		@impl
+		$(#[$meta:meta])*
 		impl [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
@@ -700,25 +714,8 @@ macro_rules! chain_fns {
 
 	{
 		@impl
-		impl owned [$($generics:tt)*] $inner:ty;
-
-		$($stuff:tt)*
-	} => {
-		$crate::chain_fns! { @impl $($stuff)* }
-	};
-
-	{
-		@impl
-		impl mut [$($generics:tt)*] $inner:ty;
-
-		$($stuff:tt)*
-	} => {
-		$crate::chain_fns! { @impl $($stuff)* }
-	};
-
-	{
-		@impl
-		impl ref [$($generics:tt)*] $inner:ty;
+		$(#[$meta:meta])*
+		impl $($impl_type:ident)? [$($generics:tt)*] $inner:ty;
 
 		$($stuff:tt)*
 	} => {
