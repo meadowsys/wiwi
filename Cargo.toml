@@ -2,6 +2,7 @@
 resolver = "3"
 members = [
 	"packages/chain",
+	"packages/encoding",
 	"packages/macro-decl",
 	"packages/macro-proc",
 	"packages/util",
@@ -24,6 +25,7 @@ wiwi-macro-decl = { path = "packages/macro-decl", version = "=0.11.0-pre.3" }
 wiwi-macro-proc = { path = "packages/macro-proc", version = "=0.11.0-pre.3" }
 
 wiwi-chain = { path = "packages/chain", version = "=0.11.0-pre.3" }
+wiwi-encoding = { path = "packages/encoding", version = "=0.11.0-pre.3" }
 wiwi-util = { path = "packages/util", version = "=0.11.0-pre.3" }
 
 cfg-if = "1.0.0"

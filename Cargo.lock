@@ -1149,6 +1149,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "wiwi-encoding"
+version = "0.11.0-pre.3"
+
+[[package]]
 name = "wiwi-macro-decl"
 version = "0.11.0-pre.3"
 

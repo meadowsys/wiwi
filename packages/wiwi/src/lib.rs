@@ -42,7 +42,8 @@ pub mod aoc;
 pub mod builder;
 pub mod clock_timer;
 pub mod cron;
-pub mod encoding;
+// todo fix this lol
+// pub mod encoding;
 pub mod filetypes;
 pub mod lazy_wrap;
 pub mod lsl;

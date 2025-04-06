@@ -1,0 +1,39 @@
+[package]
+name = "wiwi-encoding"
+description = "wiwi encoding apis"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+exclude = [
+	# todo remove this when we no longer have old dir
+	".old"
+]
+
+[dependencies]
+
+[features]
+all = [
+	"hex"
+]
+
+# nightly = []
+# unstable = []
+
+# base16 = []
+# base32 = []
+# base64 = []
+hex = []
+# z85 = []
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+features = []
+targets = [
+	"aarch64-apple-darwin"
+]
