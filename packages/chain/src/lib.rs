@@ -1,19 +1,12 @@
 use core::fmt::{ self, Debug, Display };
 use core::hash::{ Hash, Hasher };
 
+pub mod types;
+
 mod array;
 mod map;
 mod string;
 mod vec;
-
-pub type ArrayChain<T, const N: usize> = Chain<[T; N]>;
-pub type ArrayMutChain<'h, T, const N: usize> = Chain<&'h mut [T; N]>;
-
-pub type StringChain = Chain<String>;
-pub type StringMutChain<'h> = Chain<&'h mut String>;
-
-pub type VecChain<T> = Chain<Vec<T>>;
-pub type VecMutChain<'h, T> = Chain<&'h mut Vec<T>>;
 
 #[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
 #[repr(transparent)]
