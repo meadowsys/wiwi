@@ -19,10 +19,12 @@ wiwi-util = { workspace = true }
 [dev-dependencies]
 hex = { workspace = true }
 rand = { workspace = true }
+z85 = { workspace = true }
 
 [features]
 all = [
-	"hex"
+	"hex",
+	"z85"
 ]
 
 # nightly = []
@@ -32,7 +34,7 @@ all = [
 # base32 = []
 # base64 = []
 hex = []
-# z85 = []
+z85 = []
 
 [lints]
 workspace = true

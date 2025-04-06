@@ -1156,6 +1156,7 @@ dependencies = [
  "rand",
  "thiserror",
  "wiwi-util",
+ "z85",
 ]
 
 [[package]]

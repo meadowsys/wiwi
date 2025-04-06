@@ -1,8 +1,8 @@
-extern crate thiserror;
+#![allow(warnings, reason = "deprecated")]
+#![deprecated(note = "awa")]
 
-use crate::prelude::*;
-use crate::num::*;
-use super::{ ChunkedSlice, UnsafeBufWriteGuard };
+use crate::util_old::{ ChunkedSlice, UnsafeBufWriteGuard };
+use wiwi_util::prelude::*;
 
 /// Length of the encoding table (ie. number of different characters)
 pub const TABLE_ENCODER_LEN: usize = 85;
@@ -210,14 +210,14 @@ pub fn decode_z85(mut bytes: &[u8]) -> Result<Vec<u8>, DecodeError> {
 			let decoded = {
 				// SAFETY: `byte` is of type u8, which has a range of 0..=255,
 				// which will never overflow TABLE_DECODER as its len is 256
-				let table_ptr = unsafe { TABLE_DECODER.as_ptr().add(byte.into_usize()) };
+				let table_ptr = unsafe { TABLE_DECODER.as_ptr().add(byte as usize) };
 
 				// SAFETY: as established above, pointer above will not
 				// index past end of TABLE_DECODER
 				unsafe { *table_ptr }
 			};
 
-			let decoded = decoded.into_usize();
+			let decoded = decoded as usize;
 			let added_padding = if decoded < BINARY_FRAME_LEN {
 				decoded
 			} else {
@@ -404,7 +404,7 @@ impl EncodedReprInfo {
 /// Caller must guarantee dest is valid for at least `STRING_FRAME_LEN` bytes
 /// to be written.
 unsafe fn encode_frame(frame: &[u8; BINARY_FRAME_LEN], dest: &mut UnsafeBufWriteGuard) {
-	let mut int = u32::from_be_bytes(*frame).into_usize();
+	let mut int = u32::from_be_bytes(*frame) as usize;
 
 	let byte5 = int % TABLE_ENCODER_LEN;
 	int /= TABLE_ENCODER_LEN;
@@ -477,7 +477,7 @@ where
 		($byte:ident) => {
 			// SAFETY: caller promises that `$byte` is within range 0..=255,
 			// and the decoding table is len 256, so this will not be out of bounds
-			let ptr = unsafe { table_ptr.add($byte.into_usize()) };
+			let ptr = unsafe { table_ptr.add($byte as usize) };
 
 			// SAFETY: as established above, the ptr is within
 			// bounds and safe to dereference
@@ -500,23 +500,23 @@ where
 	// (u32 max is 4.294.967.295, but the result of this operation can be 4.437.053.124).
 	// However it cannot overflow u64 (u64 max is 18.446.744.073.709.551.616).
 	// So we decode in a u64 first, and then we check for overflow, then error if so
-	let mut int = byte1.into_u64();
+	let mut int = byte1 as u64;
 
-	int *= TABLE_ENCODER_LEN.into_u64();
-	int += byte2.into_u64();
+	int *= TABLE_ENCODER_LEN as u64;
+	int += byte2 as u64;
 
-	int *= TABLE_ENCODER_LEN.into_u64();
-	int += byte3.into_u64();
+	int *= TABLE_ENCODER_LEN as u64;
+	int += byte3 as u64;
 
-	int *= TABLE_ENCODER_LEN.into_u64();
-	int += byte4.into_u64();
+	int *= TABLE_ENCODER_LEN as u64;
+	int += byte4 as u64;
 
-	int *= TABLE_ENCODER_LEN.into_u64();
-	int += byte5.into_u64();
+	int *= TABLE_ENCODER_LEN as u64;
+	int += byte5 as u64;
 
 	if int >> u32::BITS != 0 { return Err(DecodeError::FrameOverflow) }
 
-	let decoded_frame = u32::to_be_bytes(int.into_u32_lossy());
+	let decoded_frame = u32::to_be_bytes(int as u32);
 	f(&decoded_frame);
 
 	Ok(())
@@ -524,11 +524,9 @@ where
 
 #[cfg(test)]
 mod tests {
-	extern crate rand;
-	extern crate z85;
-
-	use crate::prelude::*;
 	use super::*;
+	use wiwi_util::prelude::*;
+
 	use rand::{ Rng, thread_rng };
 
 	#[test]

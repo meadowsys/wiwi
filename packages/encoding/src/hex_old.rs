@@ -227,8 +227,8 @@ pub enum DecodeError {
 #[cfg(test)]
 mod tests {
 	use super::*;
-
 	use wiwi_util::prelude::*;
+
 	use rand::{ Rng, thread_rng };
 
 	#[test]
