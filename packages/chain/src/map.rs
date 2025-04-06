@@ -1,6 +1,7 @@
 use crate::prelude_internal::*;
 
 impl_chain_conversions! { [K, V, S] std::collections::HashMap<K, V, S> }
+impl_chain_conversions! { [K, V] std::collections::BTreeMap<K, V> }
 impl_chain_conversions! {
 	#[cfg(feature = "hashbrown")]
 	[K, V, S] hashbrown::HashMap<K, V, S>
@@ -8,6 +9,7 @@ impl_chain_conversions! {
 
 chain_fns! {
 	impl and_mut [K, V, S] std::collections::HashMap<K, V, S>;
+	impl and_mut [K, V] std::collections::BTreeMap<K, V>;
 	#[cfg(feature = "hashbrown")]
 	impl and_mut [K, V, S] hashbrown::HashMap<K, V, S>;
 
@@ -73,7 +75,64 @@ PartialEq
 UnwindSafe
 
 
-
+btree
+Methods
+append
+clear
+contains_key
+entry
+extract_if
+first_entry
+first_key_value
+get
+get_key_value
+get_mut
+insert
+into_keys
+into_values
+is_empty
+iter
+iter_mut
+keys
+last_entry
+last_key_value
+len
+lower_bound
+lower_bound_mut
+new
+new_in
+pop_first
+pop_last
+range
+range_mut
+remove
+remove_entry
+retain
+split_off
+try_insert
+upper_bound
+upper_bound_mut
+values
+values_mut
+Trait Implementations
+Clone
+Debug
+Default
+Drop
+Eq
+Extend<(&'a K, &'a V)>
+Extend<(K, V)>
+From<[(K, V); N]>
+FromIterator<(K, V)>
+Hash
+Index<&Q>
+IntoIterator
+IntoIterator
+IntoIterator
+Ord
+PartialEq
+PartialOrd
+UnwindSafe
 
 
 hashbrown

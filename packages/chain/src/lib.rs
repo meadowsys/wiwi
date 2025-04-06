@@ -7,6 +7,7 @@ pub mod types;
 
 mod array;
 mod map;
+mod set;
 mod string;
 mod vec;
 
