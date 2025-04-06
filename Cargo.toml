@@ -39,6 +39,7 @@ parking_lot = "0.12.3"
 proc-macro2 = "1.0.83"
 quote = "1.0.36"
 rand = "0.8.5"
+serde = "1.0.219"
 syn = "2.0.66"
 thiserror = { version = "1.0.69" }
 tokio = { version = "1.41.1", features = ["full"] }

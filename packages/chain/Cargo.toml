@@ -10,6 +10,7 @@ license = { workspace = true }
 
 [dependencies]
 hashbrown = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 wiwi-util = { workspace = true }
 
 [features]
@@ -18,6 +19,9 @@ nightly = []
 
 hashbrown = [
 	"dep:hashbrown"
+]
+serde = [
+	"dep:serde"
 ]
 
 [lints]

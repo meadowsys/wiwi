@@ -1,5 +1,7 @@
 use core::fmt::{ self, Debug, Display };
 use core::hash::{ Hash, Hasher };
+#[cfg(feature = "serde")]
+use serde::{ Deserialize, Deserializer, Serialize, Serializer };
 
 pub mod types;
 
@@ -212,6 +214,21 @@ where
 	}
 }
 
+#[cfg(feature = "serde")]
+impl<'de, T> Deserialize<'de> for Chain<T>
+where
+	T: Deserialize<'de>
+{
+	#[inline]
+	fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+	where
+		D: Deserializer<'de>
+	{
+		T::deserialize(deserializer)
+			.map(|inner| inner.into_chain())
+	}
+}
+
 impl<T> Display for Chain<T>
 where
 	T: Display
@@ -266,6 +283,20 @@ where
 	#[inline]
 	fn ne(&self, other: &T2) -> bool {
 		self.as_inner().ne(other)
+	}
+}
+
+#[cfg(feature = "serde")]
+impl<T> Serialize for Chain<T>
+where
+	T: Serialize
+{
+	#[inline]
+	fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+	where
+		S: Serializer
+	{
+		T::serialize(self.as_inner(), serializer)
 	}
 }
 
