@@ -1,5 +1,7 @@
 // use wiwi_util::prelude::*;
 
+mod util;
+
 // /// Helper for unsafe buffer operations, when the _exact_ total capacity needed
 // /// is known ahead of time and requested up front
 // ///
