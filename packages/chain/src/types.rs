@@ -21,6 +21,7 @@ pub type StringMutChain<'h> = Chain<&'h mut String>;
 pub type VecChain<T> = Chain<Vec<T>>;
 pub type VecMutChain<'h, T> = Chain<&'h mut Vec<T>>;
 
+#[cfg(feature = "hashbrown")]
 pub mod hashbrown {
 	use crate::Chain;
 
