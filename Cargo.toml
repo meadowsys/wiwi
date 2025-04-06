@@ -32,7 +32,7 @@ cfg-if = "1.0.0"
 chrono = { version = "0.4.38", features = ["clock"] }
 criterion = { version = "0.5.1", features = ["html_reports"] }
 darling = "0.20.10"
-hashbrown = { version = "0.15.0", features = ["default-hasher"] }
+hashbrown = { version = "0.15.0" }
 hex = "0.4.3"
 home = "0.5.9"
 parking_lot = "0.12.3"

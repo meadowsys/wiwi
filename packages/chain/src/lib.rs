@@ -1,6 +1,7 @@
 use core::fmt::{ self, Debug, Display };
 use core::hash::{ Hash, Hasher };
 mod array;
+mod map;
 mod string;
 mod vec;
 
@@ -472,8 +473,10 @@ where
 
 macro_rules! impl_chain_conversions {
 	{
+		$(#[$meta:meta])*
 		[$($generics:tt)*] $inner:ty
 	} => {
+		$(#[$meta])*
 		impl<$($generics)*> $crate::ChainConversions for $crate::Chain<$inner> {
 			type Inner = $inner;
 			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
@@ -496,6 +499,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
+		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::ChainConversions for $crate::Chain<&'h mut $inner> {
 			type Inner = $inner;
 			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
@@ -518,6 +522,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
+		$(#[$meta])*
 		impl<$($generics)*> $crate::ChainConversions for $inner {
 			type Inner = $inner;
 			type MutChain<'mut_chain> = $crate::Chain<&'mut_chain mut $inner>
@@ -540,6 +545,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
+		$(#[$meta])*
 		impl<$($generics)*> $crate::ChainConversionsOwned for $crate::Chain<$inner> {
 			type OwnedChain = $crate::Chain<$inner>;
 
@@ -554,6 +560,7 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
+		$(#[$meta])*
 		impl<$($generics)*> $crate::ChainConversionsOwned for $inner {
 			type OwnedChain = $crate::Chain<$inner>;
 
@@ -568,8 +575,11 @@ macro_rules! impl_chain_conversions {
 			}
 		}
 
+		$(#[$meta])*
 		impl<$($generics)*> $crate::sealed::chain_conversions::Sealed for $crate::Chain<$inner> {}
+		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::sealed::chain_conversions::Sealed for $crate::Chain<&'h mut $inner> {}
+		$(#[$meta])*
 		impl<$($generics)*> $crate::sealed::chain_conversions::Sealed for $inner {}
 	};
 }
