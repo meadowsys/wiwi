@@ -13,7 +13,12 @@ exclude = [
 ]
 
 [dependencies]
+thiserror = { workspace = true }
 wiwi-util = { workspace = true }
+
+[dev-dependencies]
+hex = { workspace = true }
+rand = { workspace = true }
 
 [features]
 all = [
