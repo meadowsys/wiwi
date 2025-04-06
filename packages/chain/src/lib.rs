@@ -121,6 +121,25 @@ impl<'h, T> Chain<&'h mut &'h mut T> {
 	}
 }
 
+impl<T> Chain<Chain<T>> {
+	#[inline]
+	pub fn flatten(self) -> Chain<T> {
+		Chain { inner: self.inner.inner }
+	}
+
+	// ?????
+	// #[inline]
+	// pub fn as_flattened(&self) -> Chain<&T> {
+	// 	Chain { inner: &self.inner.inner }
+	// }
+
+	// ?????
+	// #[inline]
+	// pub fn as_flattened_mut(&mut self) -> Chain<&mut T> {
+	// 	Chain { inner: &mut self.inner.inner }
+	// }
+}
+
 // todo I'm not even sure if we should have these below 2 implementations
 
 // impl<'h, T> Chain<&'h &'h mut T> {
