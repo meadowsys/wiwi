@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["decode","encode"],"mod":["base16","base32","base64","hex","rfc1751","z85"],"struct":["Base16","Base32","Base64","Hex","RFC1751","Z85"],"trait":["Encode","Encoding"]};

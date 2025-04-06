@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["BINARY_FRAME_LEN","STRING_FRAME_LEN","TABLE_DECODER_LEN","TABLE_ENCODER_LEN"],"enum":["DecodeError"],"fn":["decode_z85","encode_z85"],"static":["TABLE_DECODER","TABLE_ENCODER"],"struct":["EncodedReprInfo"]};

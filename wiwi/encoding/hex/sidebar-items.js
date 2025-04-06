@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"constant":["TABLE_ENCODER_LEN"],"enum":["DecodeError"],"fn":["decode_hex","encode_hex","encode_hex_upper"],"static":["TABLE_ENCODER_LOWER","TABLE_ENCODER_UPPER"]};
