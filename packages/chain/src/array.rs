@@ -1,6 +1,6 @@
 use crate::prelude_internal::*;
 
-impl_chain_conversions!([T, const N: usize] [T; N]);
+impl_chain_conversions! { [T, const N: usize] [T; N] }
 
 chain_fns! {
 	impl and_mut [T, const N: usize] [T; N];

@@ -1,6 +1,6 @@
 use crate::prelude_internal::*;
 
-impl_chain_conversions!([] String);
+impl_chain_conversions! { [] String }
 
 chain_fns! {
 	impl and_mut [] String;

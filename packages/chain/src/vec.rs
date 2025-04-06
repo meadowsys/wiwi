@@ -2,7 +2,7 @@ use crate::prelude_internal::*;
 use core::cmp::Ordering;
 use core::mem::MaybeUninit;
 
-impl_chain_conversions!([T] Vec<T>);
+impl_chain_conversions! { [T] Vec<T> }
 
 chain_fns! {
 	impl and_mut [T] Vec<T>;
