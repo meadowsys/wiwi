@@ -158,7 +158,7 @@ where
 {
 	#[inline]
 	fn as_ref(&self) -> &T2 {
-		self.inner.as_ref()
+		T::as_ref(self.as_inner())
 	}
 }
 
@@ -168,7 +168,7 @@ where
 {
 	#[inline]
 	fn as_mut(&mut self) -> &mut T2 {
-		self.inner.as_mut()
+		T::as_mut(self.as_inner_mut())
 	}
 }
 
@@ -178,12 +178,12 @@ where
 {
 	#[inline]
 	fn clone(&self) -> Self {
-		self.as_inner().clone().into_chain()
+		T::clone(self.as_inner()).into_chain()
 	}
 
 	#[inline]
 	fn clone_from(&mut self, source: &Self) {
-		self.as_inner_mut().clone_from(source.as_inner())
+		T::clone_from(self.as_inner_mut(), source.as_inner())
 	}
 }
 
@@ -247,7 +247,7 @@ where
 {
 	#[inline]
 	fn hash<H: Hasher>(&self, state: &mut H) {
-		self.as_inner().hash(state)
+		T::hash(self.as_inner(), state)
 	}
 
 	#[inline]
@@ -273,7 +273,7 @@ where
 {
 	#[inline]
 	fn eq(&self, other: &T2) -> bool {
-		self.as_inner().eq(other)
+		T::eq(self.as_inner(), other)
 	}
 
 	#[expect(
@@ -282,7 +282,7 @@ where
 	)]
 	#[inline]
 	fn ne(&self, other: &T2) -> bool {
-		self.as_inner().ne(other)
+		T::ne(self.as_inner(), other)
 	}
 }
 
