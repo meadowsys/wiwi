@@ -17,7 +17,7 @@ chain_fns! {
 
 	doc "[T; N]::each_mut" ("array::each_mut")
 	fn each_mut(inner, cb: impl FnOnce([&mut T; N])) {
-		cb(inner.each_mut());
+		cb(inner.each_mut())
 	}
 }
 
