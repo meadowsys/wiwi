@@ -5,17 +5,17 @@ impl_chain_conversions! { [T, const N: usize] [T; N] }
 chain_fns! {
 	impl and_mut [T, const N: usize] [T; N];
 
-	doc "[T; N]::as_slice" ("array::as_slice")
+	doc ["[T; N]::as_slice"]("array::as_slice")
 	fn as_slice(inner, cb: impl FnOnce(&[T])) {
 		cb(inner.as_slice())
 	}
 
-	doc "[T; N]::each_ref" ("array::each_ref")
+	doc ["[T; N]::each_ref"]("array::each_ref")
 	fn each_ref(inner, cb: impl FnOnce([&T; N])) {
 		cb(inner.each_ref())
 	}
 
-	doc "[T; N]::each_mut" ("array::each_mut")
+	doc ["[T; N]::each_mut"]("array::each_mut")
 	fn each_mut(inner, cb: impl FnOnce([&mut T; N])) {
 		cb(inner.each_mut())
 	}
@@ -24,7 +24,7 @@ chain_fns! {
 chain_fns! {
 	impl [T, const N: usize] [T; N];
 
-	doc "[T; N]::map" ("array::map")
+	doc ["[T; N]::map"]("array::map")
 	fn map[T2](inner, f: impl FnMut(T) -> T2) -> [T2; N] {
 		inner.map(f)
 	}

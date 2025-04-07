@@ -13,7 +13,7 @@ chain_fns! {
 	#[cfg(feature = "hashbrown")]
 	impl and_mut [T, S] hashbrown::HashSet<T, S>;
 
-	doc "awa"
+	doc ["awa"]
 	fn test_todo_remove_me_lol(inner) {
 		let _ = inner;
 	}

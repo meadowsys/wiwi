@@ -753,7 +753,7 @@ macro_rules! chain_fns {
 		@head
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn
 		$($stuff:tt)*
@@ -763,7 +763,7 @@ macro_rules! chain_fns {
 		@head
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn
 		$($stuff:tt)*
@@ -807,7 +807,7 @@ macro_rules! chain_fns {
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -852,7 +852,7 @@ macro_rules! chain_fns {
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc $doc:literal $(($doc_link_to:literal))?)?
+		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)

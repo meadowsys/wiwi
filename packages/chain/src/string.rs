@@ -5,37 +5,37 @@ impl_chain_conversions! { [] String }
 chain_fns! {
 	impl and_mut [] String;
 
-	doc "String::clear"
+	doc ["String::clear"]
 	fn clear(inner) {
 		inner.clear();
 	}
 
-	doc "String::len"
+	doc ["String::len"]
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
 
-	doc "String::push"
+	doc ["String::push"]
 	fn push(inner, ch: char) {
 		inner.push(ch)
 	}
 
-	doc "String::push_str"
+	doc ["String::push_str"]
 	fn push_str(inner, string: &str) {
 		inner.push_str(string)
 	}
 
-	doc "String::reserve"
+	doc ["String::reserve"]
 	fn reserve(inner, additional: usize) {
 		inner.reserve(additional)
 	}
 
-	doc "String::reserve_exact"
+	doc ["String::reserve_exact"]
 	fn reserve_exact(inner, additional: usize) {
 		inner.reserve_exact(additional)
 	}
 
-	doc "String::retain"
+	doc ["String::retain"]
 	fn retain(inner, f: impl FnMut(char) -> bool) {
 		inner.retain(f)
 	}
