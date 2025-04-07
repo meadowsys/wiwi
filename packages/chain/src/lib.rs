@@ -631,74 +631,110 @@ macro_rules! impl_chain_conversions {
 use impl_chain_conversions;
 
 macro_rules! chain_fns {
+	{ @head @head @head @head @head $($stuff:tt)* } => {
+		compile_error!("you have huge brain use your own macro properly 5head");
+	};
+
 	{
 		@head
 		$(#[$meta:meta])*
-		impl [$($generics:tt)*] $inner:ty;
+		impl [$($generics:tt)*] $({ doc $($doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
 		$(#[$meta])*
 		impl<$($generics)*> $crate::Chain<$inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
+			$crate::chain_fns! {
+				@impl
+				$({ doctype $($doc_type)* })?
+				$($stuff)*
+			}
 		}
 
-		$crate::chain_fns! { @head $($stuff)* }
+		$crate::chain_fns! {
+			@head
+			$($stuff)*
+		}
 	};
 
 	{
 		@head
 		$(#[$meta:meta])*
-		impl mut [$($generics:tt)*] $inner:ty;
+		impl mut [$($generics:tt)*] $({ doc $($doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
 		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
+			$crate::chain_fns! {
+				@impl
+				$({ doctype $($doc_type)* })?
+				$($stuff)*
+			}
 		}
 
-		$crate::chain_fns! { @head $($stuff)* }
+		$crate::chain_fns! {
+			@head
+			$($stuff)*
+		}
 	};
 
 	{
 		@head
 		$(#[$meta:meta])*
-		impl ref [$($generics:tt)*] $inner:ty;
+		impl ref [$($generics:tt)*] $({ doc $($doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
 		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h $inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
+			$crate::chain_fns! {
+				@impl
+				$({ doctype $($doc_type)* })?
+				$($stuff)*
+			}
 		}
 
-		$crate::chain_fns! { @head $($stuff)* }
+		$crate::chain_fns! {
+			@head
+			$($stuff)*
+		}
 	};
 
 	{
 		@head
 		$(#[$meta:meta])*
-		impl and_mut [$($generics:tt)*] $inner:ty;
+		impl and_mut [$($generics:tt)*] $({ doc $($doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
 		#[warn(missing_docs)]
 		$(#[$meta])*
 		impl<$($generics)*> $crate::Chain<$inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
+			$crate::chain_fns! {
+				@impl
+				$({ doctype $($doc_type)* })?
+				$($stuff)*
+			}
 		}
 
 		#[warn(missing_docs)]
 		$(#[$meta])*
 		impl<'h, $($generics)*> $crate::Chain<&'h mut $inner> {
-			$crate::chain_fns! { @impl $($stuff)* }
+			$crate::chain_fns! {
+				@impl
+				$({ doctype $($doc_type)* })?
+				$($stuff)*
+			}
 		}
 
-		$crate::chain_fns! { @head $($stuff)* }
+		$crate::chain_fns! {
+			@head
+			$($stuff)*
+		}
 	};
 
 	{
@@ -706,11 +742,17 @@ macro_rules! chain_fns {
 		$(#[$meta:meta])*
 		impl $impl_type:ident $($stuff:tt)*
 	} => {
-		compile_error!(concat!("unrecognised impl type found: `", stringify!($impl_type), "`"));
+		compile_error!(concat!(
+			"unrecognised impl type found: `",
+			stringify!($impl_type),
+			"`"
+		));
 	};
 
 	{
 		@head
+		$({ doctype $($doc_type:tt)* })?
+
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn
@@ -719,6 +761,8 @@ macro_rules! chain_fns {
 
 	{
 		@head
+		$({ doctype $($doc_type:tt)* })?
+
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn
@@ -729,26 +773,40 @@ macro_rules! chain_fns {
 
 	{
 		@impl
+		$({ doctype $($doc_type:tt)* })?
+
 		$(#[$meta:meta])*
-		impl [$($generics:tt)*] $inner:ty;
+		impl [$($generics:tt)*] $({ doc $($_doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
-		$crate::chain_fns! { @impl $($stuff)* }
+		$crate::chain_fns! {
+			@impl
+			$({ doctype $($doc_type)* })?
+			$($stuff)*
+		}
 	};
 
 	{
 		@impl
+		$({ doctype $($doc_type:tt)* })?
+
 		$(#[$meta:meta])*
-		impl $($impl_type:ident)? [$($generics:tt)*] $inner:ty;
+		impl $($impl_type:ident)? [$($generics:tt)*] $({ doc $($_doc_type:tt)* })? $inner:ty;
 
 		$($stuff:tt)*
 	} => {
-		$crate::chain_fns! { @impl $($stuff)* }
+		$crate::chain_fns! {
+			@impl
+			$({ doctype $($doc_type)* })?
+			$($stuff)*
+		}
 	};
 
 	{
 		@impl
+		$({ doctype $($doc_type:tt)* })?
+
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
@@ -759,34 +817,41 @@ macro_rules! chain_fns {
 
 		$($stuff:tt)*
 	} => {
-		#[inline]
-		$(#[$meta])*
-		$(
-			#[doc = ""]
-			#[doc = concat!(
-				"See documentation for [`",
-				$doc,
-				"`]",
-				$(
-					"(",
-					$doc_link_to,
-					")",
-				)?
-				" for more details on the underlying function."
-			)]
-		)?
-		pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
-		-> $crate::chain_fns! { @return_type_helper $($return_type)? }
-		$(where $($where)*)?
-		{
-			$crate::chain_fns! { @rest_helper self $inner $($return_type)? { $($impl)* } }
+		$crate::chain_fns! {
+			@helper doc
+			{
+				#[inline]
+				$(#[$meta])*
+			}
+			$(doc { $doc $($doc_link_to)? })?
+
+			item
+			pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
+			-> $crate::chain_fns! { @helper return_type $($return_type)? }
+			$(where $($where)*)?
+			{
+				$crate::chain_fns! {
+					@helper rest
+					self
+					$inner
+					$($return_type)?
+					{ $($impl)* }
+				}
+			}
 		}
 
-		$crate::chain_fns! { @impl $($stuff)* }
+		$crate::chain_fns! {
+			@impl
+			$({ doctype $($doc_type)* })?
+			$($stuff)*
+		}
 	};
 
+	// todo this
 	{
 		@impl
+		$({ doctype $($doc_type:tt)* })?
+
 		$(doc $doc:literal $(($doc_link_to:literal))?)?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
@@ -797,57 +862,166 @@ macro_rules! chain_fns {
 
 		$($stuff:tt)*
 	} => {
-		#[inline]
-		$(#[$meta])*
-		$(
-			#[doc = ""]
-			#[doc = "# Safety"]
-			#[doc = ""]
-			#[doc = concat!(
-				"You must uphold safety invariants of [`",
-				$doc,
-				"`]",
-				$(
-					"(",
-					$doc_link_to,
-					")",
-				)?
-				"."
-			)]
-			#[doc = ""]
-			#[doc = concat!(
-				"See documentation for [`",
-				$doc,
-				"`]",
-				$(
-					"(",
-					$doc_link_to,
-					")",
-				)?
-				" for more details on the underlying function."
-			)]
-		)?
-		pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
-		-> $crate::chain_fns! { @return_type_helper $($return_type)? }
-		$(where $($where)*)?
-		{
-			$crate::chain_fns! { @rest_helper self $inner $($return_type)? { $($impl)* } }
+		$crate::chain_fns! {
+			@helper doc unsafe
+			{
+				#[inline]
+				$(#[$meta])*
+			}
+			$(doc { $doc $($doc_link_to)? })?
+
+			item
+			pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
+			-> $crate::chain_fns! { @helper return_type $($return_type)? }
+			$(where $($where)*)?
+			{
+				$crate::chain_fns! {
+					@helper rest
+					self
+					$inner
+					$($return_type)?
+					{ $($impl)* }
+				}
+			}
 		}
 
-		$crate::chain_fns! { @impl $($stuff)* }
+		$crate::chain_fns! {
+			@impl
+			$({ doctype $($doc_type)* })?
+			$($stuff)*
+		}
 	};
 
-	{ @impl } => {};
+	{
+		@impl
+		$({ doctype $($doc_type:tt)* })?
+	} => {};
 
-	{ @return_type_helper } => { Self };
-	{ @return_type_helper $type:ty } => { $crate::Chain<$type> };
+	{
+		@helper doc $(unsafe)?
+		{ $(#[$before_meta:meta])* }
+		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
+		item $item:item
+	} => {
+		$(#[$before_meta])*
+		$item
+	};
 
-	{ @rest_helper $self:ident $inner:ident { $($impl:tt)*} } => {
+	{
+		@helper doc
+		{ $(#[$before_meta:meta])* }
+		doc { $doc:literal $($doc_link_to:literal)? }
+		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
+		item $item:item
+	} => {
+		$(#[$before_meta])*
+		#[doc = ""]
+		#[doc = concat!(
+			"See documentation for [`",
+			$doc,
+			"`]",
+			$(
+				"(",
+				$doc_link_to,
+				")",
+			)?
+			" for more details on the underlying function."
+		)]
+		$item
+	};
+
+	{
+		@helper doc unsafe
+		{ $(#[$before_meta:meta])* }
+		doc { $doc:literal $($doc_link_to:literal)? }
+		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
+		item $item:item
+	} => {
+		$(#[$before_meta])*
+		#[doc = ""]
+		#[doc = "# Safety"]
+		#[doc = ""]
+		#[doc = concat!(
+			"You must uphold safety invariants of [`",
+			$doc,
+			"`]",
+			$(
+				"(",
+				$doc_link_to,
+				")",
+			)?
+			"."
+		)]
+		#[doc = ""]
+		#[doc = concat!(
+			"See documentation for [`",
+			$doc,
+			"`]",
+			$(
+				"(",
+				$doc_link_to,
+				")",
+			)?
+			" for more details on the underlying function."
+		)]
+		$item
+	};
+
+	// todo unsafe fn part
+
+	{
+		@helper doc $(unsafe)?
+		{ $(#[$before_meta:meta])* }
+		doc { $(self::)?$doc:literal $($(self::)?$doc_link_to:literal)? }
+		item $item:item
+	} => {
+		// todo some kind of error
+		compile_error!("cannot use `self` without doctype clause specified in macro invocation... 5head");
+		// $(#[$before_meta])*
+		// $item
+	};
+
+	// todo make these below cases work
+
+	// {
+	// 	@helper doc
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { self::$doc:literal $($doc_link_to:literal)? }
+	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	item $item:item
+	// } => {
+	// 	$(#[$before_meta])*
+	// 	$item
+	// };
+
+	// {
+	// 	@helper doc
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { $doc:literal $(self::$doc_link_to:literal)? }
+	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	item $item:item
+	// } => {
+	// 	$(#[$before_meta])*
+	// 	$item
+	// };
+
+	// {
+	// 	@helper doc
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { self::$doc:literal $(self::$doc_link_to:literal)? }
+	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	item $item:item
+	// } => {
+	// 	$(#[$before_meta])*
+	// 	$item
+	// };
+
+	{ @helper rest $self:ident $inner:ident { $($impl:tt)*} } => {
 		let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut $self);
 		let _: () = { $($impl)* };
 		$self
 	};
-	{ @rest_helper $self:ident $inner:ident $type:ty { $($impl:tt)*} } => {
+	{ @helper rest $self:ident $inner:ident $type:ty { $($impl:tt)*} } => {
 		// shushes the unused_mut warning
 		// I could modify the macro more to not emit `mut self` in the parameter
 		// if it isn't needed, but... this is simpler in code I have to type, and
@@ -858,6 +1032,9 @@ macro_rules! chain_fns {
 		let inner = { $($impl)* };
 		$crate::Chain::from_inner(inner)
 	};
+
+	{ @helper return_type } => { Self };
+	{ @helper return_type $type:ty } => { $crate::Chain<$type> };
 
 	{ $($stuff:tt)* } => {
 		$crate::chain_fns! { @head $($stuff)* }
