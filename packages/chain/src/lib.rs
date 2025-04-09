@@ -939,21 +939,41 @@ macro_rules! chain_fns {
 		}
 	};
 
-	// todo unsafe fn part
-
+	// below 2 macro arms branches things
+	// should be identical to the 2 below
+	// except with doc_link_to removed
+	// (need to keep doc_type_link_to to make it trivial to keep it fully)
 	{
-		@helper doc $(unsafe)?
+		@helper doc
 		{ $(#[$before_meta:meta])* }
-		doc { $(self::)?$doc:literal $($(self::)?$doc_link_to:literal)? }
+		doc { self::$doc:literal }
+		doctype { $doc_type:literal $($doc_type_link_to:literal)? }
 		item $item:item
 	} => {
-		// todo some kind of error
-		compile_error!("cannot use `self` without doctype clause specified in macro invocation... 5head");
-		// $(#[$before_meta])*
-		// $item
+		$crate::chain_fns! {
+			@helper doc_impl
+			{ $(#[$before_meta])* }
+			doc { $doc_type, "::", $doc }
+			$(doc_link_to { $doc_link_to })?
+			item $item
+		}
 	};
 
-	// todo make these below cases work
+	{
+		@helper doc unsafe
+		{ $(#[$before_meta:meta])* }
+		doc { self::$doc:literal }
+		doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+		item $item:item
+	} => {
+		$crate::chain_fns! {
+			@helper doc_impl unsafe
+			{ $(#[$before_meta])* }
+			doc { $doc_type, "::", $doc }
+			$(doc_link_to { $doc_link_to })?
+			item $item
+		}
+	};
 
 	// {
 	// 	@helper doc
@@ -962,19 +982,61 @@ macro_rules! chain_fns {
 	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
 	// 	item $item:item
 	// } => {
-	// 	$(#[$before_meta])*
-	// 	$item
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc_type, "::", $doc }
+	// 		$(doc_link_to { $doc_link_to })?
+	// 		item $item
+	// 	}
+	// };
+
+	// {
+	// 	@helper doc unsafe
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { self::$doc:literal $($doc_link_to:literal)? }
+	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	item $item:item
+	// } => {
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl unsafe
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc_type, "::", $doc }
+	// 		$(doc_link_to { $doc_link_to })?
+	// 		item $item
+	// 	}
 	// };
 
 	// {
 	// 	@helper doc
 	// 	{ $(#[$before_meta:meta])* }
-	// 	doc { $doc:literal $(self::$doc_link_to:literal)? }
-	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	doc { $doc:literal self::$doc_link_to:literal }
+	// 	doctype { $doc_type:literal $doc_type_link_to:literal }
 	// 	item $item:item
 	// } => {
-	// 	$(#[$before_meta])*
-	// 	$item
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc }
+	// 		doc_link_to { $doc_type_link_to, "::", $doc_link_to }
+	// 		item $item
+	// 	}
+	// };
+
+	// {
+	// 	@helper doc unsafe
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { $doc:literal self::$doc_link_to:literal }
+	// 	doctype { $doc_type:literal $doc_type_link_to:literal }
+	// 	item $item:item
+	// } => {
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl unsafe
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc }
+	// 		doc_link_to { $doc_type_link_to, "::", $doc_link_to }
+	// 		item $item
+	// 	}
 	// };
 
 	// {
@@ -984,8 +1046,29 @@ macro_rules! chain_fns {
 	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
 	// 	item $item:item
 	// } => {
-	// 	$(#[$before_meta])*
-	// 	$item
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc_type, "::", $doc }
+	// 		doc_link_to { $doc_type_link_to, "::", $doc_link_to }
+	// 		item $item
+	// 	}
+	// };
+
+	// {
+	// 	@helper doc unsafe
+	// 	{ $(#[$before_meta:meta])* }
+	// 	doc { self::$doc:literal $(self::$doc_link_to:literal)? }
+	// 	doctype { $doc_type:literal $($doc_type_link_to:literal)? }
+	// 	item $item:item
+	// } => {
+	// 	$crate::chain_fns! {
+	// 		@helper doc_impl unsafe
+	// 		{ $(#[$before_meta])* }
+	// 		doc { $doc_type, "::", $doc }
+	// 		doc_link_to { $doc_type_link_to, "::", $doc_link_to }
+	// 		item $item
+	// 	}
 	// };
 
 	{
@@ -1053,6 +1136,7 @@ macro_rules! chain_fns {
 		let _: () = { $($impl)* };
 		$self
 	};
+
 	{ @helper rest $self:ident $inner:ident $type:ty { $($impl:tt)*} } => {
 		// shushes the unused_mut warning
 		// I could modify the macro more to not emit `mut self` in the parameter
