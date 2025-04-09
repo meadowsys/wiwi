@@ -13,7 +13,7 @@ chain_fns! {
 	#[cfg(feature = "hashbrown")]
 	impl and_mut [K, V, S] { doc "HashMap" "hashbrown::HashMap" } hashbrown::HashMap<K, V, S>;
 
-	doc [Self::len]
+	doc [Self]
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
