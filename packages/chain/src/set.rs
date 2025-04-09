@@ -9,7 +9,7 @@ impl_chain_conversions! {
 
 chain_fns! {
 	impl and_mut [T, S] { doc "HashSet" "std::collections::HashSet" } std::collections::HashSet<T, S>;
-	impl and_mut [T] { doc "BTreeSet" "std::collections::BTree" } std::collections::BTreeSet<T>;
+	impl and_mut [T] { doc "BTreeSet" "std::collections::BTreeSet" } std::collections::BTreeSet<T>;
 	#[cfg(feature = "hashbrown")]
 	impl and_mut [T, S] { doc "HashSet" "hashbrown::HashSet" } hashbrown::HashSet<T, S>;
 
