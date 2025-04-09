@@ -14,6 +14,11 @@ chain_fns! {
 	impl and_mut [T, S] { doc "HashSet" "hashbrown::HashSet" } hashbrown::HashSet<T, S>;
 
 	doc [Self]
+	fn clear(inner) {
+		inner.clear()
+	}
+
+	doc [Self]
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}

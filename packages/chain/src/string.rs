@@ -7,7 +7,7 @@ chain_fns! {
 
 	doc ["String::clear"]
 	fn clear(inner) {
-		inner.clear();
+		inner.clear()
 	}
 
 	doc ["String::len"]
