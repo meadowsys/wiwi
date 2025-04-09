@@ -914,20 +914,13 @@ macro_rules! chain_fns {
 		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
 		item $item:item
 	} => {
-		$(#[$before_meta])*
-		#[doc = ""]
-		#[doc = concat!(
-			"See documentation for [`",
-			$doc,
-			"`]",
-			$(
-				"(",
-				$doc_link_to,
-				")",
-			)?
-			" for more details on the underlying function."
-		)]
-		$item
+		$crate::chain_fns! {
+			@helper doc_impl
+			{ $(#[$before_meta])* }
+			doc { $doc }
+			$(doc_link_to { $doc_link_to })?
+			item $item
+		}
 	};
 
 	{
@@ -937,34 +930,13 @@ macro_rules! chain_fns {
 		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
 		item $item:item
 	} => {
-		$(#[$before_meta])*
-		#[doc = ""]
-		#[doc = "# Safety"]
-		#[doc = ""]
-		#[doc = concat!(
-			"You must uphold safety invariants of [`",
-			$doc,
-			"`]",
-			$(
-				"(",
-				$doc_link_to,
-				")",
-			)?
-			"."
-		)]
-		#[doc = ""]
-		#[doc = concat!(
-			"See documentation for [`",
-			$doc,
-			"`]",
-			$(
-				"(",
-				$doc_link_to,
-				")",
-			)?
-			" for more details on the underlying function."
-		)]
-		$item
+		$crate::chain_fns! {
+			@helper doc_impl unsafe
+			{ $(#[$before_meta])* }
+			doc { $doc }
+			$(doc_link_to { $doc_link_to })?
+			item $item
+		}
 	};
 
 	// todo unsafe fn part
@@ -1015,6 +987,66 @@ macro_rules! chain_fns {
 	// 	$(#[$before_meta])*
 	// 	$item
 	// };
+
+	{
+		@helper doc_impl
+		{ $(#[$before_meta:meta])* }
+		doc { $($doc:tt)* }
+		$(doc_link_to { $($doc_link_to:tt)* })?
+		item $item:item
+	} => {
+		$(#[$before_meta])*
+		#[doc = ""]
+		#[doc = concat!(
+			"See documentation for [`",
+			$($doc)*,
+			"`]",
+			$(
+				"(",
+				$($doc_link_to)*,
+				")",
+			)?
+			" for more details on the underlying function."
+		)]
+		$item
+	};
+
+	{
+		@helper doc_impl unsafe
+		{ $(#[$before_meta:meta])* }
+		doc { $($doc:tt)* }
+		$(doc_link_to { $($doc_link_to:tt)* })?
+		item $item:item
+	} => {
+		$(#[$before_meta])*
+		#[doc = ""]
+		#[doc = "# Safety"]
+		#[doc = ""]
+		#[doc = concat!(
+			"You must uphold safety invariants of [`",
+			$($doc)*,
+			"`]",
+			$(
+				"(",
+				$($doc_link_to)*,
+				")",
+			)?
+			"."
+		)]
+		#[doc = ""]
+		#[doc = concat!(
+			"See documentation for [`",
+			$($doc)*,
+			"`]",
+			$(
+				"(",
+				$($doc_link_to)*,
+				")",
+			)?
+			" for more details on the underlying function."
+		)]
+		$item
+	};
 
 	{ @helper rest $self:ident $inner:ident { $($impl:tt)*} } => {
 		let $inner = <Self as $crate::ChainConversions>::as_inner_mut(&mut $self);
