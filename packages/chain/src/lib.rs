@@ -753,7 +753,7 @@ macro_rules! chain_fns {
 		@head
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
+		$(doc [$($doc:tt)+]$(($($doc_link_to:tt)+))?)?
 		$(#[$meta:meta])*
 		fn
 		$($stuff:tt)*
@@ -763,7 +763,7 @@ macro_rules! chain_fns {
 		@head
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
+		$(doc [$($doc:tt)+]$(($($doc_link_to:tt)+))?)?
 		$(#[$meta:meta])*
 		unsafe fn
 		$($stuff:tt)*
@@ -807,7 +807,7 @@ macro_rules! chain_fns {
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
+		$(doc [$($doc:tt)+]$(($($doc_link_to:tt)+))?)?
 		$(#[$meta:meta])*
 		fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -823,7 +823,8 @@ macro_rules! chain_fns {
 				#[inline]
 				$(#[$meta])*
 			}
-			$(doc { $doc $($doc_link_to)? })?
+			$(doc { [$($doc)+]$(($($doc_link_to)+))? })?
+			$(doctype { $($doc_type)* })?
 
 			item
 			pub fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
@@ -847,12 +848,11 @@ macro_rules! chain_fns {
 		}
 	};
 
-	// todo this
 	{
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [$doc:literal]$(($doc_link_to:literal))?)?
+		$(doc [$($doc:tt)+]$(($($doc_link_to:tt)+))?)?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident$([$($generics:tt)*])?
 		($inner:ident $($params:tt)*)
@@ -868,7 +868,8 @@ macro_rules! chain_fns {
 				#[inline]
 				$(#[$meta])*
 			}
-			$(doc { $doc $($doc_link_to)? })?
+			$(doc { [$($doc)+]$(($($doc_link_to)+))? })?
+			$(doctype { $($doc_type)* })?
 
 			item
 			pub unsafe fn $fn_name$(<$($generics)*>)?(mut self $($params)*)
@@ -910,7 +911,7 @@ macro_rules! chain_fns {
 	{
 		@helper doc
 		{ $(#[$before_meta:meta])* }
-		doc { $doc:literal $($doc_link_to:literal)? }
+		doc { [$doc:literal]$(($doc_link_to:literal))? }
 		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
 		item $item:item
 	} => {
@@ -926,7 +927,7 @@ macro_rules! chain_fns {
 	{
 		@helper doc unsafe
 		{ $(#[$before_meta:meta])* }
-		doc { $doc:literal $($doc_link_to:literal)? }
+		doc { [$doc:literal]$(($doc_link_to:literal))? }
 		$(doctype { $doc_type:literal $($doc_type_link_to:literal)? })?
 		item $item:item
 	} => {
@@ -942,19 +943,19 @@ macro_rules! chain_fns {
 	// below 2 macro arms branches things
 	// should be identical to the 2 below
 	// except with doc_link_to removed
-	// (need to keep doc_type_link_to to make it trivial to keep it fully)
+	// (need to keep doc_type_link_to to make it trivial to invoke)
 	{
 		@helper doc
 		{ $(#[$before_meta:meta])* }
-		doc { self::$doc:literal }
+		doc { [Self::$doc:ident] }
 		doctype { $doc_type:literal $($doc_type_link_to:literal)? }
 		item $item:item
 	} => {
 		$crate::chain_fns! {
 			@helper doc_impl
 			{ $(#[$before_meta])* }
-			doc { $doc_type, "::", $doc }
-			$(doc_link_to { $doc_link_to })?
+			doc { $doc_type, "::", stringify!($doc) }
+			$(doc_link_to { $doc_type_link_to, "::", stringify!($doc) })?
 			item $item
 		}
 	};
@@ -962,19 +963,20 @@ macro_rules! chain_fns {
 	{
 		@helper doc unsafe
 		{ $(#[$before_meta:meta])* }
-		doc { self::$doc:literal }
+		doc { [Self::$doc:ident] }
 		doctype { $doc_type:literal $($doc_type_link_to:literal)? }
 		item $item:item
 	} => {
 		$crate::chain_fns! {
 			@helper doc_impl unsafe
 			{ $(#[$before_meta])* }
-			doc { $doc_type, "::", $doc }
-			$(doc_link_to { $doc_link_to })?
+			doc { $doc_type, "::", stringify!($doc) }
+			$(doc_link_to { $doc_type_link_to, "::", stringify!($doc) })?
 			item $item
 		}
 	};
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc
 	// 	{ $(#[$before_meta:meta])* }
@@ -991,6 +993,7 @@ macro_rules! chain_fns {
 	// 	}
 	// };
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc unsafe
 	// 	{ $(#[$before_meta:meta])* }
@@ -1007,6 +1010,7 @@ macro_rules! chain_fns {
 	// 	}
 	// };
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc
 	// 	{ $(#[$before_meta:meta])* }
@@ -1023,6 +1027,7 @@ macro_rules! chain_fns {
 	// 	}
 	// };
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc unsafe
 	// 	{ $(#[$before_meta:meta])* }
@@ -1039,6 +1044,7 @@ macro_rules! chain_fns {
 	// 	}
 	// };
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc
 	// 	{ $(#[$before_meta:meta])* }
@@ -1055,6 +1061,7 @@ macro_rules! chain_fns {
 	// 	}
 	// };
 
+	// probably broken/out of date
 	// {
 	// 	@helper doc unsafe
 	// 	{ $(#[$before_meta:meta])* }

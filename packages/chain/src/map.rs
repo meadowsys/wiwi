@@ -8,14 +8,14 @@ impl_chain_conversions! {
 }
 
 chain_fns! {
-	impl and_mut [K, V, S] std::collections::HashMap<K, V, S>;
-	impl and_mut [K, V] std::collections::BTreeMap<K, V>;
+	impl and_mut [K, V, S] { doc "HashMap" "std::collections::HashMap" } std::collections::HashMap<K, V, S>;
+	impl and_mut [K, V] { doc "BTreeMap" "std::collections::BTreeMap" } std::collections::BTreeMap<K, V>;
 	#[cfg(feature = "hashbrown")]
-	impl and_mut [K, V, S] hashbrown::HashMap<K, V, S>;
+	impl and_mut [K, V, S] { doc "HashMap" "hashbrown::HashMap" } hashbrown::HashMap<K, V, S>;
 
-	doc ["awa"]
-	fn test_todo_remove_me_lol(inner) {
-		let _ = inner;
+	doc [Self::len]
+	fn len(inner, out: impl Output<usize>) {
+		out.write(inner.len())
 	}
 }
 
