@@ -266,6 +266,45 @@ where
 
 // todo Hasher...?
 
+impl<T> IntoIterator for Chain<T>
+where
+	T: IntoIterator
+{
+	type Item = T::Item;
+	type IntoIter = T::IntoIter;
+
+	#[inline]
+	fn into_iter(self) -> T::IntoIter {
+		self.into_inner().into_iter()
+	}
+}
+
+impl<'h, T> IntoIterator for &'h Chain<T>
+where
+	&'h T: IntoIterator
+{
+	type Item = <&'h T as IntoIterator>::Item;
+	type IntoIter = <&'h T as IntoIterator>::IntoIter;
+
+	#[inline]
+	fn into_iter(self) -> <&'h T as IntoIterator>::IntoIter {
+		self.as_inner().into_iter()
+	}
+}
+
+impl<'h, T> IntoIterator for &'h mut Chain<T>
+where
+	&'h mut T: IntoIterator
+{
+	type Item = <&'h mut T as IntoIterator>::Item;
+	type IntoIter = <&'h mut T as IntoIterator>::IntoIter;
+
+	#[inline]
+	fn into_iter(self) -> <&'h mut T as IntoIterator>::IntoIter {
+		self.as_inner_mut().into_iter()
+	}
+}
+
 // todo ord
 
 impl<T, T2> PartialEq<T2> for Chain<T>
