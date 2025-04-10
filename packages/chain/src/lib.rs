@@ -846,7 +846,7 @@ macro_rules! chain_fns {
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [Self]$(($($doc_link_to:tt)+))?)?
+		doc [Self]$(($($doc_link_to:tt)+))?
 		$(#[$meta:meta])*
 		fn $fn_name:ident
 
@@ -856,7 +856,7 @@ macro_rules! chain_fns {
 			@impl
 			$({ doctype $($doc_type)* })?
 
-			$(doc [Self::$fn_name]$(($($doc_link_to)+))?)?
+			doc [Self::$fn_name]$(($($doc_link_to)+))?
 			$(#[$meta])*
 			fn $fn_name
 
@@ -868,7 +868,7 @@ macro_rules! chain_fns {
 		@impl
 		$({ doctype $($doc_type:tt)* })?
 
-		$(doc [Self]$(($($doc_link_to:tt)+))?)?
+		doc [Self]$(($($doc_link_to:tt)+))?
 		$(#[$meta:meta])*
 		unsafe fn $fn_name:ident
 
@@ -878,7 +878,7 @@ macro_rules! chain_fns {
 			@impl
 			$({ doctype $($doc_type)* })?
 
-			$(doc [Self::$fn_name]$(($($doc_link_to)+))?)?
+			doc [Self::$fn_name]$(($($doc_link_to)+))?
 			$(#[$meta])*
 			unsafe fn $fn_name
 
