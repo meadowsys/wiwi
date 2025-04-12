@@ -567,21 +567,20 @@ macro_rules! impl_chain_conversions {
 			where
 				Self: 'mut_chain;
 
-			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				self.as_inner()
+				$crate::Chain::as_inner(self)
 			}
 
-			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				self.as_inner_mut()
+				$crate::Chain::as_inner_mut(self)
 			}
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				$crate::Chain::from_inner(self.as_inner_mut())
+				let inner = $crate::Chain::as_inner_mut(self);
+				$crate::Chain::from_inner(inner)
 			}
 		}
 
@@ -592,21 +591,20 @@ macro_rules! impl_chain_conversions {
 			where
 				Self: 'mut_chain;
 
-			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				self.as_inner()
+				*$crate::Chain::as_inner(self)
 			}
 
-			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				self.as_inner_mut()
+				*$crate::Chain::as_inner_mut(self)
 			}
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				$crate::Chain::from_inner(*self.as_inner_mut())
+				let inner = $crate::Chain::as_inner_mut(self);
+				$crate::Chain::from_inner(*inner)
 			}
 		}
 
@@ -629,7 +627,7 @@ macro_rules! impl_chain_conversions {
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				Chain::from_inner(self)
+				$crate::Chain::from_inner(self)
 			}
 		}
 
@@ -644,7 +642,7 @@ macro_rules! impl_chain_conversions {
 
 			#[inline]
 			fn into_inner(self) -> $inner {
-				<$inner as $crate::ChainInner>::from_chain(self)
+				$crate::Chain::into_inner(self)
 			}
 		}
 
