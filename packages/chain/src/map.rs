@@ -1,4 +1,5 @@
 use crate::prelude_internal::*;
+use std::hash::{ BuildHasher, Hash };
 
 impl_chain_conversions! { [K, V, S] std::collections::HashMap<K, V, S> }
 impl_chain_conversions! { [K, V] std::collections::BTreeMap<K, V> }
@@ -24,7 +25,32 @@ chain_fns! {
 	}
 }
 
+chain_fns! {
+	impl and_mut [K, V, S] { doc "HashMap" "std::collections::HashMap" } std::collections::HashMap<K, V, S>;
+	#[cfg(feature = "hashbrown")]
+	impl and_mut [K, V, S] { doc "HashMap" "hashbrown::HashMap" } hashbrown::HashMap<K, V, S>;
 
+	doc [Self]
+	fn insert(inner, k: K, v: V, out: impl Output<Option<V>>)
+	where {
+		K: Eq + Hash,
+		S: BuildHasher
+	} {
+		out.write(inner.insert(k, v))
+	}
+}
+
+chain_fns! {
+	impl and_mut [K, V] { doc "BTreeMap" "std::collections::BTreeMap" } std::collections::BTreeMap<K, V>;
+
+	doc [Self]
+	fn insert(inner, k: K, v: V, out: impl Output<Option<V>>)
+	where {
+		K: Ord
+	} {
+		out.write(inner.insert(k, v))
+	}
+}
 
 /*
 std
