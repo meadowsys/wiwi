@@ -14,13 +14,13 @@ mod vec;
 #[must_use = "a chain always takes ownership of itself, performs the operation, then returns itself again"]
 #[repr(transparent)]
 pub struct Chain<T> {
-	inner: T
+	__inner: T
 }
 
 impl<T> Chain<T> {
 	#[inline]
 	pub fn from_inner(inner: T) -> Self {
-		Self { inner }
+		Self { __inner: inner }
 	}
 
 	#[inline]
@@ -30,12 +30,12 @@ impl<T> Chain<T> {
 
 	#[inline]
 	pub fn as_inner(&self) -> &T {
-		&self.inner
+		&self.__inner
 	}
 
 	#[inline]
 	pub fn as_inner_mut(&mut self) -> &mut T {
-		&mut self.inner
+		&mut self.__inner
 	}
 
 	/// Takes a closure that is called, passing in a reference to the inner value
@@ -63,7 +63,7 @@ impl<T> Chain<T> {
 	/// ```
 	#[inline]
 	pub fn with_inner(mut self, f: impl FnOnce(&mut T)) -> Self {
-		f(&mut self.inner);
+		f(self.as_inner_mut());
 		self
 	}
 }
@@ -74,7 +74,7 @@ impl<T> Chain<&T> {
 	where
 		T: Clone
 	{
-		Chain { inner: self.inner.clone() }
+		(*self.as_inner()).clone().into_chain()
 	}
 
 	#[inline]
@@ -82,7 +82,7 @@ impl<T> Chain<&T> {
 	where
 		T: Copy
 	{
-		Chain { inner: *self.inner }
+		(**self.as_inner()).into_chain()
 	}
 }
 
@@ -92,7 +92,7 @@ impl<T> Chain<&mut T> {
 	where
 		T: Clone
 	{
-		Chain { inner: self.inner.clone() }
+		(*self.as_inner()).clone().into_chain()
 	}
 
 	#[inline]
@@ -100,28 +100,28 @@ impl<T> Chain<&mut T> {
 	where
 		T: Copy
 	{
-		Chain { inner: *self.inner }
+		(**self.as_inner()).into_chain()
 	}
 }
 
 impl<'h, T> Chain<&'h &'h T> {
 	#[inline]
 	pub fn flatten(self) -> Chain<&'h T> {
-		Chain { inner: self.inner }
+		(*self.into_inner()).into_chain()
 	}
 }
 
 impl<'h, T> Chain<&'h mut &'h mut T> {
 	#[inline]
 	pub fn flatten(self) -> Chain<&'h mut T> {
-		Chain { inner: self.inner }
+		(*self.into_inner()).into_chain()
 	}
 }
 
 impl<T> Chain<Chain<T>> {
 	#[inline]
 	pub fn flatten(self) -> Chain<T> {
-		Chain { inner: self.inner.inner }
+		self.into_inner()
 	}
 
 	// ?????
@@ -345,7 +345,7 @@ where
 pub trait ChainInner: Sized {
 	#[inline]
 	fn from_chain(chain: Chain<Self>) -> Self {
-		chain.inner
+		chain.into_inner()
 	}
 
 	#[inline]
@@ -567,19 +567,21 @@ macro_rules! impl_chain_conversions {
 			where
 				Self: 'mut_chain;
 
+			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				&self.inner
+				self.as_inner()
 			}
 
+			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				&mut self.inner
+				self.as_inner_mut()
 			}
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				$crate::Chain { inner: &mut self.inner }
+				$crate::Chain::from_inner(self.as_inner_mut())
 			}
 		}
 
@@ -590,19 +592,21 @@ macro_rules! impl_chain_conversions {
 			where
 				Self: 'mut_chain;
 
+			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				self.inner
+				self.as_inner()
 			}
 
+			#[deny(unconditional_recursion)]
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				self.inner
+				self.as_inner_mut()
 			}
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				$crate::Chain { inner: self.inner }
+				$crate::Chain::from_inner(*self.as_inner_mut())
 			}
 		}
 
@@ -625,7 +629,7 @@ macro_rules! impl_chain_conversions {
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
-				$crate::Chain { inner: self }
+				Chain::from_inner(self)
 			}
 		}
 
