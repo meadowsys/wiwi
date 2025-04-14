@@ -3,39 +3,39 @@
 <a href=#3 id=3 data-nosnippet>3</a><span class="macro">impl_chain_conversions!</span> { [] String }
 <a href=#4 id=4 data-nosnippet>4</a>
 <a href=#5 id=5 data-nosnippet>5</a><span class="macro">chain_fns!</span> {
-<a href=#6 id=6 data-nosnippet>6</a>	<span class="kw">impl </span>and_mut [] String;
+<a href=#6 id=6 data-nosnippet>6</a>	<span class="kw">impl </span>and_mut [] { doc <span class="string">"String" </span>} String;
 <a href=#7 id=7 data-nosnippet>7</a>
-<a href=#8 id=8 data-nosnippet>8</a>	doc [<span class="string">"String::clear"</span>]
+<a href=#8 id=8 data-nosnippet>8</a>	doc [<span class="self">Self</span>]
 <a href=#9 id=9 data-nosnippet>9</a>	<span class="kw">fn </span>clear(inner) {
 <a href=#10 id=10 data-nosnippet>10</a>		inner.clear()
 <a href=#11 id=11 data-nosnippet>11</a>	}
 <a href=#12 id=12 data-nosnippet>12</a>
-<a href=#13 id=13 data-nosnippet>13</a>	doc [<span class="string">"String::len"</span>]
+<a href=#13 id=13 data-nosnippet>13</a>	doc [<span class="self">Self</span>]
 <a href=#14 id=14 data-nosnippet>14</a>	<span class="kw">fn </span>len(inner, out: <span class="kw">impl </span>Output&lt;usize&gt;) {
 <a href=#15 id=15 data-nosnippet>15</a>		out.write(inner.len())
 <a href=#16 id=16 data-nosnippet>16</a>	}
 <a href=#17 id=17 data-nosnippet>17</a>
-<a href=#18 id=18 data-nosnippet>18</a>	doc [<span class="string">"String::push"</span>]
+<a href=#18 id=18 data-nosnippet>18</a>	doc [<span class="self">Self</span>]
 <a href=#19 id=19 data-nosnippet>19</a>	<span class="kw">fn </span>push(inner, ch: char) {
 <a href=#20 id=20 data-nosnippet>20</a>		inner.push(ch)
 <a href=#21 id=21 data-nosnippet>21</a>	}
 <a href=#22 id=22 data-nosnippet>22</a>
-<a href=#23 id=23 data-nosnippet>23</a>	doc [<span class="string">"String::push_str"</span>]
+<a href=#23 id=23 data-nosnippet>23</a>	doc [<span class="self">Self</span>]
 <a href=#24 id=24 data-nosnippet>24</a>	<span class="kw">fn </span>push_str(inner, string: <span class="kw-2">&amp;</span>str) {
 <a href=#25 id=25 data-nosnippet>25</a>		inner.push_str(string)
 <a href=#26 id=26 data-nosnippet>26</a>	}
 <a href=#27 id=27 data-nosnippet>27</a>
-<a href=#28 id=28 data-nosnippet>28</a>	doc [<span class="string">"String::reserve"</span>]
+<a href=#28 id=28 data-nosnippet>28</a>	doc [<span class="self">Self</span>]
 <a href=#29 id=29 data-nosnippet>29</a>	<span class="kw">fn </span>reserve(inner, additional: usize) {
 <a href=#30 id=30 data-nosnippet>30</a>		inner.reserve(additional)
 <a href=#31 id=31 data-nosnippet>31</a>	}
 <a href=#32 id=32 data-nosnippet>32</a>
-<a href=#33 id=33 data-nosnippet>33</a>	doc [<span class="string">"String::reserve_exact"</span>]
+<a href=#33 id=33 data-nosnippet>33</a>	doc [<span class="self">Self</span>]
 <a href=#34 id=34 data-nosnippet>34</a>	<span class="kw">fn </span>reserve_exact(inner, additional: usize) {
 <a href=#35 id=35 data-nosnippet>35</a>		inner.reserve_exact(additional)
 <a href=#36 id=36 data-nosnippet>36</a>	}
 <a href=#37 id=37 data-nosnippet>37</a>
-<a href=#38 id=38 data-nosnippet>38</a>	doc [<span class="string">"String::retain"</span>]
+<a href=#38 id=38 data-nosnippet>38</a>	doc [<span class="self">Self</span>]
 <a href=#39 id=39 data-nosnippet>39</a>	<span class="kw">fn </span>retain(inner, f: <span class="kw">impl </span>FnMut(char) -&gt; bool) {
 <a href=#40 id=40 data-nosnippet>40</a>		inner.retain(f)
 <a href=#41 id=41 data-nosnippet>41</a>	}
