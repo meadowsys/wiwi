@@ -3,39 +3,39 @@ use crate::prelude_internal::*;
 impl_chain_conversions! { [] String }
 
 chain_fns! {
-	impl and_mut [] String;
+	impl and_mut [] { doc "String" } String;
 
-	doc ["String::clear"]
+	doc [Self]
 	fn clear(inner) {
 		inner.clear()
 	}
 
-	doc ["String::len"]
+	doc [Self]
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
 
-	doc ["String::push"]
+	doc [Self]
 	fn push(inner, ch: char) {
 		inner.push(ch)
 	}
 
-	doc ["String::push_str"]
+	doc [Self]
 	fn push_str(inner, string: &str) {
 		inner.push_str(string)
 	}
 
-	doc ["String::reserve"]
+	doc [Self]
 	fn reserve(inner, additional: usize) {
 		inner.reserve(additional)
 	}
 
-	doc ["String::reserve_exact"]
+	doc [Self]
 	fn reserve_exact(inner, additional: usize) {
 		inner.reserve_exact(additional)
 	}
 
-	doc ["String::retain"]
+	doc [Self]
 	fn retain(inner, f: impl FnMut(char) -> bool) {
 		inner.retain(f)
 	}
