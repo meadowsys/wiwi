@@ -5,7 +5,7 @@ use core::mem::MaybeUninit;
 impl_chain_conversions! { [T] Vec<T> }
 
 chain_fns! {
-	impl and_mut [T] Vec<T>;
+	impl and_mut [T] { doc "Vec" } Vec<T>;
 
 	doc ["[T]::align_to"]("slice::align_to")
 	unsafe fn align_to[U](inner, cb: impl FnOnce((&[T], &[U], &[T]))) {
@@ -22,7 +22,7 @@ chain_fns! {
 		unsafe { cb(inner.align_to_mut()) }
 	}
 
-	doc ["Vec::append"]
+	doc [Self]
 	fn append(inner, other: &mut impl ChainConversions<Inner = Vec<T>>) {
 		inner.append(other.as_inner_mut())
 	}
@@ -59,12 +59,12 @@ chain_fns! {
 		out.write(inner.binary_search_by_key(b, f))
 	}
 
-	doc ["Vec::capacity"]
+	doc [Self]
 	fn capacity(inner, out: impl Output<usize>) {
 		out.write(inner.capacity())
 	}
 
-	doc ["Vec::clear"]
+	doc [Self]
 	fn clear(inner) {
 		inner.clear()
 	}
@@ -78,7 +78,7 @@ chain_fns! {
 	// 	out.write(inner.concat())
 	// }
 
-	doc ["Vec::dedup"]
+	doc [Self]
 	fn dedup(inner)
 	where {
 		T: PartialEq
@@ -86,7 +86,7 @@ chain_fns! {
 		inner.dedup()
 	}
 
-	doc ["Vec::dedup_by"]
+	doc [Self]
 	fn dedup_by(
 		inner,
 		same_bucket: impl FnMut(&mut T, &mut T) -> bool
@@ -94,7 +94,7 @@ chain_fns! {
 		inner.dedup_by(same_bucket)
 	}
 
-	doc ["Vec::dedup_by_key"]
+	doc [Self]
 	fn dedup_by_key[K](inner, key: impl FnMut(&mut T) -> K)
 	where {
 		K: PartialEq
@@ -114,22 +114,22 @@ chain_fns! {
 		inner.fill_with(f)
 	}
 
-	doc ["Vec::insert"]
+	doc [Self]
 	fn insert(inner, index: usize, element: T) {
 		inner.insert(index, element)
 	}
 
-	doc ["Vec::is_empty"]
+	doc [Self]
 	fn is_empty(inner, out: impl Output<bool>) {
 		out.write(inner.is_empty())
 	}
 
-	doc ["Vec::len"]
+	doc [Self]
 	fn len(inner, out: impl Output<usize>) {
 		out.write(inner.len())
 	}
 
-	doc ["Vec::pop"]
+	doc [Self]
 	fn pop(inner, out: impl Output<Option<T>>) {
 		out.write(inner.pop())
 	}
@@ -141,7 +141,7 @@ chain_fns! {
 	// 	out: impl Output<Option<T>>
 	// ) => out.write(inner.pop_if(predicate));
 
-	doc ["Vec::push"]
+	doc [Self]
 	fn push(inner, value: T) {
 		inner.push(value)
 	}
@@ -152,22 +152,22 @@ chain_fns! {
 	// 	out.write(inner.push_within_capacity(value))
 	// }
 
-	doc ["Vec::remove"]
+	doc [Self]
 	fn remove(inner, index: usize, out: impl Output<T>) {
 		out.write(inner.remove(index))
 	}
 
-	doc ["Vec::reserve"]
+	doc [Self]
 	fn reserve(inner, additional: usize) {
 		inner.reserve(additional)
 	}
 
-	doc ["Vec::reserve_exact"]
+	doc [Self]
 	fn reserve_exact(inner, additional: usize) {
 		inner.reserve_exact(additional)
 	}
 
-	doc ["Vec::resize"]
+	doc [Self]
 	fn resize(inner, new_len: usize, value: T)
 	where {
 		T: Clone
@@ -175,33 +175,33 @@ chain_fns! {
 		inner.resize(new_len, value)
 	}
 
-	doc ["Vec::resize_with"]
+	doc [Self]
 	fn resize_with(inner, new_len: usize, f: impl FnMut() -> T) {
 		inner.resize_with(new_len, f)
 	}
 
-	doc ["Vec::retain"]
+	doc [Self]
 	fn retain(inner, f: impl FnMut(&T) -> bool) {
 		inner.retain(f)
 	}
 
-	doc ["Vec::retain_mut"]
+	doc [Self]
 	fn retain_mut(inner, f: impl FnMut(&mut T) -> bool) {
 		inner.retain_mut(f)
 	}
 
-	doc ["Vec::set_len"]
+	doc [Self]
 	unsafe fn set_len(inner, new_len: usize) {
 		// SAFETY: caller promises to uphold safety invariants
 		unsafe { inner.set_len(new_len) }
 	}
 
-	doc ["Vec::shrink_to"]
+	doc [Self]
 	fn shrink_to(inner, min_capacity: usize) {
 		inner.shrink_to(min_capacity)
 	}
 
-	doc ["Vec::shrink_to_fit"]
+	doc [Self]
 	fn shrink_to_fit(inner) {
 		inner.shrink_to_fit()
 	}
@@ -235,7 +235,7 @@ chain_fns! {
 		inner.sort_by_cached_key(f)
 	}
 
-	doc ["Vec::spare_capacity_mut"]
+	doc [Self]
 	fn spare_capacity_mut(inner, cb: impl FnOnce(&mut [MaybeUninit<T>])) {
 		cb(inner.spare_capacity_mut())
 	}
