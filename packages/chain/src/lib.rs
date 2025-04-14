@@ -74,7 +74,7 @@ impl<T> Chain<&T> {
 	where
 		T: Clone
 	{
-		(*self.as_inner()).clone().into_chain()
+		(**self.as_inner()).clone().into_chain()
 	}
 
 	#[inline]
@@ -92,7 +92,7 @@ impl<T> Chain<&mut T> {
 	where
 		T: Clone
 	{
-		(*self.as_inner()).clone().into_chain()
+		(**self.as_inner()).clone().into_chain()
 	}
 
 	#[inline]
@@ -593,18 +593,18 @@ macro_rules! impl_chain_conversions {
 
 			#[inline]
 			fn as_inner(&self) -> &Self::Inner {
-				*$crate::Chain::as_inner(self)
+				&**$crate::Chain::as_inner(self)
 			}
 
 			#[inline]
 			fn as_inner_mut(&mut self) -> &mut Self::Inner {
-				*$crate::Chain::as_inner_mut(self)
+				&mut **$crate::Chain::as_inner_mut(self)
 			}
 
 			#[inline]
 			fn as_mut_chain(&mut self) -> $crate::Chain<&mut $inner> {
 				let inner = $crate::Chain::as_inner_mut(self);
-				$crate::Chain::from_inner(*inner)
+				$crate::Chain::from_inner(&mut **inner)
 			}
 		}
 
