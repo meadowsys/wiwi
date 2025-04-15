@@ -3,6 +3,9 @@ use core::hash::{ Hash, Hasher };
 #[cfg(feature = "serde")]
 use serde::{ Deserialize, Deserializer, Serialize, Serializer };
 
+pub use self::do_if::*;
+
+pub mod do_if;
 pub mod types;
 
 mod array;
@@ -65,6 +68,57 @@ impl<T> Chain<T> {
 	pub fn with_inner(mut self, f: impl FnOnce(&mut T)) -> Self {
 		f(self.as_inner_mut());
 		self
+	}
+
+	#[inline]
+	pub fn do_if(
+		self,
+		condition: bool,
+		f: impl FnOnce(Self) -> Self
+	) -> Self {
+		self.do_if_cond::<IsTrue, _>(
+			condition,
+			|c, _| f(c)
+		)
+	}
+
+	#[inline]
+	pub fn do_if_some<Some>(
+		self,
+		condition: Option<Some>,
+		f: impl FnOnce(Self, Some) -> Self
+	) -> Self {
+		self.do_if_cond::<IsSome, _>(condition, f)
+	}
+
+	#[inline]
+	pub fn do_if_ok<Ok, Err>(
+		self,
+		condition: Result<Ok, Err>,
+		f: impl FnOnce(Self, Ok) -> Self
+	) -> Self {
+		self.do_if_cond::<IsOk, _>(condition, f)
+	}
+
+	#[inline]
+	pub fn do_if_err<Ok, Err>(
+		self,
+		condition: Result<Ok, Err>,
+		f: impl FnOnce(Self, Err) -> Self
+	) -> Self {
+		self.do_if_cond::<IsErr, _>(condition, f)
+	}
+
+	#[inline]
+	pub fn do_if_cond<Condition, Wrapped>(
+		self,
+		condition: Wrapped,
+		f: impl FnOnce(Self, Condition::Unwrapped) -> Self
+	) -> Self
+	where
+		Condition: DoIf<Wrapped>
+	{
+		Condition::run(self, condition, f)
 	}
 }
 
