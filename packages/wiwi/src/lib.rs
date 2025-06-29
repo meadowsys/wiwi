@@ -55,7 +55,6 @@ pub mod parser;
 pub mod rc;
 #[cfg(feature = "nightly")]
 pub mod rc_nightly;
-pub mod serialiser;
 pub mod string;
 pub mod tuple;
 pub mod vh;
