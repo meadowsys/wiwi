@@ -1,0 +1,34 @@
+[package]
+name = "wiwi-pk-api"
+description = "todo idk"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+
+[dependencies]
+serde = { workspace = true, optional = true, features = ["derive"] }
+uuid = { workspace = true, optional = true }
+
+[features]
+default = ["nightly", "serde", "uuid"]
+
+nightly = []
+
+serde = ["dep:serde"]
+uuid = ["dep:uuid"]
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = [
+	"--cfg",
+	"docsrs"
+]
+features = []
+targets = [
+	"aarch64-apple-darwin"
+]
