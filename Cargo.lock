@@ -1186,6 +1186,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "wiwi-num"
+version = "0.11.0-pre.3"
+
+[[package]]
 name = "wiwi-pk-api"
 version = "0.11.0-pre.3"
 dependencies = [
