@@ -1,0 +1,62 @@
+[package]
+name = "wiwi"
+description = "A library, of, Stuff™"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+categories = [
+	"rust-patterns"
+]
+keywords = [
+	"fundamental",
+	"general",
+	"general-purpose",
+	"z85"
+]
+
+[dependencies]
+wiwi-macro-decl = { workspace = true }
+wiwi-macro-proc = { workspace = true }
+
+# should be optional, but isn't for now because
+# wiwi still has code in itself that depends on chain
+wiwi-chain = { workspace = true }
+wiwi-util = { workspace = true }
+
+cfg-if = { workspace = true }
+chrono = { workspace = true }
+hashbrown = { workspace = true }
+home = { workspace = true }
+parking_lot = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+hex = { workspace = true }
+rand = { workspace = true }
+z85 = { workspace = true }
+
+[features]
+nightly = []
+# unstable = []
+
+chain = [
+	# "dep:wiwi-chain"
+]
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+features = []
+targets = [
+	"aarch64-apple-darwin",
+	"x86_64-apple-darwin",
+	"x86_64-unknown-linux-gnu",
+	"x86_64-pc-windows-msvc"
+]

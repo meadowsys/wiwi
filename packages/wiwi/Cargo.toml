@@ -17,37 +17,6 @@ keywords = [
 	"z85"
 ]
 
-[dependencies]
-wiwi-macro-decl = { workspace = true }
-wiwi-macro-proc = { workspace = true }
-
-# should be optional, but isn't for now because
-# wiwi still has code in itself that depends on chain
-wiwi-chain = { workspace = true }
-wiwi-util = { workspace = true }
-
-cfg-if = { workspace = true }
-chrono = { workspace = true }
-hashbrown = { workspace = true }
-home = { workspace = true }
-parking_lot = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
-
-[dev-dependencies]
-criterion = { workspace = true }
-hex = { workspace = true }
-rand = { workspace = true }
-z85 = { workspace = true }
-
-[features]
-nightly = []
-# unstable = []
-
-chain = [
-	# "dep:wiwi-chain"
-]
-
 [lints]
 workspace = true
 
