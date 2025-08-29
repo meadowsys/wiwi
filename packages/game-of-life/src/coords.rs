@@ -55,6 +55,25 @@ impl Coords for (i32, i32) {
 	}
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub struct I128Coords {
+	pub x: i128,
+	pub y: i128
+}
+
+impl Coords for I128Coords {
+	type BuildHasher = I128BuildHasher;
+
+	coords_neighbouring_impl!();
+}
+
+impl Hash for I128Coords {
+	fn hash<H: Hasher>(&self, state: &mut H) {
+		state.write_i128(self.x);
+		state.write_i128(self.y);
+	}
+}
+
 // impl Coord for i128 {
 // 	type BuildHasher = I128Hasher;
 // }
@@ -71,43 +90,96 @@ impl Coords for (i32, i32) {
 // // // todo impls
 // // pub struct I64HasherInstance {}
 
-// // todo impls
-// pub struct I128Hasher;
+// todo impls
+pub struct I128BuildHasher;
 
-// // todo impls
-// pub struct I128HasherInstance {
-// 	state: u128,
-// 	flag: bool
-// }
+// todo impls
+pub struct I128Hasher {
+	state: u128,
+	flag: bool
+}
 
-// impl BuildHasher for I128Hasher {
-// 	type Hasher = I128HasherInstance;
+impl BuildHasher for I128BuildHasher {
+	type Hasher = I128Hasher;
 
-// 	fn build_hasher(&self) -> I128HasherInstance {
-// 		I128HasherInstance { state: 0, flag: false }
-// 	}
-// }
+	fn build_hasher(&self) -> I128Hasher {
+		I128Hasher { state: 0, flag: false }
+	}
+}
 
-// impl Hasher for I128HasherInstance {
-// 	#[expect(clippy::as_conversions, reason = "numerical cast")]
-// 	fn finish(&self) -> u64 {
-// 		self.state as u64 ^ (self.state >> 64) as u64
-// 	}
+impl Hasher for I128Hasher {
+	#[expect(clippy::as_conversions, reason = "numerical cast")]
+	fn finish(&self) -> u64 {
+		self.state as u64 ^ (self.state >> 64) as u64
+	}
 
-// 	fn write(&mut self, bytes: &[u8]) {
-// 		let _ = bytes;
-// 		unimplemented!()
-// 	}
+	fn write(&mut self, bytes: &[u8]) {
+		let _ = bytes;
+		unimplemented!()
+	}
 
-// 	#[expect(clippy::as_conversions, reason = "numerical cast")]
-// 	fn write_i128(&mut self, i: i128) {
-// 		let i = i as u128;
-// 		self.flag = !self.flag;
+	#[expect(clippy::as_conversions, reason = "numerical cast")]
+	fn write_i128(&mut self, i: i128) {
+		let i = i as u128;
+		self.flag = !self.flag;
 
-// 		self.state ^= if self.flag {
-// 			i
-// 		} else {
-// 			(i >> 64) & (i << 64)
-// 		}
-// 	}
-// }
+		self.state ^= if self.flag {
+			i
+		} else {
+			(i >> 64) & (i << 64)
+		}
+	}
+}
+
+macro_rules! coords_neighbouring_impl {
+	() => {
+		#[inline]
+		fn coord_up(self) -> Self {
+			let Self { x, y } = self;
+			Self { x, y: y + 1 }
+		}
+
+		#[inline]
+		fn coord_down(self) -> Self {
+			let Self { x, y } = self;
+			Self { x, y: y - 1 }
+		}
+
+		#[inline]
+		fn coord_left(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x - 1, y }
+		}
+
+		#[inline]
+		fn coord_right(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x + 1, y }
+		}
+
+		#[inline]
+		fn coord_upleft(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x - 1, y: y + 1 }
+		}
+
+		#[inline]
+		fn coord_upright(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x + 1, y: y + 1 }
+		}
+
+		#[inline]
+		fn coord_downleft(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x - 1, y: y - 1 }
+		}
+
+		#[inline]
+		fn coord_downright(self) -> Self {
+			let Self { x, y } = self;
+			Self { x: x + 1, y: y - 1 }
+		}
+	}
+}
+use coords_neighbouring_impl;
