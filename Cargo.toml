@@ -2,6 +2,7 @@
 resolver = "3"
 members = [
 	"packages/builder",
+	"packages/collections",
 	"packages/wiwi"
 ]
 
@@ -26,7 +27,7 @@ license = "MIT"
 # chrono = { version = "0.4.38", features = ["clock"] }
 # criterion = { version = "0.5.1", features = ["html_reports"] }
 # darling = "0.20.10"
-# hashbrown = { version = "0.15.0" }
+hashbrown = "0.16.1"
 # hex = "0.4.3"
 # home = "0.5.9"
 # parking_lot = "0.12.3"
