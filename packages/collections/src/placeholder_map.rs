@@ -278,13 +278,6 @@ pub struct Keys<'h, K, V> {
 // todo impl Debug for Keys
 // todo impl Default for Keys
 
-impl<'h, K, V> ExactSizeIterator for Keys<'h, K, V> {
-	#[inline]
-	fn len(&self) -> usize {
-		self.inner.len()
-	}
-}
-
 impl<'h, K, V> Iterator for Keys<'h, K, V> {
 	type Item = &'h K;
 
@@ -309,6 +302,13 @@ impl<'h, K, V> Iterator for Keys<'h, K, V> {
 	}
 }
 
+impl<'h, K, V> ExactSizeIterator for Keys<'h, K, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
 impl<'h, K, V> FusedIterator for Keys<'h, K, V> {}
 
 // todo thread safety traits
@@ -319,13 +319,6 @@ pub struct Values<'h, V> {
 // todo impl Clone for Values
 // todo impl Debug for Values
 // todo impl Default for Values
-
-impl<'h, V> ExactSizeIterator for Values<'h, V> {
-	#[inline]
-	fn len(&self) -> usize {
-		self.inner.len()
-	}
-}
 
 impl<'h, V> Iterator for Values<'h, V> {
 	type Item = &'h V;
@@ -359,6 +352,13 @@ impl<'h, V> Iterator for Values<'h, V> {
 	}
 }
 
+impl<'h, V> ExactSizeIterator for Values<'h, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
 impl<'h, V> FusedIterator for Values<'h, V> {}
 
 // todo
@@ -374,13 +374,6 @@ pub struct Iter<'h, K, V> {
 // todo impl Clone for Iter
 // todo impl Debug for Iter
 // todo impl Default for Iter
-
-impl<'h, K, V> ExactSizeIterator for Iter<'h, K, V> {
-	#[inline]
-	fn len(&self) -> usize {
-		self.inner.len()
-	}
-}
 
 impl<'h, K, V> Iterator for Iter<'h, K, V> {
 	type Item = (&'h K, &'h V);
@@ -412,6 +405,13 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 
 			f(acc, (k, v))
 		})
+	}
+}
+
+impl<'h, K, V> ExactSizeIterator for Iter<'h, K, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
 	}
 }
 
