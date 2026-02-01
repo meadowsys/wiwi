@@ -7,7 +7,7 @@ use self::rc_mut::RcMut;
 use allocator_api2::alloc::{ Allocator, Global };
 use core::hash::{ BuildHasher, Hash, Hasher };
 use core::iter::FusedIterator;
-use hashbrown::{ HashMap, HashSet };
+use hashbrown::{ Equivalent, HashMap, HashSet };
 
 pub struct PlaceholderMap<K, V, S = DefaultHashBuilder, A = Global>
 where
@@ -291,6 +291,46 @@ where
 	pub fn shrink_keys_to_fit(&mut self) {
 		self.keys.shrink_to_fit();
 	}
+
+	#[inline]
+	pub fn get<Q>(&self, k: &Q) -> Option<&V>
+	where
+		Q: Hash + Equivalent<K> + ?Sized
+	{
+		self.keys.get(k).map(|v| {
+			// SAFETY: we have immutable borrow over the entire struct
+			unsafe { v.as_ref() }
+		})
+	}
+
+	#[inline]
+	pub fn get_key_value<Q>(&self, k: &Q) -> Option<(&K, &V)>
+	where
+		Q: Hash + Equivalent<K> + ?Sized
+	{
+		self.keys.get_key_value(k).map(|(k, v)| {
+			// SAFETY: we have immutable borrow over the entire struct
+			let v = unsafe { v.as_ref() };
+
+			(k, v)
+		})
+	}
+
+	// todo get_key_value_mut
+
+	#[inline]
+	pub fn contains_key<Q>(&self, k: &Q) -> bool
+	where
+		Q: Hash + Equivalent<K> + ?Sized
+	{
+		self.keys.contains_key(k)
+	}
+
+	// todo get_mut
+	// todo get_disjoint_mut
+	// todo get_disjoint_unchecked_mut
+	// todo get_disjoint_key_value_mut
+	// todo get_disjoint_key_value_unchecked_mut
 }
 
 impl<K, V, S, A> PlaceholderMap<K, V, S, A>
@@ -448,7 +488,7 @@ impl<'h, V> Iterator for Values<'h, V> {
 	#[inline ]
 	fn next(&mut self) -> Option<&'h V> {
 		self.inner.next().map(|next| {
-			// SAFETY: we have immutable borrow over the entire structure
+			// SAFETY: we have immutable borrow over the entire struct
 			unsafe { next.as_ref() }
 		})
 	}
@@ -466,7 +506,7 @@ impl<'h, V> Iterator for Values<'h, V> {
 		F: FnMut(B, &'h V) -> B
 	{
 		self.inner.fold(init, |acc, curr| {
-			// SAFETY: we have immutable borrow over the entire structure
+			// SAFETY: we have immutable borrow over the entire struct
 			let curr = unsafe { curr.as_ref() };
 
 			f(acc, curr)
@@ -503,7 +543,7 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 	#[inline]
 	fn next(&mut self) -> Option<(&'h K, &'h V)> {
 		self.inner.next().map(|(k, v)| {
-			// SAFETY: we have immutable borrow over the entire structure
+			// SAFETY: we have immutable borrow over the entire struct
 			let v = unsafe { v.as_ref() };
 
 			(k, v)
@@ -522,7 +562,7 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 		F: FnMut(B, (&'h K, &'h V)) -> B
 	{
 		self.inner.fold(init, |acc, (k, v)| {
-			// SAFETY: we have immutable borrow over the entire structure
+			// SAFETY: we have immutable borrow over the entire struct
 			let v = unsafe { v.as_ref() };
 
 			f(acc, (k, v))
@@ -795,3 +835,6 @@ mod rc_mut {
 
 	impl<T: Eq> Eq for RcMut<T> {}
 }
+
+// todo entry
+// todo entry_ref
