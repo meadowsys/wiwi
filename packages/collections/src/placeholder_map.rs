@@ -7,14 +7,14 @@ use self::rc_mut::RcMut;
 use allocator_api2::alloc::{ Allocator, Global };
 use core::hash::{ BuildHasher, Hash, Hasher };
 use core::iter::FusedIterator;
-use hashbrown::{ Equivalent, HashMap, HashSet };
+use hashbrown::{ Equivalent, HashMap };
 
 pub struct PlaceholderMap<K, V, S = DefaultHashBuilder, A = Global>
 where
 	A: Allocator
 {
 	keys: HashMap<K, RcMut<V>, S, A>,
-	values: HashSet<RcMut<V>, S, A>
+	values: HashMap<RcMut<V>, (), S, A>
 }
 
 impl<K, V> PlaceholderMap<K, V> {
@@ -22,7 +22,7 @@ impl<K, V> PlaceholderMap<K, V> {
 	pub fn new() -> Self {
 		Self {
 			keys: HashMap::with_hasher(DefaultHashBuilder::new()),
-			values: HashSet::with_hasher(DefaultHashBuilder::new())
+			values: HashMap::with_hasher(DefaultHashBuilder::new())
 		}
 	}
 
@@ -30,7 +30,7 @@ impl<K, V> PlaceholderMap<K, V> {
 	pub fn with_key_capacity(capacity: usize) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher(capacity, DefaultHashBuilder::new()),
-			values: HashSet::with_hasher(DefaultHashBuilder::new())
+			values: HashMap::with_hasher(DefaultHashBuilder::new())
 		}
 	}
 
@@ -38,7 +38,7 @@ impl<K, V> PlaceholderMap<K, V> {
 	pub fn with_value_capacity(capacity: usize) -> Self {
 		Self {
 			keys: HashMap::with_hasher(DefaultHashBuilder::new()),
-			values: HashSet::with_capacity_and_hasher(capacity, DefaultHashBuilder::new())
+			values: HashMap::with_capacity_and_hasher(capacity, DefaultHashBuilder::new())
 		}
 	}
 
@@ -46,7 +46,7 @@ impl<K, V> PlaceholderMap<K, V> {
 	pub fn with_key_value_capacity(key_capacity: usize, value_capacity: usize) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher(key_capacity, DefaultHashBuilder::new()),
-			values: HashSet::with_capacity_and_hasher(value_capacity, DefaultHashBuilder::new())
+			values: HashMap::with_capacity_and_hasher(value_capacity, DefaultHashBuilder::new())
 		}
 	}
 }
@@ -59,7 +59,7 @@ where
 	pub fn new_in(alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_hasher_in(DefaultHashBuilder::new(), alloc.clone()),
-			values: HashSet::with_hasher_in(DefaultHashBuilder::new(), alloc)
+			values: HashMap::with_hasher_in(DefaultHashBuilder::new(), alloc)
 		}
 	}
 
@@ -67,7 +67,7 @@ where
 	pub fn with_key_capacity_in(capacity: usize, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher_in(capacity, DefaultHashBuilder::new(), alloc.clone()),
-			values: HashSet::with_hasher_in(DefaultHashBuilder::new(), alloc)
+			values: HashMap::with_hasher_in(DefaultHashBuilder::new(), alloc)
 		}
 	}
 
@@ -75,7 +75,7 @@ where
 	pub fn with_value_capacity_in(capacity: usize, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_hasher_in(DefaultHashBuilder::new(), alloc.clone()),
-			values: HashSet::with_capacity_and_hasher_in(capacity, DefaultHashBuilder::new(), alloc)
+			values: HashMap::with_capacity_and_hasher_in(capacity, DefaultHashBuilder::new(), alloc)
 		}
 	}
 
@@ -83,7 +83,7 @@ where
 	pub fn with_key_value_capacity_in(key_capacity: usize, value_capacity: usize, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher_in(key_capacity, DefaultHashBuilder::new(), alloc.clone()),
-			values: HashSet::with_capacity_and_hasher_in(value_capacity, DefaultHashBuilder::new(), alloc)
+			values: HashMap::with_capacity_and_hasher_in(value_capacity, DefaultHashBuilder::new(), alloc)
 		}
 	}
 }
@@ -96,7 +96,7 @@ where
 	pub fn with_hasher(hash_builder: S) -> Self {
 		Self {
 			keys: HashMap::with_hasher(hash_builder.clone()),
-			values: HashSet::with_hasher(hash_builder)
+			values: HashMap::with_hasher(hash_builder)
 		}
 	}
 
@@ -104,7 +104,7 @@ where
 	pub fn with_key_capacity_and_hasher(capacity: usize, hash_builder: S) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher(capacity, hash_builder.clone()),
-			values: HashSet::with_hasher(hash_builder)
+			values: HashMap::with_hasher(hash_builder)
 		}
 	}
 
@@ -112,7 +112,7 @@ where
 	pub fn with_value_capacity_and_hasher(capacity: usize, hash_builder: S) -> Self {
 		Self {
 			keys: HashMap::with_hasher(hash_builder.clone()),
-			values: HashSet::with_capacity_and_hasher(capacity, hash_builder)
+			values: HashMap::with_capacity_and_hasher(capacity, hash_builder)
 		}
 	}
 
@@ -120,7 +120,7 @@ where
 	pub fn with_key_value_capacity_and_hasher(key_capacity: usize, value_capacity: usize, hash_builder: S) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher(key_capacity, hash_builder.clone()),
-			values: HashSet::with_capacity_and_hasher(value_capacity, hash_builder)
+			values: HashMap::with_capacity_and_hasher(value_capacity, hash_builder)
 		}
 	}
 }
@@ -134,7 +134,7 @@ where
 	pub fn with_hasher_in(hash_builder: S, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_hasher_in(hash_builder.clone(), alloc.clone()),
-			values: HashSet::with_hasher_in(hash_builder, alloc)
+			values: HashMap::with_hasher_in(hash_builder, alloc)
 		}
 	}
 
@@ -142,7 +142,7 @@ where
 	pub fn with_key_capacity_and_hasher_in(capacity: usize, hash_builder: S, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher_in(capacity, hash_builder.clone(), alloc.clone()),
-			values: HashSet::with_hasher_in(hash_builder, alloc)
+			values: HashMap::with_hasher_in(hash_builder, alloc)
 		}
 	}
 
@@ -150,7 +150,7 @@ where
 	pub fn with_value_capacity_and_hasher_in(capacity: usize, hash_builder: S, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_hasher_in(hash_builder.clone(), alloc.clone()),
-			values: HashSet::with_capacity_and_hasher_in(capacity, hash_builder, alloc)
+			values: HashMap::with_capacity_and_hasher_in(capacity, hash_builder, alloc)
 		}
 	}
 
@@ -158,7 +158,7 @@ where
 	pub fn with_key_value_capacity_and_hasher_in(key_capacity: usize, value_capacity: usize, hash_builder: S, alloc: A) -> Self {
 		Self {
 			keys: HashMap::with_capacity_and_hasher_in(key_capacity, hash_builder.clone(), alloc.clone()),
-			values: HashSet::with_capacity_and_hasher_in(value_capacity, hash_builder, alloc)
+			values: HashMap::with_capacity_and_hasher_in(value_capacity, hash_builder, alloc)
 		}
 	}
 }
@@ -204,7 +204,7 @@ where
 
 	#[inline]
 	pub fn values(&self) -> Values<'_, V> {
-		Values { inner: self.values.iter() }
+		Values { inner: self.values.keys() }
 	}
 
 	// todo
@@ -261,7 +261,7 @@ where
 
 	#[inline]
 	pub fn into_values(self) -> IntoValues<V, A> {
-		IntoValues { inner: self.values.into_iter() }
+		IntoValues { inner: self.values.into_keys() }
 	}
 }
 
@@ -475,7 +475,7 @@ impl<'h, K, V> FusedIterator for Keys<'h, K, V> {}
 
 // todo thread safety traits
 pub struct Values<'h, V> {
-	inner: hashbrown::hash_set::Iter<'h, RcMut<V>>
+	inner: hashbrown::hash_map::Keys<'h, RcMut<V>, ()>
 }
 
 // todo impl Clone for Values
@@ -634,7 +634,7 @@ pub struct IntoValues<V, A = Global>
 where
 	A: Allocator
 {
-	inner: hashbrown::hash_set::IntoIter<RcMut<V>, A>
+	inner: hashbrown::hash_map::IntoKeys<RcMut<V>, (), A>
 }
 
 // todo impl Debug for IntoValues
@@ -795,7 +795,7 @@ mod rc_mut {
 	impl<T: Hash> Hash for RcMut<T> {
 		#[inline]
 		fn hash<H: Hasher>(&self, state: &mut H) {
-			// SAFETY: assuming this is only used in HashMap/HashSet
+			// SAFETY: assuming this is only used in HashMap
 			// while we have only immutable borrows
 			let value = unsafe { self.as_ref() };
 
@@ -806,7 +806,7 @@ mod rc_mut {
 	impl<T: PartialEq> PartialEq for RcMut<T> {
 		#[inline]
 		fn eq(&self, other: &Self) -> bool {
-			// SAFETY: assuming this is only used in HashMap/HashSet
+			// SAFETY: assuming this is only used in HashMap
 			// while we have only immutable borrows
 			let value_self = unsafe { self.as_ref() };
 
@@ -822,7 +822,7 @@ mod rc_mut {
 		)]
 		#[inline]
 		fn ne(&self, other: &Self) -> bool {
-			// SAFETY: assuming this is only used in HashMap/HashSet
+			// SAFETY: assuming this is only used in HashMap
 			// while we have only immutable borrows
 			let value_self = unsafe { self.as_ref() };
 
