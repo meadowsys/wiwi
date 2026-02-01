@@ -9,7 +9,7 @@ members = [
 [workspace.package]
 version = "0.11.0-pre.3"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.93"
 authors = ["Meadowsys <meadowsys@kiwin.gay>"]
 repository = "https://github.com/meadowsys/wiwi"
 license = "MIT"
