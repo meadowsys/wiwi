@@ -3,7 +3,6 @@
 use crate::DefaultHashBuilder;
 
 use allocator_api2::alloc::{ Allocator, Global };
-use core::cell::UnsafeCell;
 use core::iter::FusedIterator;
 use hashbrown::{ HashMap, HashSet };
 use std::rc::Rc;
@@ -558,3 +557,21 @@ impl<V, A> FusedIterator for IntoValues<V, A>
 where
 	A: Allocator
 {}
+
+struct UnsafeCell<T: ?Sized> {
+	inner: core::cell::UnsafeCell<T>
+}
+
+impl<T: ?Sized> UnsafeCell<T> {
+	#[inline]
+	pub fn get(&self) -> *mut T {
+		self.inner.get()
+	}
+}
+
+impl<T> UnsafeCell<T> {
+	#[inline]
+	pub fn into_inner(self) -> T {
+		self.inner.into_inner()
+	}
+}
