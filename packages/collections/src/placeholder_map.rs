@@ -281,6 +281,16 @@ where
 		self.keys.try_reserve(additional)
 			.map_err(TryReserveError::from_hashbrown)
 	}
+
+	#[inline]
+	pub fn shrink_keys_to(&mut self, min_capacity: usize) {
+		self.keys.shrink_to(min_capacity);
+	}
+
+	#[inline]
+	pub fn shrink_keys_to_fit(&mut self) {
+		self.keys.shrink_to_fit();
+	}
 }
 
 impl<K, V, S, A> PlaceholderMap<K, V, S, A>
@@ -298,6 +308,16 @@ where
 	pub fn try_reserve_values(&mut self, additional: usize) -> Result<(), TryReserveError> {
 		self.values.try_reserve(additional)
 			.map_err(TryReserveError::from_hashbrown)
+	}
+
+	#[inline]
+	pub fn shrink_values_to(&mut self, min_capacity: usize) {
+		self.values.shrink_to(min_capacity);
+	}
+
+	#[inline]
+	pub fn shrink_values_to_fit(&mut self) {
+		self.values.shrink_to_fit();
 	}
 }
 
@@ -329,6 +349,18 @@ where
 			(Ok(_), Err(values)) => { Err(TryReserveKeysValuesError::from_values(values)) }
 			(Err(keys), Err(values)) => { Err(TryReserveKeysValuesError::from_keys_values(keys, values)) }
 		}
+	}
+
+	#[inline]
+	pub fn shrink_keys_values_to(&mut self, min_capacity_keys: usize, min_capacity_values: usize) {
+		self.shrink_keys_to(min_capacity_keys);
+		self.shrink_values_to(min_capacity_values);
+	}
+
+	#[inline]
+	pub fn shrink_keys_values_to_fit(&mut self) {
+		self.shrink_keys_to_fit();
+		self.shrink_values_to_fit();
 	}
 }
 
