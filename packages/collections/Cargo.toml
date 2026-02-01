@@ -11,7 +11,12 @@ license = { workspace = true }
 # keywords = []
 
 [dependencies]
+ahash = { workspace = true }
+allocator-api2 = { workspace = true }
 hashbrown = { workspace = true }
+
+[features]
+nightly = ["allocator-api2/nightly"]
 
 [lints]
 workspace = true
