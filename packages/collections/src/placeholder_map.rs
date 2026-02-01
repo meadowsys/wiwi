@@ -85,39 +85,77 @@ where
 	}
 }
 
-impl<K, V, A> PlaceholderMap<K, V, DefaultHashBuilder, A>
+impl<K, V, S> PlaceholderMap<K, V, S>
 where
-	A: Allocator
+	S: Clone
 {
 	#[inline]
-	pub fn new_in2(keys_alloc: A, values_alloc: A) -> Self {
+	pub fn with_hasher(hash_builder: S) -> Self {
 		Self {
-			keys: HashMap::with_hasher_in(DefaultHashBuilder::new(), keys_alloc),
-			values: HashSet::with_hasher_in(DefaultHashBuilder::new(), values_alloc)
+			keys: HashMap::with_hasher(hash_builder.clone()),
+			values: HashSet::with_hasher(hash_builder)
 		}
 	}
 
 	#[inline]
-	pub fn with_key_capacity_in2(capacity: usize, keys_alloc: A, values_alloc: A) -> Self {
+	pub fn with_key_capacity_and_hasher(capacity: usize, hash_builder: S) -> Self {
 		Self {
-			keys: HashMap::with_capacity_and_hasher_in(capacity, DefaultHashBuilder::new(), keys_alloc),
-			values: HashSet::with_hasher_in(DefaultHashBuilder::new(), values_alloc)
+			keys: HashMap::with_capacity_and_hasher(capacity, hash_builder.clone()),
+			values: HashSet::with_hasher(hash_builder)
 		}
 	}
 
 	#[inline]
-	pub fn with_value_capacity_in2(capacity: usize, keys_alloc: A, values_alloc: A) -> Self {
+	pub fn with_value_capacity_and_hasher(capacity: usize, hash_builder: S) -> Self {
 		Self {
-			keys: HashMap::with_hasher_in(DefaultHashBuilder::new(), keys_alloc),
-			values: HashSet::with_capacity_and_hasher_in(capacity, DefaultHashBuilder::new(), values_alloc)
+			keys: HashMap::with_hasher(hash_builder.clone()),
+			values: HashSet::with_capacity_and_hasher(capacity, hash_builder)
 		}
 	}
 
 	#[inline]
-	pub fn with_key_value_capacity_in2(key_capacity: usize, value_capacity: usize, keys_alloc: A, values_alloc: A) -> Self {
+	pub fn with_key_value_capacity_and_hasher(key_capacity: usize, value_capacity: usize, hash_builder: S) -> Self {
 		Self {
-			keys: HashMap::with_capacity_and_hasher_in(key_capacity, DefaultHashBuilder::new(), keys_alloc),
-			values: HashSet::with_capacity_and_hasher_in(value_capacity, DefaultHashBuilder::new(), values_alloc)
+			keys: HashMap::with_capacity_and_hasher(key_capacity, hash_builder.clone()),
+			values: HashSet::with_capacity_and_hasher(value_capacity, hash_builder)
+		}
+	}
+}
+
+impl<K, V, S, A> PlaceholderMap<K, V, S, A>
+where
+	S: Clone,
+	A: Allocator + Clone
+{
+	#[inline]
+	pub fn with_hasher_in(hash_builder: S, alloc: A) -> Self {
+		Self {
+			keys: HashMap::with_hasher_in(hash_builder.clone(), alloc.clone()),
+			values: HashSet::with_hasher_in(hash_builder, alloc)
+		}
+	}
+
+	#[inline]
+	pub fn with_key_capacity_and_hasher_in(capacity: usize, hash_builder: S, alloc: A) -> Self {
+		Self {
+			keys: HashMap::with_capacity_and_hasher_in(capacity, hash_builder.clone(), alloc.clone()),
+			values: HashSet::with_hasher_in(hash_builder, alloc)
+		}
+	}
+
+	#[inline]
+	pub fn with_value_capacity_and_hasher_in(capacity: usize, hash_builder: S, alloc: A) -> Self {
+		Self {
+			keys: HashMap::with_hasher_in(hash_builder.clone(), alloc.clone()),
+			values: HashSet::with_capacity_and_hasher_in(capacity, hash_builder, alloc)
+		}
+	}
+
+	#[inline]
+	pub fn with_key_value_capacity_and_hasher_in(key_capacity: usize, value_capacity: usize, hash_builder: S, alloc: A) -> Self {
+		Self {
+			keys: HashMap::with_capacity_and_hasher_in(key_capacity, hash_builder.clone(), alloc.clone()),
+			values: HashSet::with_capacity_and_hasher_in(value_capacity, hash_builder, alloc)
 		}
 	}
 }
