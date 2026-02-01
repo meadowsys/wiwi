@@ -240,6 +240,28 @@ where
 
 	// todo
 	// pub fn drain(&mut self) -> Drain<'_, K, V, A> {}
+
+	// todo
+	// retain
+
+	// todo
+	// extract_if
+
+	#[inline]
+	pub fn clear(&mut self) {
+		self.keys.clear();
+		self.values.clear();
+	}
+
+	#[inline]
+	pub fn into_keys(self) -> IntoKeys<K, V, A> {
+		IntoKeys { inner: self.keys.into_keys() }
+	}
+
+	#[inline]
+	pub fn into_values(self) -> IntoValues<V, A> {
+		IntoValues { inner: self.values.into_iter() }
+	}
 }
 
 impl<K, V> Default for PlaceholderMap<K, V> {
@@ -416,3 +438,123 @@ impl<'h, K, V> ExactSizeIterator for Iter<'h, K, V> {
 }
 
 impl<'h, K, V> FusedIterator for Iter<'h, K, V> {}
+
+pub struct IntoKeys<K, V, A = Global>
+where
+	A: Allocator
+{
+	inner: hashbrown::hash_map::IntoKeys<K, Rc<UnsafeCell<V>>, A>
+}
+
+// todo impl Debug for IntoKeys
+// todo impl Default for IntoKeys
+
+impl<K, V, A> Iterator for IntoKeys<K, V, A>
+where
+	A: Allocator
+{
+	type Item = K;
+
+	#[inline]
+	fn next(&mut self) -> Option<K> {
+		self.inner.next()
+	}
+
+	#[inline]
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.inner.size_hint()
+	}
+
+	#[inline]
+	fn fold<B, F>(self, init: B, f: F) -> B
+	where
+		Self: Sized,
+		F: FnMut(B, K) -> B
+	{
+		self.inner.fold(init, f)
+	}
+}
+
+impl<K, V, A> ExactSizeIterator for IntoKeys<K, V, A>
+where
+	A: Allocator
+{
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
+impl<K, V, A> FusedIterator for IntoKeys<K, V, A>
+where
+	A: Allocator
+{}
+
+pub struct IntoValues<V, A = Global>
+where
+	A: Allocator
+{
+	inner: hashbrown::hash_set::IntoIter<Rc<UnsafeCell<V>>, A>
+}
+
+// todo impl Debug for IntoValues
+// todo impl Default for IntoValues
+// todo impl ExactSizeIterator for IntoValues
+// todo impl FusedIterator for IntoValues
+
+impl<V, A> Iterator for IntoValues<V, A>
+where
+	A: Allocator
+{
+	type Item = V;
+
+	#[inline]
+	fn next(&mut self) -> Option<V> {
+		self.inner.next().map(|value| {
+			debug_assert_eq!(Rc::strong_count(&value), 1);
+
+			// SAFETY: we should have the only strong reference, as
+			// the keys map has already been dropped
+			let value = unsafe { Rc::try_unwrap(value).unwrap_unchecked() };
+
+			value.into_inner()
+		})
+	}
+
+	#[inline]
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.inner.size_hint()
+	}
+
+	#[inline]
+	fn fold<B, F>(self, init: B, mut f: F) -> B
+	where
+		Self: Sized,
+		F: FnMut(B, V) -> B
+	{
+		self.inner.fold(init, |acc, curr| {
+			debug_assert_eq!(Rc::strong_count(&curr), 1);
+
+			// SAFETY: we should have the only strong reference, as
+			// the keys map has already been dropped
+			let curr = unsafe { Rc::try_unwrap(curr).unwrap_unchecked() };
+
+			f(acc, curr.into_inner())
+		})
+	}
+}
+
+impl<V, A> ExactSizeIterator for IntoValues<V, A>
+where
+	A: Allocator
+{
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
+impl<V, A> FusedIterator for IntoValues<V, A>
+where
+	A: Allocator
+{}
