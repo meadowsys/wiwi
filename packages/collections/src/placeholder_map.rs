@@ -298,7 +298,7 @@ where
 		Q: Hash + Equivalent<K> + ?Sized
 	{
 		self.keys.get(k).map(|v| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			unsafe { v.as_ref() }
 		})
 	}
@@ -309,7 +309,7 @@ where
 		Q: Hash + Equivalent<K> + ?Sized
 	{
 		self.keys.get_key_value(k).map(|(k, v)| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			let v = unsafe { v.as_ref() };
 
 			(k, v)
@@ -402,6 +402,19 @@ where
 		self.shrink_keys_to_fit();
 		self.shrink_values_to_fit();
 	}
+
+	#[inline]
+	pub fn insert(&mut self, k: K, v: V) -> &V {
+		let value = self.keys.entry(k).or_insert_with(|| {
+			let v_entry = self.values
+				.entry(RcMut::new(v))
+				.insert(());
+			RcMut::clone_rc(v_entry.key())
+		});
+
+		// SAFETY: we have unique borrow over the entire struct
+		unsafe { value.as_ref() }
+	}
 }
 
 impl<K, V> Default for PlaceholderMap<K, V> {
@@ -488,7 +501,7 @@ impl<'h, V> Iterator for Values<'h, V> {
 	#[inline ]
 	fn next(&mut self) -> Option<&'h V> {
 		self.inner.next().map(|next| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			unsafe { next.as_ref() }
 		})
 	}
@@ -506,7 +519,7 @@ impl<'h, V> Iterator for Values<'h, V> {
 		F: FnMut(B, &'h V) -> B
 	{
 		self.inner.fold(init, |acc, curr| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			let curr = unsafe { curr.as_ref() };
 
 			f(acc, curr)
@@ -543,7 +556,7 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 	#[inline]
 	fn next(&mut self) -> Option<(&'h K, &'h V)> {
 		self.inner.next().map(|(k, v)| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			let v = unsafe { v.as_ref() };
 
 			(k, v)
@@ -562,7 +575,7 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 		F: FnMut(B, (&'h K, &'h V)) -> B
 	{
 		self.inner.fold(init, |acc, (k, v)| {
-			// SAFETY: we have immutable borrow over the entire struct
+			// SAFETY: we have shared borrow over the entire struct
 			let v = unsafe { v.as_ref() };
 
 			f(acc, (k, v))
@@ -754,6 +767,11 @@ mod rc_mut {
 			let value = UnsafeCell::new(value);
 			let value = Rc::new(value);
 			Self { inner: value }
+		}
+
+		#[inline]
+		pub fn clone_rc(rc: &Self) -> Self {
+			Self { inner: Rc::clone(&rc.inner) }
 		}
 
 		/// # Safety
