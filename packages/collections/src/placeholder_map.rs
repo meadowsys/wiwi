@@ -788,6 +788,7 @@ mod rc_mut {
 		///
 		/// You must ensure no other references, unique or shared, can exist
 		/// when this is called
+		#[expect(dead_code, reason = "todo keeping for now but idk if i'm actually going to use it")]
 		#[inline]
 		pub unsafe fn as_mut(&mut self) -> &mut T {
 			// SAFETY: caller upholds reference aliasing invariant, and
