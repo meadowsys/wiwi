@@ -4,6 +4,7 @@ use crate::DefaultHashBuilder;
 
 use allocator_api2::alloc::{ Allocator, Global };
 use core::cell::UnsafeCell;
+use core::iter::FusedIterator;
 use hashbrown::{ HashMap, HashSet };
 use std::rc::Rc;
 
@@ -273,10 +274,92 @@ pub struct Keys<'h, K, V> {
 	inner: hashbrown::hash_map::Keys<'h, K, Rc<UnsafeCell<V>>>
 }
 
+// todo impl Clone for Keys
+// todo impl Debug for Keys
+// todo impl Default for Keys
+
+impl<'h, K, V> ExactSizeIterator for Keys<'h, K, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
+impl<'h, K, V> Iterator for Keys<'h, K, V> {
+	type Item = &'h K;
+
+	#[inline]
+	fn next(&mut self) -> Option<&'h K> {
+		self.inner.next()
+	}
+
+	#[inline]
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.inner.size_hint()
+	}
+
+	// hashbrown has a specialised impl
+	#[inline]
+	fn fold<B, F>(self, init: B, f: F) -> B
+	where
+		Self: Sized,
+		F: FnMut(B, &'h K) -> B
+	{
+		self.inner.fold(init, f)
+	}
+}
+
+impl<'h, K, V> FusedIterator for Keys<'h, K, V> {}
+
 // todo thread safety traits
 pub struct Values<'h, V> {
 	inner: hashbrown::hash_set::Iter<'h, Rc<UnsafeCell<V>>>
 }
+
+// todo impl Clone for Values
+// todo impl Debug for Values
+// todo impl Default for Values
+
+impl<'h, V> ExactSizeIterator for Values<'h, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
+impl<'h, V> Iterator for Values<'h, V> {
+	type Item = &'h V;
+
+	#[inline ]
+	fn next(&mut self) -> Option<&'h V> {
+		self.inner.next().map(|next| {
+			// SAFETY: we have immutable borrow
+			unsafe { &*next.get() }
+		})
+	}
+
+	#[inline]
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.inner.size_hint()
+	}
+
+	// hashbrown has a specialised impl
+	#[inline]
+	fn fold<B, F>(self, init: B, mut f: F) -> B
+	where
+		Self: Sized,
+		F: FnMut(B, &'h V) -> B
+	{
+		self.inner.fold(init, |acc, curr| {
+			// SAFETY: we have immutable borrow
+			let curr = unsafe { &*curr.get() };
+
+			f(acc, curr)
+		})
+	}
+}
+
+impl<'h, V> FusedIterator for Values<'h, V> {}
 
 // todo
 // todo thread safety traits
@@ -287,3 +370,49 @@ pub struct Values<'h, V> {
 pub struct Iter<'h, K, V> {
 	inner: hashbrown::hash_map::Iter<'h, K, Rc<UnsafeCell<V>>>
 }
+
+// todo impl Clone for Iter
+// todo impl Debug for Iter
+// todo impl Default for Iter
+
+impl<'h, K, V> ExactSizeIterator for Iter<'h, K, V> {
+	#[inline]
+	fn len(&self) -> usize {
+		self.inner.len()
+	}
+}
+
+impl<'h, K, V> Iterator for Iter<'h, K, V> {
+	type Item = (&'h K, &'h V);
+
+	#[inline]
+	fn next(&mut self) -> Option<(&'h K, &'h V)> {
+		self.inner.next().map(|(k, v)| {
+			// SAFETY: we have immutable borrow
+			let v = unsafe { &*v.get() };
+
+			(k, v)
+		})
+	}
+
+	#[inline]
+	fn size_hint(&self) -> (usize, Option<usize>) {
+		self.inner.size_hint()
+	}
+
+	#[inline]
+	fn fold<B, F>(self, init: B, mut f: F) -> B
+	where
+		Self: Sized,
+		F: FnMut(B, (&'h K, &'h V)) -> B
+	{
+		self.inner.fold(init, |acc, (k, v)| {
+			// SAFETY: we have immutable borrow
+			let v = unsafe { &*v.get() };
+
+			f(acc, (k, v))
+		})
+	}
+}
+
+impl<'h, K, V> FusedIterator for Iter<'h, K, V> {}
