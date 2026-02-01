@@ -5,7 +5,7 @@ use crate::DefaultHashBuilder;
 use self::rc_mut::RcMut;
 
 use allocator_api2::alloc::{ Allocator, Global };
-use core::hash::{ Hash, Hasher };
+use core::hash::{ BuildHasher, Hash, Hasher };
 use core::iter::FusedIterator;
 use hashbrown::{ HashMap, HashSet };
 
@@ -262,6 +262,73 @@ where
 	#[inline]
 	pub fn into_values(self) -> IntoValues<V, A> {
 		IntoValues { inner: self.values.into_iter() }
+	}
+}
+
+impl<K, V, S, A> PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	pub fn reserve_keys(&mut self, additional: usize) {
+		self.keys.reserve(additional);
+	}
+
+	#[inline]
+	pub fn try_reserve_keys(&mut self, additional: usize) -> Result<(), TryReserveError> {
+		self.keys.try_reserve(additional)
+			.map_err(TryReserveError::from_hashbrown)
+	}
+}
+
+impl<K, V, S, A> PlaceholderMap<K, V, S, A>
+where
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	pub fn reserve_values(&mut self, additional: usize) {
+		self.values.reserve(additional);
+	}
+
+	#[inline]
+	pub fn try_reserve_values(&mut self, additional: usize) -> Result<(), TryReserveError> {
+		self.values.try_reserve(additional)
+			.map_err(TryReserveError::from_hashbrown)
+	}
+}
+
+impl<K, V, S, A> PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash,
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	pub fn reserve_keys_values(&mut self, additional_keys: usize, additional_values: usize) {
+		self.reserve_keys(additional_keys);
+		self.reserve_values(additional_values);
+	}
+
+	#[inline]
+	pub fn try_reserve_keys_values(
+		&mut self,
+		additional_keys: usize,
+		additional_values: usize
+	) -> Result<(), TryReserveKeysValuesError> {
+		let keys = self.try_reserve_keys(additional_keys);
+		let values = self.try_reserve_values(additional_values);
+
+		match (keys, values) {
+			(Ok(_), Ok(_)) => { Ok(()) }
+			(Err(keys), Ok(_)) => { Err(TryReserveKeysValuesError::from_keys(keys)) }
+			(Ok(_), Err(values)) => { Err(TryReserveKeysValuesError::from_values(values)) }
+			(Err(keys), Err(values)) => { Err(TryReserveKeysValuesError::from_keys_values(keys, values)) }
+		}
 	}
 }
 
@@ -553,6 +620,49 @@ impl<V, A> FusedIterator for IntoValues<V, A>
 where
 	A: Allocator
 {}
+
+pub enum TryReserveError {
+	CapacityOverflow,
+	AllocError {
+		layout: std::alloc::Layout
+	}
+}
+
+impl TryReserveError {
+	#[inline]
+	fn from_hashbrown(err: hashbrown::TryReserveError) -> Self {
+		match err {
+			hashbrown::TryReserveError::AllocError { layout } => {
+				TryReserveError::AllocError { layout }
+			}
+			hashbrown::TryReserveError::CapacityOverflow => {
+				TryReserveError::CapacityOverflow
+			}
+		}
+	}
+}
+
+pub struct TryReserveKeysValuesError {
+	pub keys: Option<TryReserveError>,
+	pub values: Option<TryReserveError>
+}
+
+impl TryReserveKeysValuesError {
+	#[inline]
+	fn from_keys(keys: TryReserveError) -> Self {
+		Self { keys: Some(keys), values: None }
+	}
+
+	#[inline]
+	fn from_values(values: TryReserveError) -> Self {
+		Self { keys: None, values: Some(values) }
+	}
+
+	#[inline]
+	fn from_keys_values(keys: TryReserveError, values: TryReserveError) -> Self {
+		Self { keys: Some(keys), values: Some(values) }
+	}
+}
 
 mod rc_mut {
 	use super::*;
