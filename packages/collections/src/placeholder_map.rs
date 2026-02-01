@@ -2,17 +2,18 @@
 
 use crate::DefaultHashBuilder;
 
+use self::rc_mut::RcMut;
+
 use allocator_api2::alloc::{ Allocator, Global };
 use core::iter::FusedIterator;
 use hashbrown::{ HashMap, HashSet };
-use std::rc::Rc;
 
 pub struct PlaceholderMap<K, V, S = DefaultHashBuilder, A = Global>
 where
 	A: Allocator
 {
-	keys: HashMap<K, Rc<UnsafeCell<V>>, S, A>,
-	values: HashSet<Rc<UnsafeCell<V>>, S, A>
+	keys: HashMap<K, RcMut<V>, S, A>,
+	values: HashSet<RcMut<V>, S, A>
 }
 
 impl<K, V> PlaceholderMap<K, V> {
@@ -270,8 +271,8 @@ impl<K, V> Default for PlaceholderMap<K, V> {
 	}
 }
 
-// SAFETY: we have Rc internally, but it is never exposed, so all Rc
-// values will get moved at once across thread boundaries
+// SAFETY: we have Rc internally, but it is never exposed, so all strong
+// references for all values will get moved at once across a thread boundaries
 unsafe impl<K, V, S, A> Send for PlaceholderMap<K, V, S, A>
 where
 	K: Send,
@@ -292,7 +293,7 @@ where
 
 // todo thread safety traits
 pub struct Keys<'h, K, V> {
-	inner: hashbrown::hash_map::Keys<'h, K, Rc<UnsafeCell<V>>>
+	inner: hashbrown::hash_map::Keys<'h, K, RcMut<V>>
 }
 
 // todo impl Clone for Keys
@@ -334,7 +335,7 @@ impl<'h, K, V> FusedIterator for Keys<'h, K, V> {}
 
 // todo thread safety traits
 pub struct Values<'h, V> {
-	inner: hashbrown::hash_set::Iter<'h, Rc<UnsafeCell<V>>>
+	inner: hashbrown::hash_set::Iter<'h, RcMut<V>>
 }
 
 // todo impl Clone for Values
@@ -347,8 +348,8 @@ impl<'h, V> Iterator for Values<'h, V> {
 	#[inline ]
 	fn next(&mut self) -> Option<&'h V> {
 		self.inner.next().map(|next| {
-			// SAFETY: we have immutable borrow
-			unsafe { &*next.get() }
+			// SAFETY: we have immutable borrow over the entire structure
+			unsafe { next.as_ref() }
 		})
 	}
 
@@ -365,8 +366,8 @@ impl<'h, V> Iterator for Values<'h, V> {
 		F: FnMut(B, &'h V) -> B
 	{
 		self.inner.fold(init, |acc, curr| {
-			// SAFETY: we have immutable borrow
-			let curr = unsafe { &*curr.get() };
+			// SAFETY: we have immutable borrow over the entire structure
+			let curr = unsafe { curr.as_ref() };
 
 			f(acc, curr)
 		})
@@ -389,7 +390,7 @@ impl<'h, V> FusedIterator for Values<'h, V> {}
 // }
 
 pub struct Iter<'h, K, V> {
-	inner: hashbrown::hash_map::Iter<'h, K, Rc<UnsafeCell<V>>>
+	inner: hashbrown::hash_map::Iter<'h, K, RcMut<V>>
 }
 
 // todo impl Clone for Iter
@@ -402,8 +403,8 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 	#[inline]
 	fn next(&mut self) -> Option<(&'h K, &'h V)> {
 		self.inner.next().map(|(k, v)| {
-			// SAFETY: we have immutable borrow
-			let v = unsafe { &*v.get() };
+			// SAFETY: we have immutable borrow over the entire structure
+			let v = unsafe { v.as_ref() };
 
 			(k, v)
 		})
@@ -421,8 +422,8 @@ impl<'h, K, V> Iterator for Iter<'h, K, V> {
 		F: FnMut(B, (&'h K, &'h V)) -> B
 	{
 		self.inner.fold(init, |acc, (k, v)| {
-			// SAFETY: we have immutable borrow
-			let v = unsafe { &*v.get() };
+			// SAFETY: we have immutable borrow over the entire structure
+			let v = unsafe { v.as_ref() };
 
 			f(acc, (k, v))
 		})
@@ -442,7 +443,7 @@ pub struct IntoKeys<K, V, A = Global>
 where
 	A: Allocator
 {
-	inner: hashbrown::hash_map::IntoKeys<K, Rc<UnsafeCell<V>>, A>
+	inner: hashbrown::hash_map::IntoKeys<K, RcMut<V>, A>
 }
 
 // todo impl Debug for IntoKeys
@@ -493,7 +494,7 @@ pub struct IntoValues<V, A = Global>
 where
 	A: Allocator
 {
-	inner: hashbrown::hash_set::IntoIter<Rc<UnsafeCell<V>>, A>
+	inner: hashbrown::hash_set::IntoIter<RcMut<V>, A>
 }
 
 // todo impl Debug for IntoValues
@@ -510,13 +511,9 @@ where
 	#[inline]
 	fn next(&mut self) -> Option<V> {
 		self.inner.next().map(|value| {
-			debug_assert_eq!(Rc::strong_count(&value), 1);
-
 			// SAFETY: we should have the only strong reference, as
 			// the keys map has already been dropped
-			let value = unsafe { Rc::try_unwrap(value).unwrap_unchecked() };
-
-			value.into_inner()
+			unsafe { value.into_inner_unchecked() }
 		})
 	}
 
@@ -532,13 +529,11 @@ where
 		F: FnMut(B, V) -> B
 	{
 		self.inner.fold(init, |acc, curr| {
-			debug_assert_eq!(Rc::strong_count(&curr), 1);
-
 			// SAFETY: we should have the only strong reference, as
 			// the keys map has already been dropped
-			let curr = unsafe { Rc::try_unwrap(curr).unwrap_unchecked() };
+			let curr = unsafe { curr.into_inner_unchecked() };
 
-			f(acc, curr.into_inner())
+			f(acc, curr)
 		})
 	}
 }
@@ -558,20 +553,57 @@ where
 	A: Allocator
 {}
 
-struct UnsafeCell<T: ?Sized> {
-	inner: core::cell::UnsafeCell<T>
-}
+mod rc_mut {
+	use core::cell::UnsafeCell;
+	use std::rc::Rc;
 
-impl<T: ?Sized> UnsafeCell<T> {
-	#[inline]
-	pub fn get(&self) -> *mut T {
-		self.inner.get()
+	/// Unsafe `Rc` wrapper that allows unsafe mut access to the value, even
+	/// with multiple strong references
+	pub struct RcMut<T> {
+		inner: Rc<UnsafeCell<T>>
 	}
-}
 
-impl<T> UnsafeCell<T> {
-	#[inline]
-	pub fn into_inner(self) -> T {
-		self.inner.into_inner()
+	impl<T> RcMut<T> {
+		#[inline]
+		pub fn new(value: T) -> Self {
+			let value = UnsafeCell::new(value);
+			let value = Rc::new(value);
+			Self { inner: value }
+		}
+
+		/// # Safety
+		///
+		/// You must ensure no unique references can exist when this is called
+		#[inline]
+		pub unsafe fn as_ref(&self) -> &T {
+			// SAFETY: caller upholds reference aliasing invariant, and
+			// ptr is valid because we just got it from an UnsafeCell
+			unsafe { &*self.inner.get() }
+		}
+
+		/// # Safety
+		///
+		/// You must ensure no other references, unique or shared, can exist
+		/// when this is called
+		#[inline]
+		pub unsafe fn as_mut(&mut self) -> &mut T {
+			// SAFETY: caller upholds reference aliasing invariant, and
+			// ptr is valid because we just got it from an UnsafeCell
+			unsafe { &mut *self.inner.get() }
+		}
+
+		/// # Safety
+		///
+		/// You must ensure that no other strong references can exist when this is called
+		#[inline]
+		pub unsafe fn into_inner_unchecked(self) -> T {
+			debug_assert_eq!(Rc::strong_count(&self.inner), 1);
+
+			// SAFETY: caller ensures there is only 1 strong reference, so this
+			// won't be Err
+			let cell = unsafe { Rc::try_unwrap(self.inner).unwrap_unchecked() };
+
+			cell.into_inner()
+		}
 	}
 }
