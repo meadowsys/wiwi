@@ -5,6 +5,7 @@ use crate::DefaultHashBuilder;
 use self::rc_mut::RcMut;
 
 use allocator_api2::alloc::{ Allocator, Global };
+use core::hash::{ Hash, Hasher };
 use core::iter::FusedIterator;
 use hashbrown::{ HashMap, HashSet };
 
@@ -554,6 +555,8 @@ where
 {}
 
 mod rc_mut {
+	use super::*;
+
 	use core::cell::UnsafeCell;
 	use std::rc::Rc;
 
@@ -606,4 +609,47 @@ mod rc_mut {
 			cell.into_inner()
 		}
 	}
+
+	impl<T: Hash> Hash for RcMut<T> {
+		#[inline]
+		fn hash<H: Hasher>(&self, state: &mut H) {
+			// SAFETY: assuming this is only used in HashMap/HashSet
+			// while we have only immutable borrows
+			let value = unsafe { self.as_ref() };
+
+			T::hash(value, state)
+		}
+	}
+
+	impl<T: PartialEq> PartialEq for RcMut<T> {
+		#[inline]
+		fn eq(&self, other: &Self) -> bool {
+			// SAFETY: assuming this is only used in HashMap/HashSet
+			// while we have only immutable borrows
+			let value_self = unsafe { self.as_ref() };
+
+			// SAFETY: see above
+			let value_other = unsafe { other.as_ref() };
+
+			PartialEq::eq(value_self, value_other)
+		}
+
+		#[expect(
+			clippy::partialeq_ne_impl,
+			reason = "T might have overridden it for whatever reason, we should use it"
+		)]
+		#[inline]
+		fn ne(&self, other: &Self) -> bool {
+			// SAFETY: assuming this is only used in HashMap/HashSet
+			// while we have only immutable borrows
+			let value_self = unsafe { self.as_ref() };
+
+			// SAFETY: see above
+			let value_other = unsafe { other.as_ref() };
+
+			PartialEq::ne(value_self, value_other)
+		}
+	}
+
+	impl<T: Eq> Eq for RcMut<T> {}
 }
