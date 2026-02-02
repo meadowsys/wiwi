@@ -896,7 +896,7 @@ mod rc_mut {
 
 	/// Unsafe `Rc` wrapper that allows unsafe mut access to the value, even
 	/// with multiple strong references
-	pub struct RcMut<T> {
+	pub(super) struct RcMut<T> {
 		inner: Rc<UnsafeCell<T>>
 	}
 
