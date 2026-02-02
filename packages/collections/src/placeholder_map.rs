@@ -383,14 +383,26 @@ where
 		additional_keys: usize,
 		additional_values: usize
 	) -> Result<(), TryReserveKeysValuesError> {
-		let keys = self.try_reserve_keys(additional_keys);
-		let values = self.try_reserve_values(additional_values);
+		let mut ok = true;
+		let mut combined_error = TryReserveKeysValuesError {
+			keys: None,
+			values: None
+		};
 
-		match (keys, values) {
-			(Ok(_), Ok(_)) => { Ok(()) }
-			(Err(keys), Ok(_)) => { Err(TryReserveKeysValuesError::from_keys(keys)) }
-			(Ok(_), Err(values)) => { Err(TryReserveKeysValuesError::from_values(values)) }
-			(Err(keys), Err(values)) => { Err(TryReserveKeysValuesError::from_keys_values(keys, values)) }
+		if let Err(error) = self.try_reserve_keys(additional_keys) {
+			ok = false;
+			combined_error.keys = Some(error);
+		}
+
+		if let Err(error) = self.try_reserve_values(additional_values) {
+			ok = false;
+			combined_error.values = Some(error);
+		}
+
+		if ok {
+			Ok(())
+		} else {
+			Err(combined_error)
 		}
 	}
 
@@ -733,23 +745,6 @@ impl TryReserveError {
 pub struct TryReserveKeysValuesError {
 	pub keys: Option<TryReserveError>,
 	pub values: Option<TryReserveError>
-}
-
-impl TryReserveKeysValuesError {
-	#[inline]
-	fn from_keys(keys: TryReserveError) -> Self {
-		Self { keys: Some(keys), values: None }
-	}
-
-	#[inline]
-	fn from_values(values: TryReserveError) -> Self {
-		Self { keys: None, values: Some(values) }
-	}
-
-	#[inline]
-	fn from_keys_values(keys: TryReserveError, values: TryReserveError) -> Self {
-		Self { keys: Some(keys), values: Some(values) }
-	}
 }
 
 mod rc_mut {
