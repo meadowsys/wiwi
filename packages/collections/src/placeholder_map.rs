@@ -420,15 +420,83 @@ where
 
 	#[inline]
 	pub fn insert(&mut self, k: K, v: V) -> &V {
-		let value = self.keys.entry(k).or_insert_with(|| {
-			let v_entry = self.values
-				.entry(RcMut::new(v))
-				.insert(());
-			RcMut::clone_rc(v_entry.key())
-		});
+		let v = self.keys
+			.entry(k)
+			.or_insert_with(|| {
+				let (v, _) = get_or_insert_value(&mut self.values, v);
+				v
+			});
 
 		// SAFETY: we have unique borrow over the entire struct
-		unsafe { value.as_ref() }
+		unsafe { v.as_ref() }
+	}
+
+	/// # Safety
+	///
+	/// See safety docs of [`hashbrown::HashMap::insert_unique_unchecked`]
+	// todo the original api returned (&K, &mut V)
+	#[inline]
+	pub unsafe fn insert_unique_unchecked(&mut self, k: K, v: V) -> (&K, &V) {
+		let (v, _) = get_or_insert_value(&mut self.values, v);
+
+		// SAFETY: caller promises to uphold the safety invariant of this
+		let (k, v) = unsafe { self.keys.insert_unique_unchecked(k, v) };
+
+		// SAFETY: we have unique borrow over the entire struct
+		let v = unsafe { v.as_ref() };
+
+		(k, v)
+	}
+
+	// todo the original api returned Result<&mut V, OccupiedError<'_, K, V, S, A>>
+	// todo maybe we should have our own error type here
+	#[expect(clippy::result_unit_err, reason = "we'll get there eventually")]
+	#[inline]
+	pub fn try_insert(&mut self, k: K, v: V) -> Result<&V, ()> {
+		let (v, is_new) = get_or_insert_value(&mut self.values, v);
+
+		match self.keys.try_insert(k, v) {
+			Ok(v) => {
+				// SAFETY: we have unique borrow over the entire struct
+				Ok(unsafe { v.as_ref() })
+			}
+			Err(err) => {
+				if is_new { remove_value(&mut self.values, &err.value) }
+				Err(())
+			}
+		}
+	}
+
+	/// Removes a key from the map, returning the value at the key if the key was
+	/// the last key to point at the value
+	#[inline]
+	pub fn remove<Q>(&mut self, k: &Q) -> Option<V>
+	where
+		Q: Hash + Equivalent<K> + ?Sized
+	{
+		self.keys.remove(k).and_then(|v| {
+			remove_and_unwrap_if_last_value(&mut self.values, v)
+		})
+	}
+
+	/// Removes a key from the map, returning the stored key if the key was
+	/// previously in the map, and the value at the key if the key was the last
+	/// key to point at the value
+	#[inline]
+	pub fn remove_entry<Q>(&mut self, k: &Q) -> Option<(K, Option<V>)>
+	where
+		Q: Hash + Equivalent<K> + ?Sized
+	{
+		self.keys.remove_entry(k).map(|(k, v)| {
+			let v = remove_and_unwrap_if_last_value(&mut self.values, v);
+
+			(k, v)
+		})
+	}
+
+	#[inline]
+	pub fn allocation_size(&self) -> usize {
+		self.keys.allocation_size() + self.values.allocation_size()
 	}
 }
 
@@ -458,6 +526,79 @@ where
 // 	S: Sync,
 // 	A: Allocator + Sync
 // {}
+
+/// Utility function to get a Rc value out of values map or insert a new one in,
+/// returning the RcMut and a boolean to indicate if the value is newly inserted or not
+///
+/// This is a free function and not impl on the map itself because we want to
+/// only have `&mut self.values` and not the whole struct, and rust doesn't let
+/// us do that through the self parameter
+#[inline]
+fn get_or_insert_value<V, S, A>(
+	values: &mut HashMap<RcMut<V>, (), S, A>,
+	v: V
+) -> (RcMut<V>, bool)
+where
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	use hashbrown::hash_map::Entry::*;
+
+	// .entry() doesn't even keep the key if the entry already exists
+	// so will guarantee we don't introduce multiple copies of the value
+	let (v_entry, is_new) = match values.entry(RcMut::new(v)) {
+		Occupied(entry) => { (entry, false) }
+		Vacant(entry) => { (entry.insert_entry(()), true) }
+	};
+
+	(RcMut::clone_rc(v_entry.key()), is_new)
+}
+
+/// Utility function to remove a value we are 100% sure already exists in
+/// self.values, complete with debug assertion
+///
+/// This is a free function and not impl on the map itself because we want to
+/// only have `&mut self.values` and not the whole struct, and rust doesn't let
+/// us do that through the self parameter
+fn remove_value<V, S, A>(values: &mut HashMap<RcMut<V>, (), S, A>, v: &RcMut<V>)
+where
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	let removed = values.remove(v);
+	debug_assert!(removed.is_some(), "completely pointless sanity check");
+}
+
+/// Checks that the provided RcMut is the last reference within the map, removing
+/// it from `self.values` and unwrapping it if so
+///
+/// A provided value is considered to be the last reference within the map if
+/// it has exactly 2 strong references: the one that was just passed in, and
+/// the one in self.values. This function additionally assumes that the
+/// provided RcMut is present in the provided self.values.
+///
+/// This is a free function and not impl on the map itself because we want to
+/// only have `&mut self.values` and not the whole struct, and rust doesn't let
+/// us do that through the self parameter
+fn remove_and_unwrap_if_last_value<V, S, A>(values: &mut HashMap<RcMut<V>, (), S, A>, v: RcMut<V>) -> Option<V>
+where
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	// 2:
+	// - the one we own right now (in `v`)
+	// - the one in self.values
+	(v.strong_count() == 2).then(|| {
+		remove_value(values, &v);
+
+		// SAFETY: we had two, and just removed the other one,
+		// so we have the last RcMut pointing to this value
+		unsafe { v.into_inner_unchecked() }
+	})
+}
 
 // todo thread safety traits
 pub struct Keys<'h, K, V> {
@@ -792,6 +933,11 @@ mod rc_mut {
 			// SAFETY: caller upholds reference aliasing invariant, and
 			// ptr is valid because we just got it from an UnsafeCell
 			unsafe { &mut *self.inner.get() }
+		}
+
+		#[inline]
+		pub fn strong_count(&self) -> usize {
+			Rc::strong_count(&self.inner)
 		}
 
 		/// # Safety
