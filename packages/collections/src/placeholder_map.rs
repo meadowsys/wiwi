@@ -431,6 +431,22 @@ where
 		unsafe { v.as_ref() }
 	}
 
+	/// Same as [`insert()`](Self::insert), except takes a reference to value, and
+	/// clones it if the value isn't already present in the map
+	#[inline]
+	pub fn insert_value_ref(&mut self, k: K, v: &V) -> &V
+	where
+		V: Clone
+	{
+		let v = self.keys.entry(k).or_insert_with(|| {
+			let (v, _) = get_or_insert_value(&mut self.values, v.clone());
+			v
+		});
+
+		// SAFETY: we have unique borrow over the entire struct
+		unsafe { v.as_ref() }
+	}
+
 	/// # Safety
 	///
 	/// See safety docs of [`hashbrown::HashMap::insert_unique_unchecked`]
@@ -497,6 +513,43 @@ where
 	#[inline]
 	pub fn allocation_size(&self) -> usize {
 		self.keys.allocation_size() + self.values.allocation_size()
+	}
+}
+
+impl<K, V, S, A> Clone for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash + Clone,
+	V: Eq + Hash + Clone,
+	S: BuildHasher + Clone,
+	A: Allocator + Clone
+{
+	#[inline]
+	fn clone(&self) -> Self {
+		let mut new = Self {
+			keys: HashMap::with_capacity_and_hasher_in(
+				self.len(),
+				self.key_hasher().clone(),
+				self.key_allocator().clone()
+			),
+			values: HashMap::with_capacity_and_hasher_in(
+				self.values_len(),
+				self.value_hasher().clone(),
+				self.value_allocator().clone()
+			)
+		};
+
+		new.clone_from(self);
+		new
+	}
+
+	#[inline]
+	fn clone_from(&mut self, source: &Self) {
+		self.clear();
+		source.iter().for_each(|(k, v)| {
+			// k will always need to be cloned, but v won't
+			// after the first insertion of any given v
+			self.insert_value_ref(k.clone(), v);
+		});
 	}
 }
 
