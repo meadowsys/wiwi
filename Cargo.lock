@@ -158,6 +158,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "wiwi-macro-proc"
+version = "0.11.0-pre.3"
+
+[[package]]
 name = "zerocopy"
 version = "0.8.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -4,6 +4,7 @@ members = [
 	"packages/builder",
 	"packages/chain",
 	"packages/collections",
+	"packages/macro-proc",
 	"packages/wiwi"
 ]
 
