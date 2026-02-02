@@ -145,6 +145,10 @@ name = "wiwi-builder"
 version = "0.11.0-pre.3"
 
 [[package]]
+name = "wiwi-chain"
+version = "0.11.0-pre.3"
+
+[[package]]
 name = "wiwi-collections"
 version = "0.11.0-pre.3"
 dependencies = [

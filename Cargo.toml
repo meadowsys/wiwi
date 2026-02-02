@@ -2,6 +2,7 @@
 resolver = "3"
 members = [
 	"packages/builder",
+	"packages/chain",
 	"packages/collections",
 	"packages/wiwi"
 ]
