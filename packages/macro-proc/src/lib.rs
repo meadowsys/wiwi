@@ -64,7 +64,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		compile_error_if_some!(default, "chain impls cannot be default");
 
 		let Signature {
-			constness,
+			constness: _,
 			asyncness,
 			unsafety,
 			abi,
