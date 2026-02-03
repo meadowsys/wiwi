@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::{ ToTokens, quote, quote_spanned };
-use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, Path, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
+use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, Path, Receiver, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
 use syn::spanned::Spanned as _;
 
 #[proc_macro_attribute]
@@ -78,10 +78,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		} = &mut sig;
 
 		compile_error_if_some!(variadic, "C variadic functions are not supported in chain API");
-		// compile_error_if_some!(
-		// 	inputs.first().filter(|arg| matches!(arg, FnArg::Receiver(_))),
-		// 	"todo allow method receiver"
-		// );
 
 		let asyncness = match asyncness {
 			Some(asyncness) => {
@@ -90,7 +86,89 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			None => { quote! {} }
 		};
 
-		// let uses_self = inputs.first().filter(|arg| matches!(arg, FnArg::Receiver(_)));
+		// relying on the fact that rust syntax errors itself when any arg other
+		// than the first one is a "receiver"
+		let self_param = inputs.first()
+			.and_then(|arg| match arg {
+				FnArg::Receiver(receiver) => { Some(receiver) }
+				FnArg::Typed(_) => { None }
+			}).and_then(|receiver| match receiver {
+				// `self: Ty`
+				Receiver { colon_token: Some(_), .. } => {
+					errors.push(error(receiver, "explicit receiver type is not supported in chain API"));
+					None
+				}
+
+				// `mut self`
+				Receiver {
+					reference: None,
+					mutability: Some(mutability),
+					self_token,
+					..
+				} => {
+					errors.push(error(mutability, "explicit mutability not allowed"));
+					None
+				}
+
+				// `self`
+				Receiver {
+					reference: None,
+					mutability: None,
+					self_token,
+					..
+				} => {
+					Some((
+						SelfParam::Owned,
+						quote_spanned! { self_token.span() => self.into_inner() },
+						quote! {}
+					))
+				}
+
+				// `&self`
+				Receiver {
+					reference: Some(_),
+					mutability: None,
+					self_token,
+					..
+				} => {
+					Some((
+						SelfParam::Ref,
+						quote_spanned! { self_token.span() => self.as_inner() },
+						quote_spanned! { self_token.span() => self }
+					))
+				}
+
+				// `&mut self`
+				Receiver {
+					reference: Some(_),
+					mutability: Some(_),
+					self_token,
+					..
+				} => {
+					Some((
+						SelfParam::Mut,
+						quote_spanned! { self_token.span() => self.as_inner_mut() },
+						quote_spanned! { self_token.span() => self }
+					))
+				}
+			});
+		return_errors!();
+
+		let (self_param_ty, self_param, return_expr) = self_param
+			.map(|(self_param_ty, self_param, return_expr)| (
+				self_param_ty,
+				quote! { #self_param, },
+				quote! { ; #return_expr }
+			))
+			.unwrap_or_else(|| (
+				SelfParam::None,
+				quote! {},
+				quote! {}
+			));
+		// let (self_param, return_expr) = match self_param {
+		// 	Some((self_param, return_expr)) => { (Some(self_param), Some(return_expr)) }
+		// 	None => { (None, None) }
+		// };
 
 		let arg_names = inputs.iter()
 			.filter_map(|arg| match arg {
@@ -107,8 +185,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			.collect::<Vec<_>>();
 		return_errors!();
 
-		match output {
-			ReturnType::Default => {
+		match (&mut *output, self_param_ty) {
+			(ReturnType::Default, _) => {
 				*output = ReturnType::Type(
 					Token![->](semi_token.span()),
 					Box::new(Type::Verbatim(quote_spanned! { semi_token.span() =>
@@ -117,7 +195,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				);
 			}
 
-			ReturnType::Type(_, ty) => {
+			(ReturnType::Type(_, ty), _) => {
 				match &**ty {
 					Type::Path(TypePath {
 						qself: None,
@@ -146,6 +224,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		let mut inner_fn_call = quote_spanned! { semi_token.span() =>
 			<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
+				#self_param
 				#(#arg_names),*
 			)
 			#asyncness
@@ -176,6 +255,13 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 	}
 
 	item.into_token_stream().into()
+}
+
+enum SelfParam {
+	Owned,
+	Ref,
+	Mut,
+	None
 }
 
 fn error(tokens: impl ToTokens, msg: &str) -> syn::Error {
