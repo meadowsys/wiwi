@@ -86,6 +86,13 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		// 	"todo allow method receiver"
 		// );
 
+		let asyncness = match asyncness {
+			Some(asyncness) => {
+				quote_spanned! { asyncness.span() => .await }
+			}
+			None => { quote! {} }
+		};
+
 		// let uses_self = inputs.first().filter(|arg| matches!(arg, FnArg::Receiver(_)));
 
 		let arg_names = inputs.iter()
@@ -145,6 +152,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
 					#(#arg_names),*
 				)
+				#asyncness
 			)
 		};
 
