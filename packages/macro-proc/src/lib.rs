@@ -24,7 +24,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		impl_token: _,
 		generics: _,
 		trait_,
-		self_ty,
+		self_ty: _,
 		brace_token: _,
 		items
 	} = &mut item;
@@ -88,21 +88,20 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		// let uses_self = inputs.first().filter(|arg| matches!(arg, FnArg::Receiver(_)));
 
-		// let arg_names = inputs.iter()
-		// 	.filter_map(|arg| match arg {
-		// 		FnArg::Typed(arg) => { Some(arg) }
-		// 		FnArg::Receiver(_) => { None }
-		// 	})
-		// 	.filter_map(|arg| match &*arg.pat {
-		// 		Pat::Ident(pat) => { Some(&pat.ident) }
-		// 		pat => {
-		// 			errors.push(error(pat, "this pat type is currently unsupported??"));
-		// 			None
-		// 		}
-		// 	})
-		// 	.collect::<Vec<_>>();
-
-		// return_errors!();
+		let arg_names = inputs.iter()
+			.filter_map(|arg| match arg {
+				FnArg::Typed(arg) => { Some(arg) }
+				FnArg::Receiver(_) => { None }
+			})
+			.filter_map(|arg| match &*arg.pat {
+				Pat::Ident(pat) => { Some(&pat.ident) }
+				pat => {
+					errors.push(error(pat, "this pat type is currently unsupported??"));
+					None
+				}
+			})
+			.collect::<Vec<_>>();
+		return_errors!();
 
 		match output {
 			ReturnType::Default => {
@@ -142,8 +141,11 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		};
 
 		let fn_call = quote_spanned! { semi_token.span() =>
-			let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
-			crate::Chain::from_inner(inner)
+			crate::Chain::from_inner(
+				<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
+					#(#arg_names),*
+				)
+			)
 		};
 
 		*item = quote! {

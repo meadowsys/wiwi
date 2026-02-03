@@ -13,6 +13,9 @@ struct Test;
 )]
 impl Test {
 	fn fn_plain() {}
+	fn fn_args(arg1: usize, arg2: &str, arg3: (usize, u8)) {
+		let _ = (arg1, arg2, arg3);
+	}
 	fn fn_self(self) {}
 	fn fn_self_ref(&self) {}
 	fn fn_self_mut(&mut self) {}
@@ -30,6 +33,7 @@ impl Test {
 #[wiwi_macro_proc::chain_fn]
 impl Chain<Test> {
 	fn fn_plain();
+	fn fn_args(arg1: usize, arg2: &str, arg3: (usize, u8));
 	// fn fn_self(self);
 	// fn fn_self_ref(&self);
 	// fn fn_self_mut(&mut self);
