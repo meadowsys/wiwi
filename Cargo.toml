@@ -19,7 +19,7 @@ license = "MIT"
 [workspace.dependencies]
 # wiwi = { path = "packages/wiwi" }
 # wiwi-macro-decl = { path = "packages/macro-decl", version = "=0.11.0-pre.3" }
-# wiwi-macro-proc = { path = "packages/macro-proc", version = "=0.11.0-pre.3" }
+wiwi-macro-proc = { path = "packages/macro-proc", version = "=0.11.0-pre.3" }
 
 # wiwi-chain = { path = "packages/chain", version = "=0.11.0-pre.3" }
 # wiwi-encoding = { path = "packages/encoding", version = "=0.11.0-pre.3" }
@@ -35,11 +35,11 @@ hashbrown = "0.16.1"
 # hex = "0.4.3"
 # home = "0.5.9"
 # parking_lot = "0.12.3"
-# proc-macro2 = "1.0.83"
-# quote = "1.0.36"
+proc-macro2 = "1.0.106"
+quote = "1.0.44"
 # rand = "0.8.5"
 # serde = "1.0.219"
-# syn = "2.0.66"
+syn = { version = "2.0.114", features = ["full"] }
 # thiserror = { version = "1.0.69" }
 # tokio = { version = "1.41.1", features = ["full"] }
 # uuid = "1.16.0"

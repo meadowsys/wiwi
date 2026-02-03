@@ -66,3 +66,11 @@ pub trait ChainInner: Sized {
 }
 
 impl<T> ChainInner for T {}
+
+pub(crate) trait ChainInnerType {
+	type Inner;
+}
+
+impl<T> ChainInnerType for Chain<T> {
+	type Inner = T;
+}
