@@ -5,7 +5,7 @@ pub struct Chain<T> {
 
 impl<T> Chain<T> {
 	#[inline]
-	pub fn from_inner(inner: T) -> Self {
+	pub const fn from_inner(inner: T) -> Self {
 		Self { inner }
 	}
 
@@ -15,23 +15,23 @@ impl<T> Chain<T> {
 	}
 
 	#[inline]
-	pub fn as_inner(&self) -> &T {
+	pub const fn as_inner(&self) -> &T {
 		&self.inner
 	}
 
 	#[inline]
-	pub fn as_inner_mut(&mut self) -> &mut T {
+	pub const fn as_inner_mut(&mut self) -> &mut T {
 		&mut self.inner
 	}
 
 	#[inline]
-	pub fn as_inner_chain(&self) -> Chain<&T> {
-		self.as_inner().into_chain()
+	pub const fn as_inner_chain(&self) -> Chain<&T> {
+		Chain::from_inner(self.as_inner())
 	}
 
 	#[inline]
-	pub fn as_inner_mut_chain(&mut self) -> Chain<&mut T> {
-		self.as_inner_mut().into_chain()
+	pub const fn as_inner_mut_chain(&mut self) -> Chain<&mut T> {
+		Chain::from_inner(self.as_inner_mut())
 	}
 
 	#[inline]
