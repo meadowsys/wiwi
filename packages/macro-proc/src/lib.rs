@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use quote::{ ToTokens, quote };
-use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
+use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, Path, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
 use syn::spanned::Spanned as _;
 
 #[proc_macro_attribute]
@@ -111,19 +111,46 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		// 	}
 		// }.into()
 
-		let fn_call = match output {
+		match output {
 			ReturnType::Default => {
-				quote! {
-					<<Self as crate::chain::ChainInnerType>::Inner>::#ident()
+				*output = ReturnType::Type(
+					Token![->](semi_token.span()),
+					Box::new(Type::Verbatim(quote! {
+						crate::Chain<()>
+					}))
+				);
+			}
+
+			ReturnType::Type(_, ty) => {
+				match &**ty {
+					Type::Path(TypePath {
+						qself: None,
+						path: Path {
+							leading_colon: None,
+							segments
+						}
+					}) if
+						segments.len() == 1 &&
+						segments.first().unwrap().ident == "Self"
+					=> {
+						// .3
+						// i hated this
+					}
+					ty => {
+						*output = ReturnType::Type(
+							Token![->](semi_token.span()),
+							Box::new(Type::Verbatim(quote! {
+								crate::Chain<#ty>
+							}))
+						);
+					}
 				}
 			}
-			ReturnType::Type(_, _) => {
-				*output = ReturnType::Type(Token![->](semi_token.span()), Box::new(Type::Verbatim(quote! { Self })));
-				quote! {
-					let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
-					Self::from_inner(inner)
-				}
-			}
+		};
+
+		let fn_call = quote! {
+			let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
+			crate::Chain::from_inner(inner)
 		};
 
 		*item = quote! {
