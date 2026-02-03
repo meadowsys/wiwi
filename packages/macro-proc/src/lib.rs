@@ -1,11 +1,12 @@
 use proc_macro::TokenStream;
-use quote::{ ToTokens, quote, quote_spanned };
-use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, Path, Receiver, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
+use proc_macro2::Span;
+use quote::{ ToTokens, format_ident, quote, quote_spanned };
+use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, PatIdent, PatType, Path, Receiver, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
 use syn::spanned::Spanned as _;
 
 #[proc_macro_attribute]
 pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
-	let _ = dbg!(attr);
+	let _ = attr;
 
 	let mut errors = Vec::new();
 	macro_rules! return_errors {
@@ -191,6 +192,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		// 	None => { (None, None) }
 		// };
 
+		let mut needs_output_arg = false;
+		let output_orig = output.clone();
 		match (&mut *output, &self_param_ty) {
 			(ReturnType::Default, SelfParam::None | SelfParam::Owned) => {
 				*output = ReturnType::Type(
@@ -235,11 +238,20 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 				let self_param = self_param.as_mut().unwrap();
 				self_param.reference = None;
-				*self_param.ty = Type::Verbatim(quote! { Self })
+				*self_param.ty = Type::Verbatim(quote! { Self });
 			}
 
 			(ReturnType::Type(_, ty), SelfParam::Ref | SelfParam::Mut) => {
-				todo!()
+				*output = ReturnType::Type(
+					Token![->](semi_token.span()),
+					Box::new(Type::Verbatim(quote! { Self }))
+				);
+
+				let self_param = self_param.as_mut().unwrap();
+				self_param.reference = None;
+				*self_param.ty = Type::Verbatim(quote! { Self });
+
+				needs_output_arg = true;
 			}
 		};
 
@@ -257,15 +269,24 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			}
 		}
 
-		let fn_call = if matches!(self_param_ty, SelfParam::Ref | SelfParam::Mut) {
-			quote! {
-				#inner_fn_call;
-				self
-			}
+		let (fn_call, output_fn_call) = if matches!(self_param_ty, SelfParam::Ref | SelfParam::Mut) {
+			(
+				quote! {
+					let _ = #inner_fn_call;
+					self
+				},
+				needs_output_arg.then(|| quote! {
+					chain_output.write(#inner_fn_call);
+					self
+				})
+			)
 		} else {
-			quote_spanned! { semi_token.span() =>
-				crate::Chain::from_inner(#inner_fn_call)
-			}
+			(
+				quote_spanned! { semi_token.span() =>
+					crate::Chain::from_inner(#inner_fn_call)
+				},
+				None
+			)
 		};
 
 		*abi = None;
@@ -281,6 +302,43 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				#fn_call
 			}
 		};
+
+		if needs_output_arg {
+			let sig_output = match output_orig {
+				ReturnType::Type(_, ty) => { *ty }
+				ReturnType::Default => { unreachable!() }
+			};
+
+			sig.ident = format_ident!("{}_output", sig.ident);
+			sig.inputs.push(FnArg::Typed(PatType {
+				attrs: Vec::new(),
+				pat: Box::new(Pat::Ident(PatIdent {
+					attrs: Vec::new(),
+					by_ref: None,
+					mutability: None,
+					ident: format_ident!("chain_output"),
+					subpat: None
+				})),
+				colon_token: Token![:](Span::call_site()),
+				ty: Box::new(Type::Verbatim(quote! {
+					impl Output<#sig_output>
+				}))
+			}));
+
+			*item = quote! {
+				#item
+
+				#(#attrs)*
+				#[allow(
+					clippy::needless_arbitrary_self_type,
+					clippy::undocumented_unsafe_blocks,
+					reason = "macro output"
+				)]
+				#sig {
+					#output_fn_call
+				}
+			};
+		}
 	}
 
 	item.into_token_stream().into()

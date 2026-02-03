@@ -1,4 +1,4 @@
-pub use chain::{ Chain, ChainInner };
+pub use chain::{ Chain, ChainInner, Output, OutputDebug, out_dbg };
 
 mod chain;
 
@@ -32,6 +32,7 @@ impl Test {
 	}
 	fn fn_output() -> Self { Self }
 	fn fn_output2() -> usize { 0 }
+	fn fn_self_ref_output(&self) -> usize { size_of_val(self) }
 }
 
 #[wiwi_macro_proc::chain_fn]
@@ -51,4 +52,5 @@ impl Chain<Test> {
 		T2: Clone;
 	fn fn_output() -> Self;
 	fn fn_output2() -> usize;
+	fn fn_self_ref_output(&self) -> usize;
 }
