@@ -70,7 +70,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			abi,
 			fn_token,
 			ident,
-			generics,
+			generics: _,
 			paren_token,
 			inputs,
 			variadic,

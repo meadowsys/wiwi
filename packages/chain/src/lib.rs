@@ -23,7 +23,10 @@ impl Test {
 	async fn fn_async() {}
 	unsafe fn fn_unsafe() {}
 	extern "C" fn fn_extern_c() {}
-	fn fn_generics<T1, T2>(t1: T1, t2: T2) {
+	fn fn_generics<T1, T2>(t1: T1, t2: T2)
+	where
+		T2: Clone
+	{
 		let _ = (t1, t2);
 	}
 	fn fn_output() -> Self { Self }
@@ -41,7 +44,9 @@ impl Chain<Test> {
 	async fn fn_async();
 	unsafe fn fn_unsafe();
 	extern "C" fn fn_extern_c();
-	// fn fn_generics<T1, T2>(t1: T1, t2: T2);
+	fn fn_generics<T1: Copy, T2>(t1: T1, t2: T2)
+	where
+		T2: Clone;
 	fn fn_output() -> Self;
 	// fn fn_output2() -> usize;
 }
