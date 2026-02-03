@@ -48,5 +48,5 @@ impl Chain<Test> {
 	where
 		T2: Clone;
 	fn fn_output() -> Self;
-	// fn fn_output2() -> usize;
+	fn fn_output2() -> usize;
 }
