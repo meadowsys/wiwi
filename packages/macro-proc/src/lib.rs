@@ -253,10 +253,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		if let Some(unsafety) = unsafety {
 			inner_fn_call = quote_spanned! { unsafety.span() =>
-				#[allow(
-					clippy::undocumented_unsafe_blocks,
-					reason = "macro output"
-				)]
 				unsafe { #inner_fn_call }
 			}
 		}
@@ -276,6 +272,11 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		*item = quote! {
 			#(#attrs)*
+			#[allow(
+				clippy::needless_arbitrary_self_type,
+				clippy::undocumented_unsafe_blocks,
+				reason = "macro output"
+			)]
 			#sig {
 				#fn_call
 			}
