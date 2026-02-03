@@ -86,9 +86,25 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			None => { quote! {} }
 		};
 
+		let arg_names = inputs.iter()
+			.cloned()
+			.filter_map(|arg| match arg {
+				FnArg::Typed(arg) => { Some(arg) }
+				FnArg::Receiver(_) => { None }
+			})
+			.filter_map(|arg| match *arg.pat {
+				Pat::Ident(pat) => { Some(pat.ident) }
+				pat => {
+					errors.push(error(pat, "this pat type is currently unsupported??"));
+					None
+				}
+			})
+			.collect::<Vec<_>>();
+		return_errors!();
+
 		// relying on the fact that rust syntax errors itself when any arg other
 		// than the first one is a "receiver"
-		let self_param = inputs.first()
+		let self_param = inputs.first_mut()
 			.and_then(|arg| match arg {
 				FnArg::Receiver(receiver) => { Some(receiver) }
 				FnArg::Typed(_) => { None }
@@ -120,7 +136,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Owned,
 						quote_spanned! { self_token.span() => self.into_inner() },
-						quote! {}
+						quote! {},
+						receiver
 					))
 				}
 
@@ -134,7 +151,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Ref,
 						quote_spanned! { self_token.span() => self.as_inner() },
-						quote_spanned! { self_token.span() => self }
+						quote_spanned! { self_token.span() => self },
+						receiver
 					))
 				}
 
@@ -148,45 +166,33 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Mut,
 						quote_spanned! { self_token.span() => self.as_inner_mut() },
-						quote_spanned! { self_token.span() => self }
+						quote_spanned! { self_token.span() => self },
+						receiver
 					))
 				}
 			});
 		return_errors!();
 
-		let (self_param_ty, self_param, return_expr) = self_param
-			.map(|(self_param_ty, self_param, return_expr)| (
+		let (self_param_ty, self_arg, return_expr, mut self_param) = self_param
+			.map(|(self_param_ty, self_arg, return_expr, self_param)| (
 				self_param_ty,
-				quote! { #self_param, },
-				quote! { ; #return_expr }
+				quote! { #self_arg, },
+				quote! { ; #return_expr },
+				Some(self_param)
 			))
 			.unwrap_or_else(|| (
 				SelfParam::None,
 				quote! {},
-				quote! {}
+				quote! {},
+				None
 			));
 		// let (self_param, return_expr) = match self_param {
 		// 	Some((self_param, return_expr)) => { (Some(self_param), Some(return_expr)) }
 		// 	None => { (None, None) }
 		// };
 
-		let arg_names = inputs.iter()
-			.filter_map(|arg| match arg {
-				FnArg::Typed(arg) => { Some(arg) }
-				FnArg::Receiver(_) => { None }
-			})
-			.filter_map(|arg| match &*arg.pat {
-				Pat::Ident(pat) => { Some(&pat.ident) }
-				pat => {
-					errors.push(error(pat, "this pat type is currently unsupported??"));
-					None
-				}
-			})
-			.collect::<Vec<_>>();
-		return_errors!();
-
-		match (&mut *output, self_param_ty) {
-			(ReturnType::Default, _) => {
+		match (&mut *output, &self_param_ty) {
+			(ReturnType::Default, SelfParam::None | SelfParam::Owned) => {
 				*output = ReturnType::Type(
 					Token![->](semi_token.span()),
 					Box::new(Type::Verbatim(quote_spanned! { semi_token.span() =>
@@ -195,7 +201,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				);
 			}
 
-			(ReturnType::Type(_, ty), _) => {
+			(ReturnType::Type(_, ty), SelfParam::None | SelfParam::Owned) => {
 				match &**ty {
 					Type::Path(TypePath {
 						qself: None,
@@ -220,11 +226,26 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					}
 				}
 			}
+
+			(ReturnType::Default, SelfParam::Ref | SelfParam::Mut) => {
+				*output = ReturnType::Type(
+					Token![->](semi_token.span()),
+					Box::new(Type::Verbatim(quote! { Self }))
+				);
+
+				let self_param = self_param.as_mut().unwrap();
+				self_param.reference = None;
+				*self_param.ty = Type::Verbatim(quote! { Self })
+			}
+
+			(ReturnType::Type(_, ty), SelfParam::Ref | SelfParam::Mut) => {
+				todo!()
+			}
 		};
 
 		let mut inner_fn_call = quote_spanned! { semi_token.span() =>
 			<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
-				#self_param
+				#self_arg
 				#(#arg_names),*
 			)
 			#asyncness
@@ -240,8 +261,15 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			}
 		}
 
-		let fn_call = quote_spanned! { semi_token.span() =>
-			crate::Chain::from_inner(#inner_fn_call)
+		let fn_call = if matches!(self_param_ty, SelfParam::Ref | SelfParam::Mut) {
+			quote! {
+				#inner_fn_call;
+				self
+			}
+		} else {
+			quote_spanned! { semi_token.span() =>
+				crate::Chain::from_inner(#inner_fn_call)
+			}
 		};
 
 		*abi = None;
