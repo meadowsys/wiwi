@@ -147,13 +147,25 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			}
 		};
 
-		let fn_call = quote_spanned! { semi_token.span() =>
-			crate::Chain::from_inner(
-				<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
-					#(#arg_names),*
-				)
-				#asyncness
+		let mut inner_fn_call = quote_spanned! { semi_token.span() =>
+			<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
+				#(#arg_names),*
 			)
+			#asyncness
+		};
+
+		if let Some(unsafety) = unsafety {
+			inner_fn_call = quote_spanned! { unsafety.span() =>
+				#[allow(
+					clippy::undocumented_unsafe_blocks,
+					reason = "macro output"
+				)]
+				unsafe { #inner_fn_call }
+			}
+		}
+
+		let fn_call = quote_spanned! { semi_token.span() =>
+			crate::Chain::from_inner(#inner_fn_call)
 		};
 
 		*item = quote! {
