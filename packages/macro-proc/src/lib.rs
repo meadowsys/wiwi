@@ -61,14 +61,14 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			semi_token
 		} = parse_macro_input!(parsed_item);
 
-		compile_error_if_some!(default, "chain impls cannot be default");
+		compile_error_if_some!(default, "custom chain fn implementations are not supported in chain API");
 
 		let Signature {
 			constness: _,
 			asyncness,
 			unsafety,
 			abi,
-			fn_token,
+			fn_token: _,
 			ident,
 			generics: _,
 			paren_token,
@@ -77,10 +77,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			output
 		} = &mut sig;
 
-		// // todo this was supposed to be for Option<block> being some i think
-		// compile_error_if_some!(defaultness, "custom chain fn implementations are not supported in chain API");
-		// compile_error_if_some!(abi, "non default ABIs are not supported in chain API");
-		// compile_error_if_some!(variadic, "C variadic functions are not supported in chain API");
+		compile_error_if_some!(variadic, "C variadic functions are not supported in chain API");
 		// compile_error_if_some!(
 		// 	inputs.first().filter(|arg| matches!(arg, FnArg::Receiver(_))),
 		// 	"todo allow method receiver"
