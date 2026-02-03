@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use quote::{ ToTokens, quote };
+use quote::{ ToTokens, quote, quote_spanned };
 use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, Path, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
 use syn::spanned::Spanned as _;
 
@@ -104,18 +104,11 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		// return_errors!();
 
-		// quote::quote! {
-		// 	#(#attrs)*
-		// 	#sig {
-		// 		use std::io;
-		// 	}
-		// }.into()
-
 		match output {
 			ReturnType::Default => {
 				*output = ReturnType::Type(
 					Token![->](semi_token.span()),
-					Box::new(Type::Verbatim(quote! {
+					Box::new(Type::Verbatim(quote_spanned! { semi_token.span() =>
 						crate::Chain<()>
 					}))
 				);
@@ -148,7 +141,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			}
 		};
 
-		let fn_call = quote! {
+		let fn_call = quote_spanned! { semi_token.span() =>
 			let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
 			crate::Chain::from_inner(inner)
 		};
@@ -159,7 +152,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				#fn_call
 			}
 		};
-		// *item = "".parse().unwrap();
 	}
 
 	item.into_token_stream().into()
