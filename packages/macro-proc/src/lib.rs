@@ -111,11 +111,19 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		// 	}
 		// }.into()
 
-		*output = ReturnType::Type(Token![->](semi_token.span()), Box::new(Type::Verbatim(quote! { Self })));
-
-		let fn_call = quote! {
-			let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
-			Self::from_inner(inner)
+		let fn_call = match output {
+			ReturnType::Default => {
+				quote! {
+					<<Self as crate::chain::ChainInnerType>::Inner>::#ident()
+				}
+			}
+			ReturnType::Type(_, _) => {
+				*output = ReturnType::Type(Token![->](semi_token.span()), Box::new(Type::Verbatim(quote! { Self })));
+				quote! {
+					let inner = <<Self as crate::chain::ChainInnerType>::Inner>::#ident();
+					Self::from_inner(inner)
+				}
+			}
 		};
 
 		*item = quote! {

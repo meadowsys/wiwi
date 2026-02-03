@@ -29,7 +29,7 @@ impl Test {
 
 #[wiwi_macro_proc::chain_fn]
 impl Chain<Test> {
-	// fn fn_plain();
+	fn fn_plain();
 	// fn fn_self(self);
 	// fn fn_self_ref(&self);
 	// fn fn_self_mut(&mut self);
