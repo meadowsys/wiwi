@@ -16,7 +16,7 @@ impl Test {
 	fn fn_self(self) {}
 	fn fn_self_ref(&self) {}
 	fn fn_self_mut(&mut self) {}
-	const fn fn_const() {}
+	const fn fn_const() -> Self { Self }
 	async fn fn_async() {}
 	unsafe fn fn_unsafe() {}
 	extern "C" fn fn_extern_c() {}
@@ -33,7 +33,7 @@ impl Chain<Test> {
 	// fn fn_self(self);
 	// fn fn_self_ref(&self);
 	// fn fn_self_mut(&mut self);
-	// const fn fn_const();
+	const fn fn_const() -> Self;
 	// async fn fn_async();
 	// unsafe fn fn_unsafe();
 	// extern "C" fn fn_extern_c();
