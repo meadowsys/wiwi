@@ -168,6 +168,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			crate::Chain::from_inner(#inner_fn_call)
 		};
 
+		*abi = None;
+
 		*item = quote! {
 			#(#attrs)*
 			#sig {

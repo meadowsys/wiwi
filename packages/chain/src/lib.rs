@@ -40,7 +40,7 @@ impl Chain<Test> {
 	const fn fn_const() -> Self;
 	async fn fn_async();
 	unsafe fn fn_unsafe();
-	// extern "C" fn fn_extern_c();
+	extern "C" fn fn_extern_c();
 	// fn fn_generics<T1, T2>(t1: T1, t2: T2);
 	fn fn_output() -> Self;
 	// fn fn_output2() -> usize;
