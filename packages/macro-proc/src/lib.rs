@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use proc_macro2::Span;
+use proc_macro2::{ Span, TokenTree };
 use quote::{
 	ToTokens,
 	format_ident,
@@ -7,9 +7,11 @@ use quote::{
 	quote_spanned
 };
 use syn::{
+	Attribute,
 	FnArg,
 	ImplItem,
 	ItemImpl,
+	Meta,
 	Pat,
 	PatIdent,
 	PatType,
@@ -21,6 +23,7 @@ use syn::{
 	TraitItemFn,
 	Type,
 	TypePath,
+	parse2,
 	parse_macro_input
 };
 use syn::spanned::Spanned as _;
@@ -77,7 +80,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 	for item in items_filtered {
 		let parsed_item = item.clone().into();
 		let TraitItemFn {
-			attrs,
+			mut attrs,
 			mut sig,
 			default,
 			semi_token
@@ -302,6 +305,9 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		*abi = None;
 
+		handle_item_doc_attrs(&mut attrs, &mut errors);
+		return_errors!();
+
 		*item = quote! {
 			#(#attrs)*
 			#[allow(
@@ -362,6 +368,67 @@ enum SelfParam {
 	Ref,
 	Mut,
 	None
+}
+
+fn handle_item_doc_attrs(attrs: &mut [Attribute], errors: &mut Vec<syn::Error>) {
+	for attr in attrs {
+		let Meta::List(meta) = &attr.meta else { continue };
+		let Some(ident) = meta.path.get_ident() else { continue };
+		if ident != "chain_doc" { continue };
+
+		let mut tokens = meta.tokens.clone().into_iter();
+		let Some(TokenTree::Literal(display)) = tokens.next() else { continue };
+		let link = match (tokens.next(), tokens.next()) {
+			(Some(TokenTree::Punct(punct)), Some(TokenTree::Literal(link))) if punct.as_char() == ',' => {
+				Some(link)
+			}
+			(Some(TokenTree::Punct(punct)), None) if punct.as_char() == ',' => {
+				errors.push(error(punct, "*eats your trailing comma cutely*"));
+				continue
+			}
+			(Some(token), _) => {
+				errors.push(error(token, "invalid syntax, expected `,`"));
+				continue
+			}
+			(None, None) => { None }
+			(None, Some(_)) => { unreachable!("proc_macro2 has some serious bugs") }
+		};
+
+		match tokens.next() {
+			None => {
+				// ok
+			}
+			Some(TokenTree::Punct(punct)) if punct.as_char() == ',' => {
+				errors.push(error(punct, "*eats your trailing comma cutely*"));
+				continue
+			}
+			Some(token) => {
+				errors.push(error(token, "invalid syntax, expected `,`"));
+				continue
+			}
+		}
+
+		let link = if let Some(link) = link {
+			quote! { "(", #link, ")", }
+		} else {
+			quote! {}
+		};
+
+		*attr = Attribute {
+			pound_token: attr.pound_token,
+			style: attr.style,
+			bracket_token: attr.bracket_token,
+			meta: parse2(quote! {
+				doc = concat!(
+					"See documentation for [`",
+					#display,
+					"`]",
+					#link
+					" for details on the underlying function"
+				)
+			}).unwrap()
+		};
+	}
 }
 
 fn error(tokens: impl ToTokens, msg: &str) -> syn::Error {
