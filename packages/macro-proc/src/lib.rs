@@ -316,7 +316,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				clippy::undocumented_unsafe_blocks,
 				reason = "macro output"
 			)]
-			#sig {
+			pub #sig {
 				#fn_call
 			}
 		};
@@ -353,7 +353,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					clippy::undocumented_unsafe_blocks,
 					reason = "macro output"
 				)]
-				#sig {
+				pub #sig {
 					#output_fn_call
 				}
 			};
