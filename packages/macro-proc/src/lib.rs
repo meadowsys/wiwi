@@ -305,6 +305,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		*item = quote! {
 			#(#attrs)*
 			#[allow(
+				unknown_lints,
 				clippy::needless_arbitrary_self_type,
 				clippy::undocumented_unsafe_blocks,
 				reason = "macro output"
@@ -341,6 +342,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 				#(#attrs)*
 				#[allow(
+					unknown_lints,
 					clippy::needless_arbitrary_self_type,
 					clippy::undocumented_unsafe_blocks,
 					reason = "macro output"
