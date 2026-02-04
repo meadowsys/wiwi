@@ -28,6 +28,8 @@ use syn::{
 };
 use syn::spanned::Spanned as _;
 
+// todo there is still the case of original function returning borrowed data
+// we need to inject a callback param then
 #[proc_macro_attribute]
 pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 	let _ = attr;
