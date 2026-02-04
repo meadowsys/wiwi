@@ -1,7 +1,28 @@
 use proc_macro::TokenStream;
 use proc_macro2::Span;
-use quote::{ ToTokens, format_ident, quote, quote_spanned };
-use syn::{ FnArg, ImplItem, ImplItemFn, ItemImpl, Pat, PatIdent, PatType, Path, Receiver, ReturnType, Signature, Token, TraitItemFn, Type, TypePath, parse_macro_input };
+use quote::{
+	ToTokens,
+	format_ident,
+	quote,
+	quote_spanned
+};
+use syn::{
+	FnArg,
+	ImplItem,
+	ItemImpl,
+	Pat,
+	PatIdent,
+	PatType,
+	Path,
+	Receiver,
+	ReturnType,
+	Signature,
+	Token,
+	TraitItemFn,
+	Type,
+	TypePath,
+	parse_macro_input
+};
 use syn::spanned::Spanned as _;
 
 #[proc_macro_attribute]
@@ -72,7 +93,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			fn_token: _,
 			ident,
 			generics: _,
-			paren_token,
+			paren_token: _,
 			inputs,
 			variadic,
 			output
@@ -120,7 +141,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				Receiver {
 					reference: None,
 					mutability: Some(mutability),
-					self_token,
 					..
 				} => {
 					errors.push(error(mutability, "explicit mutability not allowed"));
@@ -137,7 +157,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Owned,
 						quote_spanned! { self_token.span() => self.into_inner() },
-						quote! {},
 						receiver
 					))
 				}
@@ -152,7 +171,6 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Ref,
 						quote_spanned! { self_token.span() => self.as_inner() },
-						quote_spanned! { self_token.span() => self },
 						receiver
 					))
 				}
@@ -167,30 +185,23 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					Some((
 						SelfParam::Mut,
 						quote_spanned! { self_token.span() => self.as_inner_mut() },
-						quote_spanned! { self_token.span() => self },
 						receiver
 					))
 				}
 			});
 		return_errors!();
 
-		let (self_param_ty, self_arg, return_expr, mut self_param) = self_param
-			.map(|(self_param_ty, self_arg, return_expr, self_param)| (
+		let (self_param_ty, self_arg, mut self_param) = self_param
+			.map(|(self_param_ty, self_arg, self_param)| (
 				self_param_ty,
 				quote! { #self_arg, },
-				quote! { ; #return_expr },
 				Some(self_param)
 			))
 			.unwrap_or_else(|| (
 				SelfParam::None,
 				quote! {},
-				quote! {},
 				None
 			));
-		// let (self_param, return_expr) = match self_param {
-		// 	Some((self_param, return_expr)) => { (Some(self_param), Some(return_expr)) }
-		// 	None => { (None, None) }
-		// };
 
 		let mut needs_output_arg = false;
 		let output_orig = output.clone();
@@ -241,7 +252,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				*self_param.ty = Type::Verbatim(quote! { Self });
 			}
 
-			(ReturnType::Type(_, ty), SelfParam::Ref | SelfParam::Mut) => {
+			(ReturnType::Type(..), SelfParam::Ref | SelfParam::Mut) => {
 				*output = ReturnType::Type(
 					Token![->](semi_token.span()),
 					Box::new(Type::Verbatim(quote! { Self }))
