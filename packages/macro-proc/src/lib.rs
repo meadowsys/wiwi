@@ -322,6 +322,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				clippy::unit_arg,
 				reason = "macro output"
 			)]
+			#[automatically_derived]
 			#vis #sig {
 				#fn_call
 			}
@@ -360,6 +361,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					clippy::unit_arg,
 					reason = "macro output"
 				)]
+				#[automatically_derived]
 				#vis #sig {
 					#output_fn_call
 				}
