@@ -323,6 +323,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				reason = "macro output"
 			)]
 			#[automatically_derived]
+			#[inline(always)]
 			#vis #sig {
 				#fn_call
 			}
@@ -362,6 +363,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					reason = "macro output"
 				)]
 				#[automatically_derived]
+				#[inline(always)]
 				#vis #sig {
 					#output_fn_call
 				}
@@ -431,11 +433,11 @@ fn handle_item_doc_attrs(attrs: &mut [Attribute], errors: &mut Vec<syn::Error>) 
 			bracket_token: attr.bracket_token,
 			meta: parse2(quote! {
 				doc = concat!(
-					"See documentation for [`",
+					"Chaining function for [`",
 					#display,
 					"`]",
 					#link
-					" for details on the underlying function"
+					", see its documentation for details"
 				)
 			}).unwrap()
 		};
