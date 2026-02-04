@@ -319,6 +319,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				unknown_lints,
 				clippy::needless_arbitrary_self_type,
 				clippy::undocumented_unsafe_blocks,
+				clippy::unit_arg,
 				reason = "macro output"
 			)]
 			#vis #sig {
@@ -356,6 +357,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					unknown_lints,
 					clippy::needless_arbitrary_self_type,
 					clippy::undocumented_unsafe_blocks,
+					clippy::unit_arg,
 					reason = "macro output"
 				)]
 				#vis #sig {
