@@ -10,6 +10,7 @@ use syn::{
 	Attribute,
 	FnArg,
 	ImplItem,
+	ImplItemFn,
 	ItemImpl,
 	Meta,
 	Pat,
@@ -20,7 +21,6 @@ use syn::{
 	ReturnType,
 	Signature,
 	Token,
-	TraitItemFn,
 	Type,
 	TypePath,
 	parse2,
@@ -62,33 +62,36 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 	for item in &mut **items {
 		match item {
-			ImplItem::Verbatim(_) => {}
+			ImplItem::Fn(item) if item.block.stmts.is_empty() => {}
 			item => {
-				errors.push(error(item, "items that aren't function stubs currently not supported in chain API"))
+				errors.push(error(
+					item,
+					"items that aren't functions with empty bodies currently unsupported in chain API"
+				));
 			}
 		}
 	}
 	return_errors!();
 
-	// (currently) the function stubs that we need without a body aren't
-	// parsed and only show up in Verbatim, so we use these then parse
-	// TraitItemFn manually after
 	let items_filtered = items.iter_mut()
-		.filter_map(|item| match item {
-			ImplItem::Verbatim(item) => { Some(item) }
+		.filter_map(|raw_item| match raw_item {
+			ImplItem::Fn(item) => {
+				let item = item.clone();
+				Some((raw_item, item))
+			}
 			_ => { None }
 		});
 
-	for item in items_filtered {
-		let parsed_item = item.clone().into();
-		let TraitItemFn {
-			mut attrs,
-			mut sig,
-			default,
-			semi_token
-		} = parse_macro_input!(parsed_item);
+	for (raw_item, mut item) in items_filtered {
+		let ImplItemFn {
+			attrs,
+			vis,
+			defaultness,
+			sig,
+			block
+		} = &mut item;
 
-		compile_error_if_some!(default, "custom chain fn implementations are not supported in chain API");
+		compile_error_if_some!(defaultness, "custom chain fn implementations are not supported in chain API");
 
 		let Signature {
 			constness: _,
@@ -102,7 +105,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			inputs,
 			variadic,
 			output
-		} = &mut sig;
+		} = sig;
 
 		compile_error_if_some!(variadic, "C variadic functions are not supported in chain API");
 
@@ -213,8 +216,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 		match (&mut *output, &self_param_ty) {
 			(ReturnType::Default, SelfParam::None | SelfParam::Owned) => {
 				*output = ReturnType::Type(
-					Token![->](semi_token.span()),
-					Box::new(Type::Verbatim(quote_spanned! { semi_token.span() =>
+					Token![->](block.span()),
+					Box::new(Type::Verbatim(quote_spanned! { block.span() =>
 						crate::Chain<()>
 					}))
 				);
@@ -237,7 +240,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					}
 					ty => {
 						*output = ReturnType::Type(
-							Token![->](semi_token.span()),
+							Token![->](block.span()),
 							Box::new(Type::Verbatim(quote! {
 								crate::Chain<#ty>
 							}))
@@ -248,7 +251,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 			(ReturnType::Default, SelfParam::Ref | SelfParam::Mut) => {
 				*output = ReturnType::Type(
-					Token![->](semi_token.span()),
+					Token![->](block.span()),
 					Box::new(Type::Verbatim(quote! { Self }))
 				);
 
@@ -259,7 +262,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 			(ReturnType::Type(..), SelfParam::Ref | SelfParam::Mut) => {
 				*output = ReturnType::Type(
-					Token![->](semi_token.span()),
+					Token![->](block.span()),
 					Box::new(Type::Verbatim(quote! { Self }))
 				);
 
@@ -271,7 +274,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			}
 		};
 
-		let mut inner_fn_call = quote_spanned! { semi_token.span() =>
+		let mut inner_fn_call = quote_spanned! { block.span() =>
 			<<Self as crate::chain::ChainInnerType>::Inner>::#ident(
 				#self_arg
 				#(#arg_names),*
@@ -298,7 +301,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 			)
 		} else {
 			(
-				quote_spanned! { semi_token.span() =>
+				quote_spanned! { block.span() =>
 					crate::Chain::from_inner(#inner_fn_call)
 				},
 				None
@@ -307,10 +310,10 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 
 		*abi = None;
 
-		handle_item_doc_attrs(&mut attrs, &mut errors);
+		handle_item_doc_attrs(attrs, &mut errors);
 		return_errors!();
 
-		*item = quote! {
+		let mut final_item = quote! {
 			#(#attrs)*
 			#[allow(
 				unknown_lints,
@@ -318,7 +321,7 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				clippy::undocumented_unsafe_blocks,
 				reason = "macro output"
 			)]
-			pub #sig {
+			#vis #sig {
 				#fn_call
 			}
 		};
@@ -345,8 +348,8 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 				}))
 			}));
 
-			*item = quote! {
-				#item
+			final_item = quote! {
+				#final_item
 
 				#(#attrs)*
 				#[allow(
@@ -355,11 +358,13 @@ pub fn chain_fn(attr: TokenStream, item: TokenStream) -> TokenStream {
 					clippy::undocumented_unsafe_blocks,
 					reason = "macro output"
 				)]
-				pub #sig {
+				#vis #sig {
 					#output_fn_call
 				}
 			};
 		}
+
+		*raw_item = ImplItem::Verbatim(final_item);
 	}
 
 	item.into_token_stream().into()
