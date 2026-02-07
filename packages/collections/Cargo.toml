@@ -16,7 +16,10 @@ allocator-api2 = { workspace = true }
 hashbrown = { workspace = true }
 
 [features]
-nightly = ["allocator-api2/nightly"]
+nightly = [
+	"allocator-api2/nightly",
+	"hashbrown/nightly"
+]
 
 [lints]
 workspace = true
