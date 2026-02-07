@@ -19,18 +19,12 @@ impl BuildHasher for DefaultHashBuilder {
 		DefaultHasher { inner: self.inner.build_hasher() }
 	}
 
-	#[expect(
-		clippy::manual_hash_one,
-		reason = "inner might have overridden it for whatever reason, we should use it"
-	)]
 	#[inline]
 	fn hash_one<T: Hash>(&self, x: T) -> u64
 	where
 		Self: Sized
 	{
-		let mut hasher = self.build_hasher();
-		x.hash(&mut hasher);
-		hasher.finish()
+		self.inner.hash_one(x)
 	}
 }
 
