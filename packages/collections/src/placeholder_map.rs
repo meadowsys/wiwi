@@ -627,6 +627,40 @@ where
 	}
 }
 
+impl<K, V, S, A, const N: usize> From<[(K, V); N]> for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash,
+	V: Eq + Hash,
+	S: Default + BuildHasher,
+	A: Default + Allocator
+{
+	#[inline]
+	fn from(value: [(K, V); N]) -> Self {
+		// we know how many keys but we cannot predict how
+		// many values without potentially expensive computation
+		let mut new = Self::with_key_capacity(N);
+		new.extend(value);
+		new
+	}
+}
+
+impl<K, V, S, A> From<Vec<(K, V)>> for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash,
+	V: Eq + Hash,
+	S: Default + BuildHasher,
+	A: Default + Allocator
+{
+	#[inline]
+	fn from(value: Vec<(K, V)>) -> Self {
+		// we know how many keys but we cannot predict how
+		// many values without potentially expensive computation
+		let mut new = Self::with_key_capacity(value.len());
+		new.extend(value);
+		new
+	}
+}
+
 // SAFETY: we have Rc internally, but it is never exposed, so all strong
 // references for all values will get moved at once across a thread boundaries
 unsafe impl<K, V, S, A> Send for PlaceholderMap<K, V, S, A>
