@@ -675,6 +675,7 @@ where
 /// This is a free function and not impl on the map itself because we want to
 /// only have `&mut self.values` and not the whole struct, and rust doesn't let
 /// us do that through the self parameter
+#[inline]
 fn remove_value<V, S, A>(values: &mut HashMap<RcMut<V>, (), S, A>, v: &RcMut<V>)
 where
 	V: Eq + Hash,
@@ -696,6 +697,7 @@ where
 /// This is a free function and not impl on the map itself because we want to
 /// only have `&mut self.values` and not the whole struct, and rust doesn't let
 /// us do that through the self parameter
+#[inline]
 fn remove_and_unwrap_if_last_value<V, S, A>(values: &mut HashMap<RcMut<V>, (), S, A>, v: RcMut<V>) -> Option<V>
 where
 	V: Eq + Hash,
