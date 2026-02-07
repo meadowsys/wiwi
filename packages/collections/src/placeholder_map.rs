@@ -5,7 +5,7 @@ use crate::DefaultHashBuilder;
 use self::rc_mut::RcMut;
 
 use allocator_api2::alloc::{ Allocator, Global };
-use core::fmt::{ self, Debug };
+use core::fmt::{ self, Debug, Display };
 use core::hash::{ BuildHasher, Hash, Hasher };
 use core::iter::FusedIterator;
 use hashbrown::HashMap;
@@ -554,7 +554,7 @@ where
 	}
 }
 
-impl<K, V, S, A> fmt::Debug for PlaceholderMap<K, V, S, A>
+impl<K, V, S, A> Debug for PlaceholderMap<K, V, S, A>
 where
 	K: Debug,
 	V: Debug,
@@ -562,7 +562,10 @@ where
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		f.debug_map().entries(self.iter()).finish()
+		let mut debug_map = f.debug_map();
+		self.iter()
+			.fold(&mut debug_map, |acc, (k, v)| acc.entry(k, v))
+			.finish()
 	}
 }
 
