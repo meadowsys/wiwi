@@ -576,6 +576,51 @@ impl<K, V> Default for PlaceholderMap<K, V> {
 	}
 }
 
+impl<'h, K, V, S, A> Extend<&'h (K, V)> for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash + Clone,
+	V: Eq + Hash + Clone,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	fn extend<T: IntoIterator<Item = &'h (K, V)>>(&mut self, iter: T) {
+		iter.into_iter().for_each(|(k, v)| {
+			self.insert(k.clone(), v.clone());
+		});
+	}
+}
+
+impl<'h, K, V, S, A> Extend<(&'h K, &'h V)> for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash + Clone,
+	V: Eq + Hash + Clone,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	fn extend<T: IntoIterator<Item = (&'h K, &'h V)>>(&mut self, iter: T) {
+		iter.into_iter().for_each(|(k, v)| {
+			self.insert(k.clone(), v.clone());
+		});
+	}
+}
+
+impl<K, V, S, A> Extend<(K, V)> for PlaceholderMap<K, V, S, A>
+where
+	K: Eq + Hash,
+	V: Eq + Hash,
+	S: BuildHasher,
+	A: Allocator
+{
+	#[inline]
+	fn extend<T: IntoIterator<Item = (K, V)>>(&mut self, iter: T) {
+		iter.into_iter().for_each(|(k, v)| {
+			self.insert(k, v);
+		});
+	}
+}
+
 // SAFETY: we have Rc internally, but it is never exposed, so all strong
 // references for all values will get moved at once across a thread boundaries
 unsafe impl<K, V, S, A> Send for PlaceholderMap<K, V, S, A>
