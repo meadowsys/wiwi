@@ -5,7 +5,7 @@ use crate::DefaultHashBuilder;
 use self::rc_mut::RcMut;
 
 use allocator_api2::alloc::{ Allocator, Global };
-use core::fmt::{ self, Debug, Display };
+use core::fmt::{ self, Debug };
 use core::hash::{ BuildHasher, Hash, Hasher };
 use core::iter::FusedIterator;
 use hashbrown::HashMap;
