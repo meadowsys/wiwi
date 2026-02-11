@@ -1,0 +1,19 @@
+[package]
+name = "wiwi-macro-decl"
+description = "declarative macros for wiwi, a library, of, Stuff™ (implementation detail; do not depend on this crate directly)"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
+features = []
+targets = [
+	"aarch64-apple-darwin"
+]
