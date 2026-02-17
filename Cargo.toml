@@ -6,6 +6,7 @@ members = [
 	"packages/collections",
 	"packages/macro-decl",
 	"packages/macro-proc",
+	"packages/web-components",
 	"packages/wiwi"
 ]
 
