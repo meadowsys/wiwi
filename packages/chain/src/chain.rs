@@ -137,7 +137,7 @@ impl<T> private::Sealed<T> for &mut core::mem::MaybeUninit<T> {}
 	reason = "should be no-op"
 )]
 #[inline(always)]
-pub fn out_dbg<T, O: Output<T>>(out: O) -> impl Output<T> {
+pub fn out_dbg<T>(out: impl Output<T>) -> impl Output<T> {
 	#[cfg(debug_assertions)]
 	let out = OutputDebug {
 		inner: out,
