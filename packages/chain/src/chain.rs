@@ -129,15 +129,22 @@ unsafe impl<T> Output<T> for &mut core::mem::MaybeUninit<T> {
 impl<T> private::Sealed<T> for &mut core::mem::MaybeUninit<T> {}
 
 /// Tool for helping to debug [`Output`] trait usage in debug mode (if `out` is
-/// not written to, the function will panic)
+/// not written to, the function will panic only in debug mode)
 ///
 /// This function should optimise out to a no-op in release mode.
-#[inline]
-pub fn out_dbg<T, O: Output<T>>(out: O) -> OutputDebug<T, O> {
-	OutputDebug {
+#[expect(
+	clippy::inline_always,
+	reason = "should be no-op"
+)]
+#[inline(always)]
+pub fn out_dbg<T, O: Output<T>>(out: O) -> impl Output<T> {
+	#[cfg(debug_assertions)]
+	let out = OutputDebug {
 		inner: out,
 		__marker: std::marker::PhantomData
-	}
+	};
+
+	out
 }
 
 #[repr(transparent)]
@@ -156,22 +163,10 @@ where
 	/// Unwraps self and returns the inner output (without ever panicking)
 	#[inline]
 	pub fn into_inner(self) -> O {
-		// in cfg(debug_assertions), we have Drop impl,
-		// so we need to do a funny to get `inner` out
-		#[cfg(debug_assertions)]
-		let inner = {
-			let this = core::mem::ManuallyDrop::new(self);
+		let this = core::mem::ManuallyDrop::new(self);
 
-			// SAFETY: ManuallyDrop above prevents double drops
-			unsafe { core::ptr::read(&raw const this.inner) }
-		};
-
-		// in not(cfg(debug_assertions)), we don't have
-		// Drop impl, so we can just normally move it out
-		#[cfg(not(debug_assertions))]
-		let inner = self.inner;
-
-		inner
+		// SAFETY: ManuallyDrop above prevents double drops
+		unsafe { core::ptr::read(&raw const this.inner) }
 	}
 }
 
@@ -191,7 +186,6 @@ where
 	O: Output<T>
 {}
 
-#[cfg(debug_assertions)]
 impl<T, O> Drop for OutputDebug<T, O>
 where
 	O: Output<T>
