@@ -5,6 +5,7 @@ members = [
 	"packages/chain",
 	"packages/collections",
 	"packages/dotenv",
+	"packages/err",
 	"packages/macro-decl",
 	"packages/macro-proc",
 	"packages/web-components",
