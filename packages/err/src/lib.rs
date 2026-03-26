@@ -8,7 +8,8 @@ pub mod prelude;
 mod axum_0_8;
 
 pub struct Err<E> {
-	frame: TypedFrame<E>
+	// use box to make stack size smaller
+	frame: Box<TypedFrame<E>>
 }
 
 impl<E> Err<E>
@@ -21,11 +22,11 @@ where
 		let children = walk(&err);
 
 		Err {
-			frame: TypedFrame {
+			frame: Box::new(TypedFrame {
 				err,
 				location: Location::caller(),
 				children
-			}
+			})
 		}
 	}
 
@@ -47,11 +48,11 @@ where
 			}).collect();
 
 		Err {
-			frame: TypedFrame {
+			frame: Box::new(TypedFrame {
 				err,
 				location: Location::caller(),
 				children
-			}
+			})
 		}
 	}
 
@@ -62,7 +63,7 @@ where
 		E2: ErrorTrait + Send + Sync + 'static
 	{
 		let mut new = Err::from_err(err);
-		new.frame.children.push(self.frame.into());
+		new.frame.children.push((*self.frame).into());
 		new
 	}
 
@@ -177,7 +178,7 @@ where
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		print_err_dbg(
 			f,
-			(&self.inner.frame).into(),
+			(&*self.inner.frame).into(),
 			0,
 			&mut String::new()
 		)
