@@ -3,6 +3,9 @@ use core::error::Error as ErrorTrait;
 use core::panic::Location;
 use core::fmt::{ self, Debug, Display };
 
+#[cfg(feature = "axum-0-8")]
+mod axum_0_8;
+
 pub struct Err<E> {
 	frame: TypedFrame<E>
 }

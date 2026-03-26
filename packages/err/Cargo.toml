@@ -9,7 +9,11 @@ repository = { workspace = true }
 license = { workspace = true }
 
 [dependencies]
+axum-0-8 = { workspace = true, optional = true }
 thiserror = { workspace = true }
+
+[features]
+axum-0-8 = ["dep:axum-0-8"]
 
 [lints]
 workspace = true
