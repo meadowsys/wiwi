@@ -86,6 +86,16 @@ where
 	}
 }
 
+impl<E> Debug for Err<E>
+where
+	E: ErrorTrait + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		self.detailed_display().fmt(f)
+	}
+}
+
 struct TypedFrame<E> {
 	err: E,
 	location: &'static Location<'static>,
