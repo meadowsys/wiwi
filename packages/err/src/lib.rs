@@ -67,6 +67,11 @@ where
 	}
 
 	#[inline]
+	pub fn as_inner(&self) -> &E {
+		&self.frame.err
+	}
+
+	#[inline]
 	pub fn simple_display(&self) -> SimpleDisplay<'_, E> {
 		SimpleDisplay { inner: self }
 	}
