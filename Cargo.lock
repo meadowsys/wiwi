@@ -2047,6 +2047,9 @@ dependencies = [
 [[package]]
 name = "wiwi-err"
 version = "0.11.0-pre.3"
+dependencies = [
+ "thiserror 2.0.18",
+]
 
 [[package]]
 name = "wiwi-macro-decl"

@@ -1,4 +1,5 @@
-use core::error::Error;
+pub use thiserror::Error;
+use core::error::Error as ErrorTrait;
 use core::panic::Location;
 use core::fmt::{ self, Debug, Display };
 
@@ -8,7 +9,7 @@ pub struct Err<E> {
 
 impl<E> Err<E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	#[track_caller]
@@ -28,7 +29,7 @@ where
 	#[track_caller]
 	pub fn from_errs<C>(err: E, children: &mut dyn Iterator<Item = C>) -> Self
 	where
-		C: Error + Send + Sync + 'static
+		C: ErrorTrait + Send + Sync + 'static
 	{
 		let children = children.into_iter()
 			.map(|err| {
@@ -54,7 +55,7 @@ where
 	#[track_caller]
 	pub fn raise<E2>(self, err: E2) -> Err<E2>
 	where
-		E2: Error + Send + Sync + 'static
+		E2: ErrorTrait + Send + Sync + 'static
 	{
 		let mut new = Err::from_err(err);
 		new.frame.children.push(self.frame.into());
@@ -89,14 +90,14 @@ struct TypedFrame<E> {
 }
 
 struct Frame {
-	err: Box<dyn Error + Send + Sync + 'static>,
+	err: Box<dyn ErrorTrait + Send + Sync + 'static>,
 	location: &'static Location<'static>,
 	children: Vec<Frame>
 }
 
 impl<E> From<TypedFrame<E>> for Frame
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn from(frame: TypedFrame<E>) -> Self {
@@ -107,14 +108,14 @@ where
 }
 
 struct BorrowedFrame<'h> {
-	err: &'h (dyn Error + Send + Sync + 'static),
+	err: &'h (dyn ErrorTrait + Send + Sync + 'static),
 	location: &'static Location<'static>,
 	children: &'h [Frame]
 }
 
 impl<'h, E> From<&'h TypedFrame<E>> for BorrowedFrame<'h>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	fn from(frame: &'h TypedFrame<E>) -> Self {
 		let TypedFrame { err, location, children } = frame;
@@ -135,7 +136,7 @@ pub struct SimpleDisplay<'h, E> {
 
 impl<'h, E> Display for SimpleDisplay<'h, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -149,7 +150,7 @@ pub struct DetailedDisplay<'h, E> {
 
 impl<'h, E> Display for DetailedDisplay<'h, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -175,7 +176,7 @@ impl<'h, E> ErrorImplementorBorrowed<'h, E> {
 
 impl<'h, E> Debug for ErrorImplementorBorrowed<'h, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -185,7 +186,7 @@ where
 
 impl<'h, E> Display for ErrorImplementorBorrowed<'h, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -193,9 +194,9 @@ where
 	}
 }
 
-impl<'h, E> Error for ErrorImplementorBorrowed<'h, E>
+impl<'h, E> ErrorTrait for ErrorImplementorBorrowed<'h, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {}
 
 pub struct ErrorImplementorOwned<E> {
@@ -216,7 +217,7 @@ impl<E> ErrorImplementorOwned<E> {
 
 impl<E> Debug for ErrorImplementorOwned<E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -226,7 +227,7 @@ where
 
 impl<E> Display for ErrorImplementorOwned<E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -234,9 +235,9 @@ where
 	}
 }
 
-impl<E> Error for ErrorImplementorOwned<E>
+impl<E> ErrorTrait for ErrorImplementorOwned<E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {}
 
 struct StringError {
@@ -258,10 +259,10 @@ impl Display for StringError {
 	}
 }
 
-impl Error for StringError {}
+impl ErrorTrait for StringError {}
 
 #[track_caller]
-fn walk(err: &dyn Error) -> Vec<Frame> {
+fn walk(err: &dyn ErrorTrait) -> Vec<Frame> {
 	err.source()
 		.map(|err| vec![Frame {
 			err: Box::new(StringError {
@@ -319,7 +320,7 @@ pub trait ErrorExt {
 
 impl<E> ErrorExt for E
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	#[inline]
 	#[track_caller]
@@ -334,7 +335,7 @@ pub trait Ext {
 
 	fn or_raise<E>(self, err: impl FnOnce() -> E) -> Result<Self::Ok, Err<E>>
 	where
-		E: Error + Send + Sync + 'static;
+		E: ErrorTrait + Send + Sync + 'static;
 }
 
 impl<T> Ext for Option<T> {
@@ -345,7 +346,7 @@ impl<T> Ext for Option<T> {
 	#[track_caller]
 	fn or_raise<E>(self, err: impl FnOnce() -> E) -> Result<Self::Ok, Err<E>>
 	where
-		E: Error + Send + Sync + 'static
+		E: ErrorTrait + Send + Sync + 'static
 	{
 		match self {
 			Some(value) => { Ok(value) }
@@ -356,7 +357,7 @@ impl<T> Ext for Option<T> {
 
 impl<T, E> Ext for Result<T, E>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	type Ok = T;
 	type Err = E;
@@ -365,7 +366,7 @@ where
 	#[track_caller]
 	fn or_raise<E2>(self, err: impl FnOnce() -> E2) -> Result<<Self as Ext>::Ok, Err<E2>>
 	where
-		E2: Error + Send + Sync + 'static
+		E2: ErrorTrait + Send + Sync + 'static
 	{
 		match self {
 			Ok(value) => { Ok(value) }
@@ -376,7 +377,7 @@ where
 
 impl<T, E> Ext for Result<T, Err<E>>
 where
-	E: Error + Send + Sync + 'static
+	E: ErrorTrait + Send + Sync + 'static
 {
 	type Ok = T;
 	type Err = E;
@@ -385,7 +386,7 @@ where
 	#[track_caller]
 	fn or_raise<E2>(self, err: impl FnOnce() -> E2) -> Result<<Self as Ext>::Ok, Err<E2>>
 	where
-		E2: Error + Send + Sync + 'static
+		E2: ErrorTrait + Send + Sync + 'static
 	{
 		match self {
 			Ok(value) => { Ok(value) }
