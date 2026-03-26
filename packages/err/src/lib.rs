@@ -60,25 +60,25 @@ where
 		new.frame.children.push(self.frame.into());
 		new
 	}
-}
 
-impl<E> Debug for Err<E>
-where
-	E: Error + Send + Sync + 'static
-{
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		print_err_dbg(f, (&self.frame).into(), 0, &mut String::new())
+	pub fn simple_display(&self) -> SimpleDisplay<'_, E> {
+		SimpleDisplay { inner: self }
 	}
-}
 
-impl<E> Display for Err<E>
-where
-	E: Error + Send + Sync + 'static
-{
 	#[inline]
-	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-		Display::fmt(&self.frame.err, f)
+	pub fn detailed_display(&self) -> DetailedDisplay<'_, E> {
+		DetailedDisplay { inner: self }
+	}
+
+	#[inline]
+	pub fn as_error(&self) -> ErrorImplementorBorrowed<'_, E> {
+		ErrorImplementorBorrowed { inner: self }
+	}
+
+	#[inline]
+	pub fn into_error(self) -> ErrorImplementorOwned<E> {
+		ErrorImplementorOwned { inner: self }
 	}
 }
 
@@ -107,14 +107,14 @@ where
 }
 
 struct BorrowedFrame<'h> {
-	err: &'h (dyn Error + Send + Sync),
+	err: &'h (dyn Error + Send + Sync + 'static),
 	location: &'static Location<'static>,
 	children: &'h [Frame]
 }
 
 impl<'h, E> From<&'h TypedFrame<E>> for BorrowedFrame<'h>
 where
-	E: Error + Send + Sync
+	E: Error + Send + Sync + 'static
 {
 	fn from(frame: &'h TypedFrame<E>) -> Self {
 		let TypedFrame { err, location, children } = frame;
@@ -128,6 +128,116 @@ impl<'h> From<&'h Frame> for BorrowedFrame<'h> {
 		Self { err: &**err, location, children }
 	}
 }
+
+pub struct SimpleDisplay<'h, E> {
+	inner: &'h Err<E>
+}
+
+impl<'h, E> Display for SimpleDisplay<'h, E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		Display::fmt(&self.inner.frame.err, f)
+	}
+}
+
+pub struct DetailedDisplay<'h, E> {
+	inner: &'h Err<E>
+}
+
+impl<'h, E> Display for DetailedDisplay<'h, E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		print_err_dbg(
+			f,
+			(&self.inner.frame).into(),
+			0,
+			&mut String::new()
+		)
+	}
+}
+
+pub struct ErrorImplementorBorrowed<'h, E> {
+	inner: &'h Err<E>
+}
+
+impl<'h, E> ErrorImplementorBorrowed<'h, E> {
+	#[inline]
+	pub fn as_err(&self) -> &Err<E> {
+		self.inner
+	}
+}
+
+impl<'h, E> Debug for ErrorImplementorBorrowed<'h, E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		self.inner.detailed_display().fmt(f)
+	}
+}
+
+impl<'h, E> Display for ErrorImplementorBorrowed<'h, E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		self.inner.simple_display().fmt(f)
+	}
+}
+
+impl<'h, E> Error for ErrorImplementorBorrowed<'h, E>
+where
+	E: Error + Send + Sync + 'static
+{}
+
+pub struct ErrorImplementorOwned<E> {
+	inner: Err<E>
+}
+
+impl<E> ErrorImplementorOwned<E> {
+	#[inline]
+	pub fn as_err(&self) -> &Err<E> {
+		&self.inner
+	}
+
+	#[inline]
+	pub fn into_err(self) -> Err<E> {
+		self.inner
+	}
+}
+
+impl<E> Debug for ErrorImplementorOwned<E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		self.inner.detailed_display().fmt(f)
+	}
+}
+
+impl<E> Display for ErrorImplementorOwned<E>
+where
+	E: Error + Send + Sync + 'static
+{
+	#[inline]
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		self.inner.simple_display().fmt(f)
+	}
+}
+
+impl<E> Error for ErrorImplementorOwned<E>
+where
+	E: Error + Send + Sync + 'static
+{}
 
 struct StringError {
 	debug: Box<str>,
@@ -151,7 +261,7 @@ impl Display for StringError {
 impl Error for StringError {}
 
 #[track_caller]
-fn walk(err: &(dyn Error + 'static)) -> Vec<Frame> {
+fn walk(err: &dyn Error) -> Vec<Frame> {
 	err.source()
 		.map(|err| vec![Frame {
 			err: Box::new(StringError {
