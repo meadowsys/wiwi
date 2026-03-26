@@ -1,4 +1,5 @@
 pub use core::error::Error as ErrorTrait;
+pub use displaydoc::Display;
 use core::panic::Location;
 use core::fmt::{ self, Debug, Display };
 
