@@ -117,6 +117,7 @@ impl<'h, E> From<&'h TypedFrame<E>> for BorrowedFrame<'h>
 where
 	E: ErrorTrait + Send + Sync + 'static
 {
+	#[inline]
 	fn from(frame: &'h TypedFrame<E>) -> Self {
 		let TypedFrame { err, location, children } = frame;
 		Self { err, location, children }
@@ -124,6 +125,7 @@ where
 }
 
 impl<'h> From<&'h Frame> for BorrowedFrame<'h> {
+	#[inline]
 	fn from(frame: &'h Frame) -> Self {
 		let Frame { err, location, children } = frame;
 		Self { err: &**err, location, children }
