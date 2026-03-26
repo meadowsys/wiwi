@@ -1,5 +1,5 @@
+pub use core::error::Error as ErrorTrait;
 pub use thiserror::Error;
-use core::error::Error as ErrorTrait;
 use core::panic::Location;
 use core::fmt::{ self, Debug, Display };
 
