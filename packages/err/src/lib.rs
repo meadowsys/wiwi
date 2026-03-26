@@ -447,6 +447,32 @@ where
 	}
 }
 
+impl<T, E> ResultManyExt for Result<T, Vec<Err<E>>>
+where
+	E: ErrorTrait + Send + Sync + 'static
+{
+	type Ok = T;
+	type Err = E;
+
+	#[inline]
+	#[track_caller]
+	fn or_raise<E2>(self, err: impl FnOnce() -> E2) -> Result<T, Err<E2>>
+	where
+		E2: ErrorTrait + Send + Sync + 'static
+	{
+		match self {
+			Ok(value) => { Ok(value) }
+			Err(errors) => {
+				let mut errors = errors
+					.into_iter()
+					.map(Err::into_error);
+
+				Err(Err::from_errs(err(), &mut errors))
+			}
+		}
+	}
+}
+
 impl<T, E> ResultManyExt for Result<T, &[E]>
 where
 	E: ErrorTrait + Clone + Send + Sync + 'static
@@ -483,6 +509,32 @@ where
 		match self {
 			Ok(value) => { Ok(value) }
 			Err(errors) => { Err(Err::from_errs(err(), &mut errors.into_iter())) }
+		}
+	}
+}
+
+impl<T, E, const N: usize> ResultManyExt for Result<T, [Err<E>; N]>
+where
+	E: ErrorTrait + Send + Sync + 'static
+{
+	type Ok = T;
+	type Err = E;
+
+	#[inline]
+	#[track_caller]
+	fn or_raise<E2>(self, err: impl FnOnce() -> E2) -> Result<T, Err<E2>>
+	where
+		E2: ErrorTrait + Send + Sync + 'static
+	{
+		match self {
+			Ok(value) => { Ok(value) }
+			Err(errors) => {
+				let mut errors = errors
+					.into_iter()
+					.map(Err::into_error);
+
+				Err(Err::from_errs(err(), &mut errors))
+			}
 		}
 	}
 }
