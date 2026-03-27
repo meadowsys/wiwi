@@ -36,22 +36,23 @@ where
 	where
 		C: ErrorTrait + Send + Sync + 'static
 	{
-		let children = children.into_iter()
-			.map(|err| {
-				let children = walk(&err);
+		let (len, _) = children.size_hint();
+		let mut processed_children = Vec::with_capacity(len);
+		for err in children {
+			let children = walk(&err);
 
-				Frame {
-					err: Box::new(err),
-					location: Location::caller(),
-					children
-				}
-			}).collect();
+			processed_children.push(Frame {
+				err: Box::new(err),
+				location: Location::caller(),
+				children
+			});
+		}
 
 		Err {
 			frame: Box::new(TypedFrame {
 				err,
 				location: Location::caller(),
-				children
+				children: processed_children
 			})
 		}
 	}
@@ -285,16 +286,18 @@ impl ErrorTrait for StringError {}
 
 #[track_caller]
 fn walk(err: &dyn ErrorTrait) -> Vec<Frame> {
-	err.source()
-		.map(|err| vec![Frame {
+	if let Some(err) = err.source() {
+		vec![Frame {
 			err: Box::new(StringError {
 				debug: format!("{err:?}").into_boxed_str(),
 				display: format!("{err}").into_boxed_str()
 			}),
 			location: Location::caller(),
 			children: walk(err)
-		}])
-		.unwrap_or_default()
+		}]
+	} else {
+		Vec::new()
+	}
 }
 
 fn print_err_dbg(
