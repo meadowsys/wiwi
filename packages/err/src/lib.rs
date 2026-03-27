@@ -316,7 +316,7 @@ fn print_err_dbg(
 	}
 	let prefix = &prefix_buf[..level_in_spaces];
 
-	writeln!(
+	write!(
 		f,
 		"{prefix}- err in {file}, at {line}:{col}",
 		file = frame.location.file(),
@@ -324,13 +324,14 @@ fn print_err_dbg(
 		col = frame.location.column()
 	)?;
 
-	writeln!(f, "{prefix}  {}", frame.err)?;
+	write!(f, "\n{prefix}  {}", frame.err)?;
 
 	if !frame.children.is_empty() {
-		writeln!(f, "{prefix}  caused by:")?;
+		write!(f, "\n{prefix}  caused by:")?;
 	}
 
 	for child in frame.children {
+		writeln!(f)?;
 		print_err_dbg(f, child.into(), level + 1, prefix_buf)?;
 	}
 
