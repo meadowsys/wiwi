@@ -2182,6 +2182,7 @@ dependencies = [
  "axum",
  "derive_more",
  "displaydoc",
+ "wiwi-macro-proc",
 ]
 
 [[package]]
