@@ -10,7 +10,6 @@ license = { workspace = true }
 
 [dependencies]
 axum-0-8 = { workspace = true, optional = true }
-derive-more = { workspace = true }
 displaydoc = { workspace = true }
 wiwi-macro-proc = { workspace = true, features = ["err"] }
 

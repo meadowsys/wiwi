@@ -12,6 +12,7 @@ use syn::{
 	ImplItem,
 	ImplItemFn,
 	ItemImpl,
+	ItemEnum,
 	Meta,
 	Pat,
 	PatIdent,
@@ -491,9 +492,22 @@ pub fn err(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
 	// 	return syn::Error::new_spanned(attr_stream, "macro should not contain any meta").into_compile_error()
 	// }
 
+	let item_enum = {
+		let item = item.clone();
+		parse_macro_input!(item as ItemEnum)
+	};
+
 	let item = TokenStream2::from(item);
+	let item_name = item_enum.ident;
 	quote! {
-		#[derive(Debug, Display, Error)]
+		#[derive(
+			::wiwi_err::__proc_macro_support::Debug,
+			::wiwi_err::__proc_macro_support::Display,
+		)]
 		#item
+
+		const _: () = {
+			impl ::wiwi_err::__proc_macro_support::Error for #item_name {}
+		};
 	}.into()
 }
