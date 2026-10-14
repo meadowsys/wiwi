@@ -37,7 +37,7 @@ pub(crate) use impl_memory_usage;
 macro_rules! impl_memory_usage_only_const {
 	{
 		$(
-			$({ $($generics:tt)* })? $type:ty
+			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
 			$(where { $($where:tt)* })?
 			|$self:ident| $impl:expr;
 		)*
@@ -55,7 +55,7 @@ macro_rules! impl_memory_usage_only_const {
 
 			#[$crate::__macro_support::cfg_nightly]
 			$crate::__macro_support::impl_memory_usage_only_const! {
-				const $({ $($generics)* })? $type
+				const $({ $($const_generics)* })? $type
 				$(where { $($where)* })?
 				|$self| $impl;
 			}
@@ -83,7 +83,7 @@ pub(crate) use impl_memory_usage_only_const;
 macro_rules! impl_memory_usage_const {
 	{
 		$(
-			$({ $($generics:tt)* })? $type:ty
+			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
 			$(where { $($where:tt)* })?
 			|$self:ident| $impl:expr;
 		)*
@@ -96,7 +96,7 @@ macro_rules! impl_memory_usage_const {
 			}
 
 			$crate::__macro_support::impl_memory_usage_only_const! {
-				$({ $($generics)* })? $type
+				$({ $($generics)* } { $($const_generics)* })? $type
 				$(where { $($where)* })?
 				|$self| $impl;
 			}
@@ -109,7 +109,7 @@ pub(crate) use impl_memory_usage_const;
 macro_rules! impl_memory_usage_only_static {
 	{
 		$(
-			$({ $($generics:tt)* })? $type:ty
+			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
 			$(where { $($where:tt)* })?
 			=> $impl:expr;
 		)*
@@ -124,7 +124,7 @@ macro_rules! impl_memory_usage_only_static {
 
 			#[$crate::__macro_support::cfg_nightly]
 			$crate::__macro_support::impl_memory_usage_only_static! {
-				const $({ $($generics)* })? $type
+				const $({ $($const_generics)* })? $type
 				$(where { $($where)* })?
 				=> $impl;
 			}
@@ -149,20 +149,20 @@ pub(crate) use impl_memory_usage_only_static;
 macro_rules! impl_memory_usage_static {
 	{
 		$(
-			$({ $($generics:tt)* })? $type:ty
+			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
 			$(where { $($where:tt)* })?
 			=> $impl:expr;
 		)*
 	} => {
 		$(
 			$crate::__macro_support::impl_memory_usage_const! {
-				$({ $($generics)* })? $type
+				$({ $($generics)* } { $($const_generics)* })? $type
 				$(where { $($where)* })?
 				|self| $impl;
 			}
 
 			$crate::__macro_support::impl_memory_usage_only_static! {
-				$({ $($generics)* })? $type
+				$({ $($generics)* } { $($const_generics)* })? $type
 				$(where { $($where)* })?
 				=> $impl;
 			}
