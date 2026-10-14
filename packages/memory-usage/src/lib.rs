@@ -100,6 +100,7 @@ mod impls {
 	mod slice;
 	mod string;
 	mod unit;
+	mod vec;
 }
 
 #[doc(hidden)]
