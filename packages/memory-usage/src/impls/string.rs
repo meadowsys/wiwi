@@ -1,4 +1,6 @@
-use crate::macros::{ impl_memory_usage, impl_memory_usage_const };
+#[cfg(feature = "std")]
+use crate::macros::impl_memory_usage;
+use crate::macros::impl_memory_usage_const;
 
 impl_memory_usage_const! {
 	str |self| self.len();

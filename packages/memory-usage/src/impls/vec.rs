@@ -1,4 +1,6 @@
+#[cfg(feature = "std")]
 use crate::MemoryUsage;
+#[cfg(feature = "std")]
 use crate::macros::impl_memory_usage;
 
 #[cfg(feature = "std")]
