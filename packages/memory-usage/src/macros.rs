@@ -36,30 +36,26 @@ pub(crate) use impl_memory_usage;
 #[cfg_attr(feature = "macros", macro_export)]
 macro_rules! impl_memory_usage_only_const {
 	{
-		$(
-			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
-			$(where { $($where:tt)* })?
-			|$self:ident| $impl:expr;
-		)*
+		$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
+		$(where { $($where:tt)* })?
+		|$self:ident| $impl:expr;
 	} => {
-		$(
-			#[$crate::__macro_support::cfg_not_nightly]
-			impl$(<$($generics)*>)? $crate::MemoryUsageConst for $type
-			$(where $($where)*)?
-			{
-				#[inline]
-				fn memory_usage_const(&$self) -> ::core::primitive::usize {
-					$impl
-				}
+		#[$crate::__macro_support::cfg_not_nightly]
+		impl$(<$($generics)*>)? $crate::MemoryUsageConst for $type
+		$(where $($where)*)?
+		{
+			#[inline]
+			fn memory_usage_const(&$self) -> ::core::primitive::usize {
+				$impl
 			}
+		}
 
-			#[$crate::__macro_support::cfg_nightly]
-			$crate::__macro_support::impl_memory_usage_only_const! {
-				const $({ $($const_generics)* })? $type
-				$(where { $($where)* })?
-				|$self| $impl;
-			}
-		)*
+		#[$crate::__macro_support::cfg_nightly]
+		$crate::__macro_support::impl_memory_usage_only_const! {
+			const $({ $($const_generics)* })? $type
+			$(where { $($where)* })?
+			|$self| $impl;
+		}
 	};
 
 	{
@@ -82,25 +78,21 @@ pub(crate) use impl_memory_usage_only_const;
 #[cfg_attr(feature = "macros", macro_export)]
 macro_rules! impl_memory_usage_const {
 	{
-		$(
-			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
-			$(where { $($where:tt)* })?
-			|$self:ident| $impl:expr;
-		)*
+		$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
+		$(where { $($where:tt)* })?
+		|$self:ident| $impl:expr;
 	} => {
-		$(
-			$crate::__macro_support::impl_memory_usage! {
-				$({ $($generics)* })? $type
-				$(where { $($where)* })?
-				|$self| $impl;
-			}
+		$crate::__macro_support::impl_memory_usage! {
+			$({ $($generics)* })? $type
+			$(where { $($where)* })?
+			|$self| $impl;
+		}
 
-			$crate::__macro_support::impl_memory_usage_only_const! {
-				$({ $($generics)* } { $($const_generics)* })? $type
-				$(where { $($where)* })?
-				|$self| $impl;
-			}
-		)*
+		$crate::__macro_support::impl_memory_usage_only_const! {
+			$({ $($generics)* } { $($const_generics)* })? $type
+			$(where { $($where)* })?
+			|$self| $impl;
+		}
 	};
 }
 pub(crate) use impl_memory_usage_const;
@@ -108,27 +100,23 @@ pub(crate) use impl_memory_usage_const;
 #[cfg_attr(feature = "macros", macro_export)]
 macro_rules! impl_memory_usage_only_static {
 	{
-		$(
-			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
-			$(where { $($where:tt)* })?
-			=> $impl:expr;
-		)*
+		$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
+		$(where { $($where:tt)* })?
+		=> $impl:expr;
 	} => {
-		$(
-			#[$crate::__macro_support::cfg_not_nightly]
-			impl$(<$($generics)*>)? $crate::MemoryUsageStatic for $type
-			$(where $($where)*)?
-			{
-				const MEMORY_USAGE: ::core::primitive::usize = $impl;
-			}
+		#[$crate::__macro_support::cfg_not_nightly]
+		impl$(<$($generics)*>)? $crate::MemoryUsageStatic for $type
+		$(where $($where)*)?
+		{
+			const MEMORY_USAGE: ::core::primitive::usize = $impl;
+		}
 
-			#[$crate::__macro_support::cfg_nightly]
-			$crate::__macro_support::impl_memory_usage_only_static! {
-				const $({ $($const_generics)* })? $type
-				$(where { $($where)* })?
-				=> $impl;
-			}
-		)*
+		#[$crate::__macro_support::cfg_nightly]
+		$crate::__macro_support::impl_memory_usage_only_static! {
+			const $({ $($const_generics)* })? $type
+			$(where { $($where)* })?
+			=> $impl;
+		}
 	};
 
 	{
@@ -148,25 +136,21 @@ pub(crate) use impl_memory_usage_only_static;
 #[cfg_attr(feature = "macros", macro_export)]
 macro_rules! impl_memory_usage_static {
 	{
-		$(
-			$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
-			$(where { $($where:tt)* })?
-			=> $impl:expr;
-		)*
+		$({ $($generics:tt)* } { $($const_generics:tt)* })? $type:ty
+		$(where { $($where:tt)* })?
+		=> $impl:expr;
 	} => {
-		$(
-			$crate::__macro_support::impl_memory_usage_const! {
-				$({ $($generics)* } { $($const_generics)* })? $type
-				$(where { $($where)* })?
-				|self| $impl;
-			}
+		$crate::__macro_support::impl_memory_usage_const! {
+			$({ $($generics)* } { $($const_generics)* })? $type
+			$(where { $($where)* })?
+			|self| $impl;
+		}
 
-			$crate::__macro_support::impl_memory_usage_only_static! {
-				$({ $($generics)* } { $($const_generics)* })? $type
-				$(where { $($where)* })?
-				=> $impl;
-			}
-		)*
+		$crate::__macro_support::impl_memory_usage_only_static! {
+			$({ $($generics)* } { $($const_generics)* })? $type
+			$(where { $($where)* })?
+			=> $impl;
+		}
 	}
 }
 pub(crate) use impl_memory_usage_static;
@@ -180,9 +164,11 @@ pub(crate) use impl_memory_usage_static;
 #[cfg_attr(feature = "macros", macro_export)]
 macro_rules! impl_memory_usage_size_of {
 	{ $($ty:ty)* } => {
-		$crate::__macro_support::impl_memory_usage_static! {
-			$($ty => size_of::<$ty>();)*
-		}
+		$(
+			$crate::__macro_support::impl_memory_usage_static! {
+				$ty => size_of::<$ty>();
+			}
+		)*
 	}
 }
 pub(crate) use impl_memory_usage_size_of;
