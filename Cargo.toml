@@ -8,6 +8,7 @@ members = [
 	"packages/err",
 	"packages/macro-decl",
 	"packages/macro-proc",
+	"packages/wasm",
 	"packages/web-components",
 	"packages/wiwi"
 ]
@@ -52,6 +53,7 @@ syn = { version = "2.0.114", features = ["full"] }
 # thiserror = "2.0.18"
 # tokio = { version = "1.41.1", features = ["full"] }
 # uuid = "1.16.0"
+wasm-bindgen = { version = "0.2.127", default-features = false, features = ["strict-macro"] }
 # z85 = "3.0.5"
 
 [workspace.lints.rust]
