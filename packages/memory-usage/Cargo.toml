@@ -1,0 +1,34 @@
+[package]
+name = "wiwi-memory-usage"
+description = "APIs to calculate total memory usage of types/values"
+version = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+license = { workspace = true }
+# categories = []
+# keywords = []
+
+[dependencies]
+wiwi-macro-proc = { workspace = true, features = ["memory-usage"] }
+
+[features]
+macros = []
+nightly = [
+	"wiwi-macro-proc/memory-usage-nightly"
+]
+std = []
+
+[lints]
+workspace = true
+
+[package.metadata.docs.rs]
+features = []
+targets = [
+	"x86_64-unknown-linux-gnu",
+
+	"aarch64-apple-darwin",
+	"wasm32-unknown-unknown",
+	"x86_64-pc-windows-msvc"
+]

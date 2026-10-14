@@ -20,6 +20,8 @@ syn = { workspace = true }
 
 [features]
 err = []
+memory-usage = []
+memory-usage-nightly = []
 
 [lints]
 workspace = true
