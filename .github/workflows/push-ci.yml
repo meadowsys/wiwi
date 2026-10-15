@@ -10,7 +10,8 @@ concurrency:
   group: push-ci-${{ github.event.ref }}
 
 env:
-  RUSTFLAGS: "-Cinstrument-coverage -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code"
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -Ccodegen-units=1 -Cdebuginfo=full -Cinstrument-coverage -Clink-dead-code -Cllvm-args=--inline-threshold=0
 
 jobs:
   test:
@@ -20,13 +21,21 @@ jobs:
       fail-fast: false
       matrix:
         runs-on:
-        - ubuntu-22.04
-        - ubuntu-24.04
-        - macos-14
+        - macos-26
+        # - ubuntu-26.04
+        - ubuntu-26.04-arm
+        # - windows-2025
+        # - windows-11-arm
 
     steps:
     - name: checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+    # - name: cache rust install
+    #   uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    #   with:
+    #     path: key here
+    #     key: key here
 
     - name: setup rust
       run: rustc --version
@@ -36,7 +45,7 @@ jobs:
       env:
         # for CI use, optimise more for compilation speed rather than runtime speed
         # could probably be made more optimal
-        RUSTFLAGS: -Clto=off -Copt-level=1 -Ccodegen-units=1024 -Cpanic=unwind
+        RUSTFLAGS: -Clto=off -Copt-level=1 -Ccodegen-units=1024 -Cpanic=unwind -Zthreads=8
 
     - name: build
       run: cargo build --verbose
@@ -44,33 +53,44 @@ jobs:
     - name: test
       run: cargo test --verbose
       env:
-        CARGO_INCREMENTAL: "0"
         LLVM_PROFILE_FILE: "target/coverage/test-%m-%p.profraw"
 
     - name: fetch/run grcov
       run: |
-        platform=$(uname)
-        case $platform in
-          Darwin)
-            # macos-14 runners run on apple silicon, so aarch64
-            curl -Lo grcov.bz2 https://github.com/mozilla/grcov/releases/download/v0.8.19/grcov-aarch64-apple-darwin.tar.bz2
+        case $RUNS_ON in
+          macos-26)
+            curl -Lo grcov.bz2 https://github.com/mozilla/grcov/releases/download/v0.10.8/grcov-aarch64-apple-darwin.tar.bz2
+            tar xvf grcov.bz2
+            rm grcov.bz2
             ;;
-          Linux)
-            curl -Lo grcov.bz2 https://github.com/mozilla/grcov/releases/download/v0.8.19/grcov-x86_64-unknown-linux-musl.tar.bz2
+
+          # ubuntu-26.04)
+          #   ;;
+
+          ubuntu-26.04-arm)
+            curl -Lo grcov.bz2 https://github.com/mozilla/grcov/releases/download/v0.10.8/grcov-aarch64-unknown-linux-musl.tar.bz2
+            tar xvf grcov.bz2
+            rm grcov.bz2
             ;;
+
+          # windows-2025)
+          #   ;;
+
+          # windows-11-arm)
+          #   ;;
+
           *)
-            echo weird
+            echo runner not accounted for
             exit 1
             ;;
         esac
 
-        tar xvf grcov.bz2
-        rm grcov.bz2
-
-        ./grcov . -s . -t lcov --binary-path ./target/debug/ --branch --ignore-not-existing -o ./target/coverage/tests.lcov
+        ./grcov . --source-dir . --output-types lcov --binary-path ./target/debug/ --branch --ignore-not-existing --output-path ./target/coverage/tests.lcov
+      env:
+        RUNS_ON: ${{ matrix.runs-on }}
 
     - name: upload to codecov
-      uses: codecov/codecov-action@0565863a31f2c772f9f0395002a31e3f06189574 # v5.4.0
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
       with:
         files: target/coverage/*.lcov
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -87,10 +107,16 @@ jobs:
 
     steps:
     - name: checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
     - name: setup rust
       run: rustc --version
+
+    # - name: cache rust install
+    #   uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+    #   with:
+    #     path: key here
+    #     key: key here
 
     - name: install fish shell
       run: |
@@ -108,7 +134,7 @@ jobs:
         KIWINGAY_DEPLOY_COMMIT: ${{ github.sha }}
 
     - name: checkout gh-pages branch
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         path: gh-pages
         ref: gh-pages
