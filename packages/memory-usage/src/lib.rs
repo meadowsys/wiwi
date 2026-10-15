@@ -89,7 +89,7 @@ const_trait!();
 const_trait!(const);
 
 mod impls {
-	// todo primitive types, fn, tuple (to 16)
+	// todo primitive types, fn (pointer), closure, tuple (to 16)
 
 	mod array;
 	mod bool;
