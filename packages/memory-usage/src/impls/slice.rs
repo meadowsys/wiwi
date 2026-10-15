@@ -33,11 +33,8 @@ impl_memory_usage_only_const! {
 
 #[cfg(test)]
 mod tests {
-	use crate::{
-		MemoryUsage as _,
-		MemoryUsageConst as _,
-		MemoryUsageStatic as _
-	};
+	use super::*;
+	use crate::MemoryUsageStatic as _;
 
 	#[test]
 	fn slice_usage() {

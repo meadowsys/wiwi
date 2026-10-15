@@ -20,11 +20,9 @@ impl_memory_usage! {
 
 #[cfg(test)]
 mod tests {
-	use crate::{
-		MemoryUsage as _,
-		MemoryUsageConst as _,
-		MemoryUsageStatic as _
-	};
+	#[cfg(feature = "std")]
+	use crate::MemoryUsageStatic as _;
+	use crate::{ MemoryUsage as _, MemoryUsageConst as _ };
 
 	#[test]
 	fn str_usage() {
@@ -34,6 +32,7 @@ mod tests {
 		assert_eq!(str.memory_usage_const(), 7);
 	}
 
+	#[cfg(feature = "std")]
 	#[test]
 	fn string_usage() {
 		let string_size = <*const u8>::MEMORY_USAGE + usize::MEMORY_USAGE + usize::MEMORY_USAGE;

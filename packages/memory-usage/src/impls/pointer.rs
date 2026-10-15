@@ -29,12 +29,12 @@ impl_memory_usage_static! {
 
 #[cfg(test)]
 mod tests {
+	use super::*;
 	use crate::{
 		MemoryUsage as _,
 		MemoryUsageConst as _,
 		MemoryUsageStatic as _
 	};
-	use core::ptr::NonNull;
 
 	trait Trait {}
 	impl Trait for () {}

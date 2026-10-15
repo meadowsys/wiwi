@@ -1,12 +1,22 @@
+#![allow(
+	stable_features,
+	reason = "new_range_api, new_range_from_api, new_range_to_inclusive_api is not stable in msrv"
+)]
 #![cfg_attr(
 	feature = "nightly",
 	feature(
 		const_trait_impl,
 		f16,
-		f128
+		f128,
+		new_range_api,
+		new_range_from_api,
+		new_range_to_inclusive_api
 	)
 )]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(
+	not(feature = "std"),
+	no_std
+)]
 
 mod macros;
 
@@ -96,6 +106,7 @@ mod impls {
 	mod char;
 	mod number;
 	mod pointer;
+	mod range;
 	mod reference;
 	mod slice;
 	mod string;

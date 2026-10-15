@@ -27,11 +27,12 @@ impl_memory_usage! {
 
 #[cfg(test)]
 mod tests {
-	use crate::{
-		MemoryUsage as _,
-		MemoryUsageStatic as _
-	};
+	#[cfg(feature = "std")]
+	use super::*;
+	#[cfg(feature = "std")]
+	use crate::MemoryUsageStatic as _;
 
+	#[cfg(feature = "std")]
 	#[test]
 	fn vec_usage() {
 		let vec_size = <*const u8>::MEMORY_USAGE + usize::MEMORY_USAGE + usize::MEMORY_USAGE;

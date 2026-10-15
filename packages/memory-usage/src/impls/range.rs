@@ -264,11 +264,6 @@ impl_memory_usage_only_static! {
 #[cfg(test)]
 mod tests {
 	use super::*;
-	use crate::{
-		MemoryUsage as _,
-		MemoryUsageConst as _,
-		MemoryUsageStatic as _
-	};
 
 	#[test]
 	fn range_full_usage() {
@@ -288,6 +283,7 @@ mod tests {
 		assert_eq!(<Range<usize>>::MEMORY_USAGE, 16);
 	}
 
+	#[cfg(feature = "nightly")]
 	#[test]
 	fn range_new_usage() {
 		let range: RangeNew<usize> = (0..10).into();
@@ -306,6 +302,7 @@ mod tests {
 		assert_eq!(<RangeInclusive<usize>>::MEMORY_USAGE, 24);
 	}
 
+	#[cfg(feature = "nightly")]
 	#[test]
 	fn range_inclusive_new_usage() {
 		let range: RangeInclusiveNew<usize> = (0..=10).into();
@@ -324,6 +321,7 @@ mod tests {
 		assert_eq!(<RangeFrom<usize>>::MEMORY_USAGE, 8);
 	}
 
+	#[cfg(feature = "nightly")]
 	#[test]
 	fn range_from_new_usage() {
 		let range: RangeFromNew<usize> = (0..).into();
@@ -351,6 +349,7 @@ mod tests {
 		assert_eq!(<RangeToInclusive<usize>>::MEMORY_USAGE, 8);
 	}
 
+	#[cfg(feature = "nightly")]
 	#[test]
 	fn range_to_inclusive_new_usage() {
 		let range: RangeToInclusiveNew<usize> = (..=10).into();

@@ -27,11 +27,7 @@ impl_memory_usage_only_static! {
 
 #[cfg(test)]
 mod tests {
-	use crate::{
-		MemoryUsage as _,
-		MemoryUsageConst as _,
-		MemoryUsageStatic as _
-	};
+	use super::*;
 
 	#[test]
 	fn array_usage() {
