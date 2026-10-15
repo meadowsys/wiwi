@@ -18,48 +18,17 @@ pub fn err(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
 	err::err(attr_stream, item)
 }
 
-#[cfg(all(
-	feature = "memory-usage",
-	not(feature = "memory-usage-nightly")
-))]
+#[cfg(feature = "memory-usage")]
+mod memory_usage;
+
+#[cfg(feature = "memory-usage")]
 #[proc_macro_attribute]
 pub fn memory_usage_cfg_nightly(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
-	let _ = attr_stream;
-	let _ = item;
-
-	TokenStream::new()
+	memory_usage::memory_usage_cfg_nightly(attr_stream, item)
 }
 
-#[cfg(all(
-	feature = "memory-usage",
-	feature = "memory-usage-nightly"
-))]
-#[proc_macro_attribute]
-pub fn memory_usage_cfg_nightly(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
-	let _ = attr_stream;
-
-	item
-}
-
-#[cfg(all(
-	feature = "memory-usage",
-	not(feature = "memory-usage-nightly")
-))]
+#[cfg(feature = "memory-usage")]
 #[proc_macro_attribute]
 pub fn memory_usage_cfg_not_nightly(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
-	let _ = attr_stream;
-
-	item
-}
-
-#[cfg(all(
-	feature = "memory-usage",
-	feature = "memory-usage-nightly"
-))]
-#[proc_macro_attribute]
-pub fn memory_usage_cfg_not_nightly(attr_stream: TokenStream, item: TokenStream) -> TokenStream {
-	let _ = attr_stream;
-	let _ = item;
-
-	TokenStream::new()
+	memory_usage::memory_usage_cfg_not_nightly(attr_stream, item)
 }
