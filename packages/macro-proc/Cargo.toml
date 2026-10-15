@@ -19,6 +19,7 @@ quote = { workspace = true }
 syn = { workspace = true }
 
 [features]
+chain = []
 err = []
 memory-usage = []
 memory-usage-nightly = []
