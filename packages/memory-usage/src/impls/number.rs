@@ -40,7 +40,7 @@ mod tests {
 	};
 
 	macro_rules! test_num {
-		{ $(test $test_name:ident($ty:ident): $usage:expr)* } => {
+		{ $($test_name:ident($ty:ident): $usage:expr)* } => {
 			$(
 				#[test]
 				fn $test_name() {
@@ -55,27 +55,27 @@ mod tests {
 	}
 
 	test_num! {
-		test u8_usage(u8): 1
-		test u16_usage(u16): 2
-		test u32_usage(u32): 4
-		test u64_usage(u64): 8
-		test u128_usage(u128): 16
-		test usize_usage(usize): SIZE_SIZE
+		u8_usage(u8): 1
+		u16_usage(u16): 2
+		u32_usage(u32): 4
+		u64_usage(u64): 8
+		u128_usage(u128): 16
+		usize_usage(usize): SIZE_SIZE
 
-		test i8_usage(i8): 1
-		test i16_usage(i16): 2
-		test i32_usage(i32): 4
-		test i64_usage(i64): 8
-		test i128_usage(i128): 16
-		test isize_usage(isize): SIZE_SIZE
+		i8_usage(i8): 1
+		i16_usage(i16): 2
+		i32_usage(i32): 4
+		i64_usage(i64): 8
+		i128_usage(i128): 16
+		isize_usage(isize): SIZE_SIZE
 
-		test f32_usage(f32): 4
-		test f64_usage(f64): 8
+		f32_usage(f32): 4
+		f64_usage(f64): 8
 	}
 
 	#[cfg(feature = "nightly")]
 	test_num! {
-		test f16_usage(f16): 2
-		test f128_usage(f128): 16
+		f16_usage(f16): 2
+		f128_usage(f128): 16
 	}
 }
