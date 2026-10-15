@@ -18,7 +18,7 @@ pub trait MemoryUsage {
 	/// Get memory usage (including direct, indirect, and compactible memory)
 	fn memory_usage(&self) -> usize;
 
-	/// Get memory usage after compaction
+	/// Get expected memory usage after compaction
 	///
 	/// Compaction means to remove unnecessary memory usage. This would include,
 	/// for example, the unused capacity of a [`Vec`], which could be removed
