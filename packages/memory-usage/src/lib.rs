@@ -148,9 +148,11 @@ mod impls {
 	mod marker;
 	mod nonzero;
 	mod number;
+	mod option;
 	mod pointer;
 	mod range;
 	mod reference;
+	mod result;
 	mod saturating;
 	mod slice;
 	mod string;
