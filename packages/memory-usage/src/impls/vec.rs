@@ -1,7 +1,7 @@
 #[cfg(feature = "std")]
-use crate::MemoryUsage;
+use crate::{ MemoryUsage, MemoryUsageConst };
 #[cfg(feature = "std")]
-use crate::macros::impl_memory_usage;
+use crate::macros::{ impl_memory_usage, impl_memory_usage_only_const };
 
 #[cfg(feature = "std")]
 impl_memory_usage! {
@@ -34,6 +34,18 @@ impl_memory_usage! {
 		vec + elements
 	};
 	ref compact |self| self.iter().map(T::compact_memory_ref).sum();
+}
+
+impl_memory_usage_only_const! {
+	{ T: MemoryUsageConst }
+	{ T: [const] MemoryUsageConst }
+	Vec<T>
+	|self| {
+		let vec = size_of::<Vec<T>>();
+		let elements = self.as_slice().memory_usage_const();
+		let remaining_capacity = (self.capacity() - self.len()) * size_of::<T>();
+		vec + elements + remaining_capacity
+	};
 }
 
 #[cfg(test)]
