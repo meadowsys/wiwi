@@ -140,6 +140,7 @@ const_trait!(const);
 
 mod impls {
 	// todo primitive types, fn (pointer), closure, tuple (to 16)
+	// todo cells, path, osstr, cstr, rc, arc, types in our lib, other popular libs
 
 	mod array;
 	mod atomic;
