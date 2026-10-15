@@ -17,6 +17,10 @@
 	not(feature = "std"),
 	no_std
 )]
+#![deny(
+	unconditional_recursion,
+	clippy::unconditional_recursion
+)]
 
 mod macros;
 
@@ -31,20 +35,54 @@ pub trait MemoryUsage {
 	/// Get expected memory usage after compaction
 	///
 	/// Compaction means to remove unnecessary memory usage. This would include,
-	/// for example, the unused capacity of a [`Vec`], which could be removed
-	/// with a call to [`shrink_to_fit()`](Vec::shrink_to_fit) if desired.
+	/// for example, removing the unused capacity of a [`Vec`], by calling
+	/// [`shrink_to_fit()`](Vec::shrink_to_fit).
 	///
 	/// Types like [`Vec`] that support memory compaction _should_ reimplement
 	/// this function.
 	#[inline]
 	fn memory_usage_compacted(&self) -> usize {
-		self.memory_usage()
+		// default is delegate to ref version of this method, so if someone
+		// implements ref, they get this one for free if they want it
+		// otherwise, no-op
+		self.memory_usage_compacted_ref()
 	}
 
 	/// Perform memory compaction, saving as much memory as possible,
 	/// returning the amount of bytes saved
 	#[inline]
 	fn compact_memory(&mut self) -> usize {
+		// default is delegate to ref version of this method, so if someone
+		// implements ref, they get this one for free if they want it
+		// otherwise, no-op
+		self.compact_memory_ref()
+	}
+
+	/// Get expected memory usage after compaction behind a shared reference
+	///
+	/// This is useful for types with interior mutability. Types that have or
+	/// could have (ie. with generics) should implement this method and
+	/// [`compact_memory_ref()`](MemoryUsage::compact_memory_ref).
+	/// For types that don't, the default implementation is a no-op.
+	///
+	/// See [`MemoryUsage::memory_usage_compacted`] for more details.
+	#[inline]
+	fn memory_usage_compacted_ref(&self) -> usize {
+		// default is no-op, and no bytes saved
+		self.memory_usage()
+	}
+
+	/// Perform memory compaction behind a shared reference, saving as much
+	/// memory as possible, returning the amount of bytes saved
+	///
+	/// This is useful for types with interior mutability. Types that have or
+	/// could have (ie. with generics) should implement this method and
+	/// [`memory_usage_compacted_ref()`](MemoryUsage::memory_usage_compacted_ref).
+	/// For types that don't, the default implementation is a no-op.
+	///
+	/// See [`MemoryUsage::compact_memory`] for more details.
+	#[inline]
+	fn compact_memory_ref(&self) -> usize {
 		// default is no-op, and no bytes saved
 		0
 	}

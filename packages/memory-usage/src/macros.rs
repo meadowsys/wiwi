@@ -7,10 +7,10 @@ macro_rules! impl_memory_usage {
 		$(
 			compacted |$self_compacted:ident| $impl_compacted:expr;
 			compact |$self_compact:ident| $impl_compact:expr;
-			$(
-				ref compacted |$self_compacted_ref:ident| $impl_compacted_ref:expr;
-				ref compact |$self_compact_ref:ident| $impl_compact_ref:expr;
-			)?
+		)?
+		$(
+			ref compacted |$self_compacted_ref:ident| $impl_compacted_ref:expr;
+			ref compact |$self_compact_ref:ident| $impl_compact_ref:expr;
 		)?
 	} => {
 		impl$(<$($generics)*>)? $crate::MemoryUsage for $type
@@ -31,18 +31,18 @@ macro_rules! impl_memory_usage {
 				fn compact_memory(&mut $self_compact) -> ::core::primitive::usize {
 					$impl_compact
 				}
+			)?
 
-				$(
-					#[inline]
-					fn memory_usage_compacted_ref(&$self_compacted_ref) -> ::core::primitive::usize {
-						$impl_compacted_ref
-					}
+			$(
+				#[inline]
+				fn memory_usage_compacted_ref(&$self_compacted_ref) -> ::core::primitive::usize {
+					$impl_compacted_ref
+				}
 
-					#[inline]
-					fn compact_memory_ref(&$self_compact_ref) -> ::core::primitive::usize {
-						$impl_compact_ref
-					}
-				)?
+				#[inline]
+				fn compact_memory_ref(&$self_compact_ref) -> ::core::primitive::usize {
+					$impl_compact_ref
+				}
 			)?
 		}
 	}
