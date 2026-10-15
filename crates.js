@@ -1,2 +1,2 @@
-window.ALL_CRATES = ["wiwi","wiwi_chain","wiwi_encoding","wiwi_macro_decl","wiwi_macro_proc","wiwi_util","wiwi_wasm"];
-//{"start":21,"fragment_lengths":[6,13,16,18,18,12,12]}
+window.ALL_CRATES = ["wiwi","wiwi_builder","wiwi_chain","wiwi_collections","wiwi_dotenv","wiwi_err","wiwi_macro_decl","wiwi_macro_proc","wiwi_memory_usage","wiwi_wasm","wiwi_web_components"];
+//{"start":21,"fragment_lengths":[6,15,13,19,14,11,18,18,20,12,22]}

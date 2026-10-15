@@ -1,9 +1,9 @@
 (function() {
-    var implementors = Object.fromEntries([["wiwi",[]]]);
+    const implementors = Object.fromEntries([["wiwi_err",[["impl&lt;'h, E&gt; <a class=\"trait\" href=\"wiwi_err/trait.ErrorTrait.html\" title=\"trait wiwi_err::ErrorTrait\">Error</a> for <a class=\"struct\" href=\"wiwi_err/struct.ErrorImplementorBorrowed.html\" title=\"struct wiwi_err::ErrorImplementorBorrowed\">ErrorImplementorBorrowed</a>&lt;'h, E&gt;<div class=\"where\">where\n    E: <a class=\"trait\" href=\"wiwi_err/trait.ErrorTrait.html\" title=\"trait wiwi_err::ErrorTrait\">ErrorTrait</a> + <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Send.html\" title=\"trait core::marker::Send\">Send</a> + <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> + 'static,</div>",0],["impl&lt;E&gt; <a class=\"trait\" href=\"wiwi_err/trait.ErrorTrait.html\" title=\"trait wiwi_err::ErrorTrait\">Error</a> for <a class=\"struct\" href=\"wiwi_err/struct.ErrorImplementorOwned.html\" title=\"struct wiwi_err::ErrorImplementorOwned\">ErrorImplementorOwned</a>&lt;E&gt;<div class=\"where\">where\n    E: <a class=\"trait\" href=\"wiwi_err/trait.ErrorTrait.html\" title=\"trait wiwi_err::ErrorTrait\">ErrorTrait</a> + <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Send.html\" title=\"trait core::marker::Send\">Send</a> + <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html\" title=\"trait core::marker::Sync\">Sync</a> + 'static,</div>",0]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
         window.pending_implementors = implementors;
     }
 })()
-//{"start":57,"fragment_lengths":[11]}
+//{"start":59,"fragment_lengths":[1471]}

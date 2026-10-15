@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["get_input","get_input_buf","print_p1","print_p2"],"mod":["prelude"]};

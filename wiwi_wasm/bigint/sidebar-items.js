@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ExternBigIntWithState","StateContainer"],"trait":["State"],"type":["ExternBigInt","StateUninit"]};

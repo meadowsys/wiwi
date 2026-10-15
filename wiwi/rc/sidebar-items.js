@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["AtomicCounter","Rc","RcStr","RcStrWeak","RcWeak","ThreadCounter"],"trait":["Counter"],"type":["RcAtomic","RcAtomicWeak","RcStrAtomic","RcStrAtomicWeak","RcStrThread","RcStrThreadWeak","RcThread","RcThreadWeak"]};

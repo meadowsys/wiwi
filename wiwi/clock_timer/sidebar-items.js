@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"externcrate":["chrono"],"mod":["builder","builder2"],"struct":["ClockTimer","Tick"]};

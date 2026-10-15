@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["ns"],"struct":["ExternObjectNsWithState","ExternObjectWithState","StateContainer"],"trait":["State"],"type":["ExternObject","ExternObjectNs","StateUninit"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["ExternBooleanWithState","StateContainer"],"trait":["State"],"type":["ExternBoolean","StateUninit"]};

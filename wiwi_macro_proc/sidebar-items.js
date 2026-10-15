@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"attr":["builder"],"macro":["__builder_internal_helper_gen_state","with_cloned"]};
+window.SIDEBAR_ITEMS = {"attr":["chain_fn","err","memory_usage_cfg_nightly","memory_usage_cfg_not_nightly"]};

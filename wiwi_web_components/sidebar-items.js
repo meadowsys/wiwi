@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["Caption","Table"],"struct":["CaptionProps","TableProps"]};

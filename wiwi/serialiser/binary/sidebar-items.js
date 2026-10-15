@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["Error"],"trait":["Deserialise","Input","Output","Serialise","Serialiser"]};

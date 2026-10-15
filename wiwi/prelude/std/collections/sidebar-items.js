@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":["Bound","TryReserveErrorKind"],"mod":["hash_map","hash_set"],"struct":["BTreeMap","BTreeSet","BinaryHeap","HashMap","HashSet","LinkedList","TryReserveError","VecDeque"]};

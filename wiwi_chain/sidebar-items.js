@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["out_dbg"],"mod":["types"],"struct":["Chain","OutputDebug"],"trait":["ChainConversions","ChainConversionsOwned","ChainInner","Output","WithSelf"]};
+window.SIDEBAR_ITEMS = {"fn":["out_dbg"],"struct":["Chain"],"trait":["ChainInner","Output"]};

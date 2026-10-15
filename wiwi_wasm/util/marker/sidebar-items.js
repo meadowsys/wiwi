@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":["AnyMarker","BigIntMarker","BooleanMarker","NullMarker","NumberMarker","ObjectMarker","StringMarker","SymbolMarker","UndefinedMarker"],"trait":["TypeMarker"]};

@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["breakpoint"],"macro":["asm","global_asm","naked_asm"],"mod":["x86_64"]};

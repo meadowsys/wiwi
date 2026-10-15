@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"macro":["nominal","nominal_mod"],"struct":["Nominal"]};
