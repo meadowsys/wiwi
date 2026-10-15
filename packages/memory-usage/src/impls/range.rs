@@ -35,6 +35,8 @@ impl_memory_usage! {
 	|self| self.start.memory_usage() + self.end.memory_usage();
 	compacted |self| self.start.memory_usage_compacted() + self.end.memory_usage_compacted();
 	compact |self| self.start.compact_memory() + self.end.compact_memory();
+	ref compacted |self| self.start.memory_usage_compacted_ref() + self.end.memory_usage_compacted_ref();
+	ref compact |self| self.start.compact_memory_ref() + self.end.compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
@@ -58,6 +60,8 @@ impl_memory_usage! {
 	|self| self.start.memory_usage() + self.end.memory_usage();
 	compacted |self| self.start.memory_usage_compacted() + self.end.memory_usage_compacted();
 	compact |self| self.start.compact_memory() + self.end.compact_memory();
+	ref compacted |self| self.start.memory_usage_compacted_ref() + self.end.memory_usage_compacted_ref();
+	ref compact |self| self.start.compact_memory_ref() + self.end.compact_memory_ref();
 }
 
 #[cfg(feature = "nightly")]
@@ -87,9 +91,13 @@ impl_memory_usage! {
 		let remaining = size_of::<RangeInclusive<Idx>>() - (2 * size_of::<Idx>());
 		start + end + remaining
 	};
-	// omitted compacted/compact because there doesn't seem to be a way to get
-	// start and end as a mutable reference, so we just deem it as not
-	// compactable and accept the default impls of no-op
+	ref compacted |self| {
+		let start = self.start().memory_usage_compacted_ref();
+		let end = self.end().memory_usage_compacted_ref();
+		let remaining = size_of::<RangeInclusive<Idx>>() - (2 * size_of::<Idx>());
+		start + end + remaining
+	};
+	ref compact |self| self.start().compact_memory_ref() + self.end().compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
@@ -127,6 +135,8 @@ impl_memory_usage! {
 	|self| self.start.memory_usage() + self.last.memory_usage();
 	compacted |self| self.start.memory_usage_compacted() + self.last.memory_usage_compacted();
 	compact |self| self.start.compact_memory() + self.last.compact_memory();
+	ref compacted |self| self.start.memory_usage_compacted_ref() + self.last.memory_usage_compacted_ref();
+	ref compact |self| self.start.compact_memory_ref() + self.last.compact_memory_ref();
 }
 
 #[cfg(feature = "nightly")]
@@ -151,6 +161,8 @@ impl_memory_usage! {
 	|self| self.start.memory_usage();
 	compacted |self| self.start.memory_usage_compacted();
 	compact |self| self.start.compact_memory();
+	ref compacted |self| self.start.memory_usage_compacted_ref();
+	ref compact |self| self.start.compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
@@ -174,6 +186,8 @@ impl_memory_usage! {
 	|self| self.start.memory_usage();
 	compacted |self| self.start.memory_usage_compacted();
 	compact |self| self.start.compact_memory();
+	ref compacted |self| self.start.memory_usage_compacted_ref();
+	ref compact |self| self.start.compact_memory_ref();
 }
 
 #[cfg(feature = "nightly")]
@@ -198,6 +212,8 @@ impl_memory_usage! {
 	|self| self.end.memory_usage();
 	compacted |self| self.end.memory_usage_compacted();
 	compact |self| self.end.compact_memory();
+	ref compacted |self| self.end.memory_usage_compacted_ref();
+	ref compact |self| self.end.compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
@@ -220,6 +236,8 @@ impl_memory_usage! {
 	|self| self.end.memory_usage();
 	compacted |self| self.end.memory_usage_compacted();
 	compact |self| self.end.compact_memory();
+	ref compacted |self| self.end.memory_usage_compacted_ref();
+	ref compact |self| self.end.compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
@@ -243,6 +261,8 @@ impl_memory_usage! {
 	|self| self.last.memory_usage();
 	compacted |self| self.last.memory_usage_compacted();
 	compact |self| self.last.compact_memory();
+	ref compacted |self| self.last.memory_usage_compacted_ref();
+	ref compact |self| self.last.compact_memory_ref();
 }
 
 #[cfg(feature = "nightly")]
