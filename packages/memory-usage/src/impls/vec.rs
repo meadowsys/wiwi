@@ -71,4 +71,54 @@ mod tests {
 		assert_eq!(vec.memory_usage_compacted(), expected_compacted);
 		assert_eq!(vec.compact_memory(), expected_compact);
 	}
+
+	#[test]
+	fn vec_string_recursive_usage() {
+		let vec_size = <*const u8>::MEMORY_USAGE + usize::MEMORY_USAGE + usize::MEMORY_USAGE;
+		let string_size = vec_size;
+
+		let mut s1 = String::with_capacity(247);
+		let s1_capacity = s1.capacity();
+		s1.push_str("awawawa");
+
+		let mut s2 = String::with_capacity(247);
+		let s2_capacity = s2.capacity();
+		s2.push_str("12345678901234567890");
+
+		let mut s3 = String::with_capacity(247);
+		let s3_capacity = s3.capacity();
+		s3.push_str("this is a 34 character string lmao");
+
+		let mut vec = Vec::with_capacity(247);
+		let vec_capacity = vec.capacity();
+		vec.push(s1);
+		vec.push(s2);
+		vec.push(s3);
+
+		let memory_usage =
+			// vec itself
+			vec_size
+			// vec capacity
+			+ (vec_capacity * string_size)
+			// each of the 3 strings' capacities
+			+ s1_capacity
+			+ s2_capacity
+			+ s3_capacity;
+		assert_eq!(vec.memory_usage(), memory_usage);
+
+		let memory_usage_compacted =
+			// vec itself
+			vec_size
+			// vec length
+			+ (3 * string_size)
+			// each of the 3 strings' lengths
+			+ 7
+			+ 20
+			+ 34;
+		assert_eq!(vec.memory_usage_compacted(), memory_usage_compacted);
+
+		// expect this many bytes to be saved running compact_memory()
+		let compact_memory = memory_usage - memory_usage_compacted;
+		assert_eq!(vec.compact_memory(), compact_memory);
+	}
 }
