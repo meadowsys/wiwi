@@ -11,7 +11,8 @@
 		integer_atomics,
 		new_range_api,
 		new_range_from_api,
-		new_range_to_inclusive_api
+		new_range_to_inclusive_api,
+		phantom_variance_markers
 	)
 )]
 #![cfg_attr(
@@ -144,6 +145,7 @@ mod impls {
 	mod atomic;
 	mod bool;
 	mod char;
+	mod marker;
 	mod nonzero;
 	mod number;
 	mod pointer;
