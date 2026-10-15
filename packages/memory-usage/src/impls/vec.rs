@@ -36,6 +36,7 @@ impl_memory_usage! {
 	ref compact |self| self.iter().map(T::compact_memory_ref).sum();
 }
 
+#[cfg(feature = "std")]
 impl_memory_usage_only_const! {
 	{ T: MemoryUsageConst }
 	{ T: [const] MemoryUsageConst }
