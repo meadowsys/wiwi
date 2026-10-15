@@ -94,6 +94,7 @@ mod tests {
 		}
 	}
 
+	#[cfg(feature = "nightly")]
 	phantom_data_variance_usage! {
 		phantom_covariant_usage(PhantomCovariant<usize>)
 		phantom_covariant_lifetime_usage(PhantomCovariantLifetime<'static>)

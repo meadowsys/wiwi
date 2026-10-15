@@ -43,6 +43,7 @@ impl_memory_usage_size_of! {
 	AtomicIsize
 }
 
+#[cfg(target_has_atomic = "ptr")]
 impl_memory_usage_static! {
 	{ T }
 	{ T }
@@ -80,6 +81,7 @@ mod tests {
 			)*
 		} => {
 			$(
+				#[$cfg]
 				#[test]
 				fn $test_name() {
 					let num_atomic: $ty_atomic = <$ty_atomic>::new(Default::default());

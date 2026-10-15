@@ -85,6 +85,7 @@ mod tests {
 		assert_eq!(vec.compact_memory(), expected_compact);
 	}
 
+	#[cfg(feature = "std")]
 	#[test]
 	fn vec_string_recursive_usage() {
 		let vec_size = <*const u8>::MEMORY_USAGE + usize::MEMORY_USAGE + usize::MEMORY_USAGE;
