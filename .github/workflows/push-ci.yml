@@ -120,7 +120,7 @@ jobs:
 
     - name: install fish shell
       run: |
-        sudo add-apt-repository -yn ppa:fish-shell/release-3
+        sudo add-apt-repository -yn ppa:fish-shell/release-4
         sudo apt-get update
         sudo apt-get install fish
 
