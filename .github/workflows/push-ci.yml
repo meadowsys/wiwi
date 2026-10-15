@@ -13,6 +13,9 @@ env:
   CARGO_INCREMENTAL: 0
   RUSTFLAGS: -Ccodegen-units=1 -Cdebuginfo=full -Cinstrument-coverage -Clink-dead-code -Cllvm-args=--inline-threshold=0
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ${{ matrix.runs-on }}
@@ -159,9 +162,6 @@ jobs:
 
         git config --global user.name "smol"
         git config --global user.email "107521333+a-tiny-kirin@users.noreply.github.com"
-        echo https://meadowsys:${{ secrets.GHPAT }}@github.com > .git/credentials
-        git config --global credential.helper "store --file=.git/credentials"
-        git config --unset-all http.https://github.com/.extraheader # https://stackoverflow.com/a/69979203
 
         git add -A
         git commit -m "$COMMIT_MESSAGE" --allow-empty
