@@ -16,6 +16,8 @@ impl_memory_usage! {
 		self.shrink_to_fit();
 		old_cap - self.len()
 	};
+	// can't do anything to compact string behind a ref
+	// not getting any benefit from calling it on the u8s lmao
 }
 
 #[cfg(test)]

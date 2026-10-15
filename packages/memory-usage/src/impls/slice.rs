@@ -8,6 +8,10 @@ impl_memory_usage! {
 		// each element counts its own stack usage too
 		self.iter().map(T::memory_usage).sum()
 	};
+	compacted |self| self.iter().map(T::memory_usage_compacted).sum();
+	compact |self| self.iter_mut().map(T::compact_memory).sum();
+	ref compacted |self| self.iter().map(T::memory_usage_compacted_ref).sum();
+	ref compact |self| self.iter().map(T::compact_memory_ref).sum();
 }
 
 impl_memory_usage_only_const! {

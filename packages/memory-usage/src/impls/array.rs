@@ -7,14 +7,18 @@ use crate::macros::{
 
 impl_memory_usage! {
 	{ T: MemoryUsage, const N: usize } [T; N]
-	|self| <[T]>::memory_usage(self);
+	|self| self.as_slice().memory_usage();
+	compacted |self| self.as_slice().memory_usage_compacted();
+	compact |self| self.as_mut_slice().compact_memory();
+	ref compacted |self| self.as_slice().memory_usage_compacted_ref();
+	ref compact |self| self.as_slice().compact_memory_ref();
 }
 
 impl_memory_usage_only_const! {
 	{ T: MemoryUsageConst, const N: usize }
 	{ T: [const] MemoryUsageConst, const N: usize }
 	[T; N]
-	|self| <[T]>::memory_usage_const(self);
+	|self| self.as_slice().memory_usage_const();
 }
 
 impl_memory_usage_only_static! {

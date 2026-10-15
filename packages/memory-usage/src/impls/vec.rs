@@ -15,14 +15,25 @@ impl_memory_usage! {
 	};
 	compacted |self| {
 		let vec = size_of::<Vec<T>>();
-		let elements = self.as_slice().memory_usage();
+		let elements = self.as_slice().memory_usage_compacted();
 		vec + elements
 	};
 	compact |self| {
 		let old_cap = self.capacity();
 		self.shrink_to_fit();
-		(old_cap - self.len()) * size_of::<T>()
+		let vec = (old_cap - self.len()) * size_of::<T>();
+
+		let elements = self.iter_mut().map(T::compact_memory).sum::<usize>();
+
+		vec + elements
 	};
+	// can compact elements by ref, but cannot shrink vec
+	ref compacted |self| {
+		let vec = size_of::<Vec<T>>();
+		let elements = self.as_slice().memory_usage_compacted_ref();
+		vec + elements
+	};
+	ref compact |self| self.iter().map(T::compact_memory_ref).sum();
 }
 
 #[cfg(test)]
