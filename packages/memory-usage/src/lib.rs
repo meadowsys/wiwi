@@ -8,6 +8,7 @@
 		const_trait_impl,
 		f16,
 		f128,
+		integer_atomics,
 		new_range_api,
 		new_range_from_api,
 		new_range_to_inclusive_api
@@ -140,16 +141,20 @@ mod impls {
 	// todo primitive types, fn (pointer), closure, tuple (to 16)
 
 	mod array;
+	mod atomic;
 	mod bool;
 	mod char;
+	mod nonzero;
 	mod number;
 	mod pointer;
 	mod range;
 	mod reference;
+	mod saturating;
 	mod slice;
 	mod string;
 	mod unit;
 	mod vec;
+	mod wrapping;
 }
 
 #[doc(hidden)]
