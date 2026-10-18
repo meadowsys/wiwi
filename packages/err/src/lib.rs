@@ -5,6 +5,8 @@ use core::fmt::{ self, Debug, Display };
 pub mod prelude;
 #[cfg(feature = "axum-0-8")]
 mod axum_0_8;
+
+#[doc(hidden)]
 #[path = "proc_macro_support.rs"]
 pub mod __proc_macro_support;
 
