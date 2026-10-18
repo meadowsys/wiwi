@@ -1,4 +1,3 @@
-#[cfg(feature = "std")]
 use crate::macros::impl_memory_usage;
 
 impl_memory_usage! {
@@ -10,7 +9,7 @@ impl_memory_usage! {
 	// todo this is only dyn because shrink is not const
 	dyn String
 	|self| size_of::<String>() + self.capacity();
-	compacted |self| size_of::<String>() + self.len();
+	compacted |self| self.capacity() - self.len();
 	compact |self| {
 		let old_cap = self.capacity();
 		self.shrink_to_fit();
@@ -23,7 +22,7 @@ impl_memory_usage! {
 #[cfg(test)]
 mod tests {
 	#[cfg(feature = "std")]
-	use crate::MemoryUsageStatic as _;
+	use crate::{ MemoryCompaction as _, MemoryUsageStatic as _ };
 	use crate::MemoryUsage as _;
 
 	#[test]
@@ -46,7 +45,7 @@ mod tests {
 		let expected_compact = expected - expected_compacted;
 
 		assert_eq!(string.memory_usage(), expected);
-		assert_eq!(string.memory_usage_compacted(), expected_compacted);
+		assert_eq!(string.memory_usage_compacted(), expected_compact);
 		assert_eq!(string.compact_memory(), expected_compact);
 	}
 }

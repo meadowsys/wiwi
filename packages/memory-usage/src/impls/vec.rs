@@ -16,7 +16,7 @@ impl_memory_usage! {
 		vec + elements + remaining_capacity
 	};
 	compacted |self| {
-		let vec = size_of::<Vec<T>>();
+		let vec = (self.capacity() - self.len()) * size_of::<T>();
 		let elements = self.as_slice().memory_usage_compacted();
 		vec + elements
 	};
@@ -30,11 +30,7 @@ impl_memory_usage! {
 		vec + elements
 	};
 	// can compact elements by ref, but cannot shrink vec
-	ref compacted |self| {
-		let vec = size_of::<Vec<T>>();
-		let elements = self.as_slice().memory_usage_compacted_ref();
-		vec + elements
-	};
+	ref compacted |self| self.as_slice().memory_usage_compacted_ref();
 	ref compact |self| self.iter().map(T::compact_memory_ref).sum();
 }
 
@@ -43,7 +39,7 @@ mod tests {
 	#[cfg(feature = "std")]
 	use super::*;
 	#[cfg(feature = "std")]
-	use crate::MemoryUsageStatic as _;
+	use crate::{ MemoryCompaction as _, MemoryUsageStatic as _ };
 
 	#[cfg(feature = "std")]
 	#[test]
@@ -59,7 +55,7 @@ mod tests {
 		let expected_compact = expected - expected_compacted;
 
 		assert_eq!(vec.memory_usage(), expected);
-		assert_eq!(vec.memory_usage_compacted(), expected_compacted);
+		assert_eq!(vec.memory_usage_compacted(), expected_compact);
 		assert_eq!(vec.compact_memory(), expected_compact);
 
 		let mut vec = Vec::with_capacity(247);
@@ -70,7 +66,7 @@ mod tests {
 		let expected_compact = expected - expected_compacted;
 
 		assert_eq!(vec.memory_usage(), expected);
-		assert_eq!(vec.memory_usage_compacted(), expected_compacted);
+		assert_eq!(vec.memory_usage_compacted(), expected_compact);
 		assert_eq!(vec.compact_memory(), expected_compact);
 	}
 
@@ -118,10 +114,10 @@ mod tests {
 			+ 7
 			+ 20
 			+ 34;
-		assert_eq!(vec.memory_usage_compacted(), memory_usage_compacted);
 
 		// expect this many bytes to be saved running compact_memory()
 		let compact_memory = memory_usage - memory_usage_compacted;
+		assert_eq!(vec.memory_usage_compacted(), compact_memory);
 		assert_eq!(vec.compact_memory(), compact_memory);
 	}
 }

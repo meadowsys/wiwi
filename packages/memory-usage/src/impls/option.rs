@@ -13,22 +13,16 @@ impl_memory_usage! {
 		None => { size_of::<Option<T>>() }
 	};
 	compacted |self| match self {
-		Some(val) => {
-			let remaining = size_of::<Option<T>>() - size_of::<T>();
-			val.memory_usage_compacted() + remaining
-		}
-		None => { size_of::<Option<T>>() }
+		Some(val) => { val.memory_usage_compacted() }
+		None => { 0 }
 	};
 	compact |self| match self {
 		Some(val) => { val.compact_memory() }
 		None => { 0 }
 	};
 	ref compacted |self| match self {
-		Some(val) => {
-			let remaining = size_of::<Option<T>>() - size_of::<T>();
-			val.memory_usage_compacted_ref() + remaining
-		}
-		None => { size_of::<Option<T>>() }
+		Some(val) => { val.memory_usage_compacted_ref() }
+		None => { 0 }
 	};
 	ref compact |self| match self {
 		Some(val) => { val.compact_memory_ref() }

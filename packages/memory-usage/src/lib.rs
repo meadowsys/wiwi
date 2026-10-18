@@ -34,64 +34,9 @@ macro_rules! const_trait {
 		#[diagnostic::on_unimplemented(
 			message = "Type doesn't know its memory usage"
 		)]
-		pub trait MemoryUsage {
+		pub trait MemoryUsage: MemoryCompaction {
 			/// Get memory usage (including direct, indirect, and compactible memory)
 			fn memory_usage(&self) -> usize;
-
-			/// Get expected memory usage after compaction
-			///
-			/// Compaction means to remove unnecessary memory usage. This would include,
-			/// for example, removing the unused capacity of a [`Vec`], by calling
-			/// [`shrink_to_fit()`](Vec::shrink_to_fit).
-			///
-			/// Types like [`Vec`] that support memory compaction _should_ reimplement
-			/// this function.
-			#[inline]
-			fn memory_usage_compacted(&self) -> usize {
-				// default is delegate to ref version of this method, so if someone
-				// implements ref, they get this one for free if they want it
-				// otherwise, no-op
-				self.memory_usage_compacted_ref()
-			}
-
-			/// Perform memory compaction, saving as much memory as possible,
-			/// returning the amount of bytes saved
-			#[inline]
-			fn compact_memory(&mut self) -> usize {
-				// default is delegate to ref version of this method, so if someone
-				// implements ref, they get this one for free if they want it
-				// otherwise, no-op
-				self.compact_memory_ref()
-			}
-
-			/// Get expected memory usage after compaction behind a shared reference
-			///
-			/// This is useful for types with interior mutability. Types that have or
-			/// could have (ie. with generics) should implement this method and
-			/// [`compact_memory_ref()`](MemoryUsage::compact_memory_ref).
-			/// For types that don't, the default implementation is a no-op.
-			///
-			/// See [`MemoryUsage::memory_usage_compacted`] for more details.
-			#[inline]
-			fn memory_usage_compacted_ref(&self) -> usize {
-				// default is no-op, and no bytes saved
-				self.memory_usage()
-			}
-
-			/// Perform memory compaction behind a shared reference, saving as much
-			/// memory as possible, returning the amount of bytes saved
-			///
-			/// This is useful for types with interior mutability. Types that have or
-			/// could have (ie. with generics) should implement this method and
-			/// [`memory_usage_compacted_ref()`](MemoryUsage::memory_usage_compacted_ref).
-			/// For types that don't, the default implementation is a no-op.
-			///
-			/// See [`MemoryUsage::compact_memory`] for more details.
-			#[inline]
-			fn compact_memory_ref(&self) -> usize {
-				// default is no-op, and no bytes saved
-				0
-			}
 		}
 
 		/// Types that always have the same memory usage, regardless of value
@@ -109,64 +54,9 @@ macro_rules! const_trait {
 		#[diagnostic::on_unimplemented(
 			message = "Type doesn't know its memory usage"
 		)]
-		pub const trait MemoryUsage {
+		pub const trait MemoryUsage: MemoryCompaction {
 			/// Get memory usage (including direct, indirect, and compactible memory)
 			fn memory_usage(&self) -> usize;
-
-			/// Get expected memory usage after compaction
-			///
-			/// Compaction means to remove unnecessary memory usage. This would include,
-			/// for example, removing the unused capacity of a [`Vec`], by calling
-			/// [`shrink_to_fit()`](Vec::shrink_to_fit).
-			///
-			/// Types like [`Vec`] that support memory compaction _should_ reimplement
-			/// this function.
-			#[inline]
-			fn memory_usage_compacted(&self) -> usize {
-				// default is delegate to ref version of this method, so if someone
-				// implements ref, they get this one for free if they want it
-				// otherwise, no-op
-				self.memory_usage_compacted_ref()
-			}
-
-			/// Perform memory compaction, saving as much memory as possible,
-			/// returning the amount of bytes saved
-			#[inline]
-			fn compact_memory(&mut self) -> usize {
-				// default is delegate to ref version of this method, so if someone
-				// implements ref, they get this one for free if they want it
-				// otherwise, no-op
-				(&*self).compact_memory_ref()
-			}
-
-			/// Get expected memory usage after compaction behind a shared reference
-			///
-			/// This is useful for types with interior mutability. Types that have or
-			/// could have (ie. with generics) should implement this method and
-			/// [`compact_memory_ref()`](MemoryUsage::compact_memory_ref).
-			/// For types that don't, the default implementation is a no-op.
-			///
-			/// See [`MemoryUsage::memory_usage_compacted`] for more details.
-			#[inline]
-			fn memory_usage_compacted_ref(&self) -> usize {
-				// default is no-op, and no bytes saved
-				self.memory_usage()
-			}
-
-			/// Perform memory compaction behind a shared reference, saving as much
-			/// memory as possible, returning the amount of bytes saved
-			///
-			/// This is useful for types with interior mutability. Types that have or
-			/// could have (ie. with generics) should implement this method and
-			/// [`memory_usage_compacted_ref()`](MemoryUsage::memory_usage_compacted_ref).
-			/// For types that don't, the default implementation is a no-op.
-			///
-			/// See [`MemoryUsage::compact_memory`] for more details.
-			#[inline]
-			fn compact_memory_ref(&self) -> usize {
-				// default is no-op, and no bytes saved
-				0
-			}
 		}
 
 		/// Types that always have the same memory usage, regardless of value
@@ -185,6 +75,63 @@ const_trait!();
 
 #[cfg(feature = "nightly")]
 const_trait!(const);
+
+pub trait MemoryCompaction {
+	/// Get expected memory usage saved after compaction
+	///
+	/// Compaction means to remove unnecessary memory usage. This would include,
+	/// for example, removing the unused capacity of a [`Vec`], by calling
+	/// [`shrink_to_fit()`](Vec::shrink_to_fit).
+	///
+	/// Types like [`Vec`] that support memory compaction _should_ reimplement
+	/// this function.
+	#[inline]
+	fn memory_usage_compacted(&self) -> usize {
+		// default is delegate to ref version of this method, so if someone
+		// implements ref, they get this one for free if they want it
+		// otherwise, no-op
+		self.memory_usage_compacted_ref()
+	}
+
+	/// Perform memory compaction, saving as much memory as possible,
+	/// returning the amount of bytes saved
+	#[inline]
+	fn compact_memory(&mut self) -> usize {
+		// default is delegate to ref version of this method, so if someone
+		// implements ref, they get this one for free if they want it
+		// otherwise, no-op
+		self.compact_memory_ref()
+	}
+
+	/// Get expected memory usage saved after compaction behind a shared reference
+	///
+	/// This is useful for types with interior mutability. Types that have or
+	/// could have (ie. with generics) should implement this method and
+	/// [`compact_memory_ref()`](MemoryUsage::compact_memory_ref).
+	/// For types that don't, the default implementation is a no-op.
+	///
+	/// See [`MemoryUsage::memory_usage_compacted`] for more details.
+	#[inline]
+	fn memory_usage_compacted_ref(&self) -> usize {
+		// default is no-op, and no bytes saved
+		0
+	}
+
+	/// Perform memory compaction behind a shared reference, saving as much
+	/// memory as possible, returning the amount of bytes saved
+	///
+	/// This is useful for types with interior mutability. Types that have or
+	/// could have (ie. with generics) should implement this method and
+	/// [`memory_usage_compacted_ref()`](MemoryUsage::memory_usage_compacted_ref).
+	/// For types that don't, the default implementation is a no-op.
+	///
+	/// See [`MemoryUsage::compact_memory`] for more details.
+	#[inline]
+	fn compact_memory_ref(&self) -> usize {
+		// default is no-op, and no bytes saved
+		0
+	}
+}
 
 mod impls {
 	// todo primitive types, fn (pointer), closure, tuple (to 16)

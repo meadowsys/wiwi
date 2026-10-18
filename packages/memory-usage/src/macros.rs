@@ -28,7 +28,11 @@ macro_rules! impl_memory_usage {
 			fn memory_usage(&$self) -> ::core::primitive::usize {
 				$impl
 			}
+		}
 
+		impl$(<$($generics)*>)? $crate::MemoryCompaction for $type
+		$(where $($where)*)?
+		{
 			$(
 				#[inline]
 				fn memory_usage_compacted(&$self_compacted) -> ::core::primitive::usize {
@@ -80,7 +84,11 @@ macro_rules! impl_memory_usage {
 			fn memory_usage(&$self) -> ::core::primitive::usize {
 				$impl
 			}
+		}
 
+		impl$(<$($generics)*>)? $crate::MemoryCompaction for $type
+		$(where $($where)*)?
+		{
 			$(
 				#[inline]
 				fn memory_usage_compacted(&$self_compacted) -> ::core::primitive::usize {
@@ -130,7 +138,11 @@ macro_rules! impl_memory_usage {
 			fn memory_usage(&$self) -> ::core::primitive::usize {
 				$impl
 			}
+		}
 
+		impl<$($generics)*> $crate::MemoryCompaction for $type
+		$(where $($where)*)?
+		{
 			$(
 				#[inline]
 				fn memory_usage_compacted(&$self_compacted) -> ::core::primitive::usize {

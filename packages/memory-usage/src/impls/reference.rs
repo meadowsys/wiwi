@@ -6,7 +6,7 @@ impl_memory_usage! {
 	{ 'h, T: [const] MemoryUsage + ?Sized }
 	&'h T
 	|self| size_of::<&'h T>() + (*self).memory_usage();
-	ref compacted |self| size_of::<&'h T>() + (**self).memory_usage_compacted_ref();
+	ref compacted |self| (**self).memory_usage_compacted_ref();
 	ref compact |self| (**self).compact_memory_ref();
 }
 
@@ -21,10 +21,10 @@ impl_memory_usage! {
 	{ 'h, T: MemoryUsage + ?Sized }
 	{ 'h, T: [const] MemoryUsage + ?Sized }
 	&'h mut T
-	|self| size_of::<&'h mut T>() + T::memory_usage(*self);
-	compacted |self| size_of::<&'h mut T>() + (**self).memory_usage_compacted();
+	|self| size_of::<&'h mut T>() + (**self).memory_usage();
+	compacted |self| (**self).memory_usage_compacted();
 	compact |self| (**self).compact_memory();
-	ref compacted |self| size_of::<&'h mut T>() + (**self).memory_usage_compacted_ref();
+	ref compacted |self| (**self).memory_usage_compacted_ref();
 	ref compact |self| (**self).compact_memory_ref();
 }
 

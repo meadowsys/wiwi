@@ -16,28 +16,16 @@ impl_memory_usage! {
 		}
 	};
 	compacted |self| match self {
-		Ok(val) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<T>();
-			val.memory_usage_compacted() + remaining
-		}
-		Err(err) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<E>();
-			err.memory_usage_compacted() + remaining
-		}
+		Ok(val) => { val.memory_usage_compacted() }
+		Err(err) => { err.memory_usage_compacted() }
 	};
 	compact |self| match self {
 		Ok(val) => { val.compact_memory() }
 		Err(err) => { err.compact_memory() }
 	};
 	ref compacted |self| match self {
-		Ok(val) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<T>();
-			val.memory_usage_compacted_ref() + remaining
-		}
-		Err(err) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<E>();
-			err.memory_usage_compacted_ref() + remaining
-		}
+		Ok(val) => { val.memory_usage_compacted_ref() }
+		Err(err) => { err.memory_usage_compacted_ref() }
 	};
 	ref compact |self| match self {
 		Ok(val) => { val.compact_memory_ref() }
