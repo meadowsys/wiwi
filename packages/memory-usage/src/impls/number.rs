@@ -29,7 +29,6 @@ impl_memory_usage_size_of! {
 mod tests {
 	use crate::{
 		MemoryUsage as _,
-		MemoryUsageConst as _,
 		MemoryUsageStatic as _
 	};
 
@@ -47,7 +46,6 @@ mod tests {
 					let num: $ty = 24u8 as _; // 7
 
 					assert_eq!(num.memory_usage(), $usage);
-					assert_eq!(num.memory_usage_const(), $usage);
 					assert_eq!($ty::MEMORY_USAGE, $usage);
 				}
 			)*

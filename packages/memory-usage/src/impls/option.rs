@@ -1,8 +1,9 @@
-use crate::{ MemoryUsage, MemoryUsageConst };
-use crate::macros::{ impl_memory_usage, impl_memory_usage_only_const };
+use crate::MemoryUsage;
+use crate::macros::impl_memory_usage;
 
 impl_memory_usage! {
 	{ T: MemoryUsage }
+	{ T: [const] MemoryUsage }
 	Option<T>
 	|self| match self {
 		Some(val) => {
@@ -33,20 +34,6 @@ impl_memory_usage! {
 		Some(val) => { val.compact_memory_ref() }
 		None => { 0 }
 	};
-}
-
-impl_memory_usage_only_const! {
-	{ T: MemoryUsageConst }
-	{ T: [const] MemoryUsageConst }
-	Option<T>
-	|self| match self {
-		Some(val) => {
-			let remaining = size_of::<Option<T>>() - size_of::<T>();
-			val.memory_usage_const() + remaining
-		}
-		None => { size_of::<Option<T>>() }
-	};
-
 }
 
 // Option can't be MemoryUsageStatic because it might or might not have a value

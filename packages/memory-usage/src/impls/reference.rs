@@ -1,23 +1,13 @@
-use crate::{ MemoryUsage, MemoryUsageConst, MemoryUsageStatic };
-use crate::macros::{
-	impl_memory_usage,
-	impl_memory_usage_only_const,
-	impl_memory_usage_only_static
-};
+use crate::{ MemoryUsage, MemoryUsageStatic };
+use crate::macros::{ impl_memory_usage, impl_memory_usage_only_static };
 
 impl_memory_usage! {
 	{ 'h, T: MemoryUsage + ?Sized }
+	{ 'h, T: [const] MemoryUsage + ?Sized }
 	&'h T
 	|self| size_of::<&'h T>() + (*self).memory_usage();
 	ref compacted |self| size_of::<&'h T>() + (**self).memory_usage_compacted_ref();
 	ref compact |self| (**self).compact_memory_ref();
-}
-
-impl_memory_usage_only_const! {
-	{ 'h, T: MemoryUsageConst + ?Sized }
-	{ 'h, T: [const] MemoryUsageConst + ?Sized }
-	&'h T
-	|self| size_of::<&'h T>() + T::memory_usage_const(*self);
 }
 
 impl_memory_usage_only_static! {
@@ -29,19 +19,13 @@ impl_memory_usage_only_static! {
 
 impl_memory_usage! {
 	{ 'h, T: MemoryUsage + ?Sized }
+	{ 'h, T: [const] MemoryUsage + ?Sized }
 	&'h mut T
 	|self| size_of::<&'h mut T>() + T::memory_usage(*self);
 	compacted |self| size_of::<&'h mut T>() + (**self).memory_usage_compacted();
 	compact |self| (**self).compact_memory();
 	ref compacted |self| size_of::<&'h mut T>() + (**self).memory_usage_compacted_ref();
 	ref compact |self| (**self).compact_memory_ref();
-}
-
-impl_memory_usage_only_const! {
-	{ 'h, T: MemoryUsageConst + ?Sized }
-	{ 'h, T: [const] MemoryUsageConst + ?Sized }
-	&'h mut T
-	|self| size_of::<&'h mut T>() + T::memory_usage_const(*self);
 }
 
 impl_memory_usage_only_static! {
@@ -67,7 +51,6 @@ mod tests {
 		let expected = ref_size + u8::MEMORY_USAGE;
 
 		assert_eq!((&reference).memory_usage(), expected);
-		assert_eq!((&reference).memory_usage_const(), expected);
 		assert_eq!(<&u8>::MEMORY_USAGE, expected);
 	}
 
@@ -83,7 +66,6 @@ mod tests {
 		let expected = ref_size + (5 * u8::MEMORY_USAGE);
 
 		assert_eq!((&reference).memory_usage(), expected);
-		assert_eq!((&reference).memory_usage_const(), expected);
 	}
 
 	#[test]
@@ -98,7 +80,6 @@ mod tests {
 		let expected = ref_size + u8::MEMORY_USAGE;
 
 		assert_eq!((&reference).memory_usage(), expected);
-		assert_eq!((&reference).memory_usage_const(), expected);
 		assert_eq!(<&mut u8>::MEMORY_USAGE, expected);
 	}
 
@@ -114,6 +95,5 @@ mod tests {
 		let expected = ref_size + (5 * u8::MEMORY_USAGE);
 
 		assert_eq!((&reference).memory_usage(), expected);
-		assert_eq!((&reference).memory_usage_const(), expected);
 	}
 }

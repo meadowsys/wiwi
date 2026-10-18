@@ -1,8 +1,9 @@
-use crate::{ MemoryUsage, MemoryUsageConst, MemoryUsageStatic };
-use crate::macros::{ impl_memory_usage, impl_memory_usage_only_const, impl_memory_usage_only_static };
+use crate::{ MemoryUsage, MemoryUsageStatic };
+use crate::macros::{ impl_memory_usage, impl_memory_usage_only_static };
 
 impl_memory_usage! {
 	{ T: MemoryUsage, E: MemoryUsage }
+	{ T: [const] MemoryUsage, E: [const] MemoryUsage }
 	Result<T, E>
 	|self| match self {
 		Ok(val) => {
@@ -41,22 +42,6 @@ impl_memory_usage! {
 	ref compact |self| match self {
 		Ok(val) => { val.compact_memory_ref() }
 		Err(err) => { err.compact_memory_ref() }
-	};
-}
-
-impl_memory_usage_only_const! {
-	{ T: MemoryUsageConst, E: MemoryUsageConst }
-	{ T: [const] MemoryUsageConst, E: [const] MemoryUsageConst }
-	Result<T, E>
-	|self| match self {
-		Ok(val) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<T>();
-			val.memory_usage_const() + remaining
-		}
-		Err(err) => {
-			let remaining = size_of::<Result<T, E>>() - size_of::<E>();
-			err.memory_usage_const() + remaining
-		}
 	};
 }
 

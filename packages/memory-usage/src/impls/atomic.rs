@@ -46,7 +46,6 @@ impl_memory_usage_size_of! {
 #[cfg(target_has_atomic = "ptr")]
 impl_memory_usage_static! {
 	{ T }
-	{ T }
 	AtomicPtr<T>
 	=> size_of::<AtomicPtr<T>>();
 }
@@ -60,7 +59,6 @@ mod tests {
 	use super::*;
 	use crate::{
 		MemoryUsage as _,
-		MemoryUsageConst as _,
 		MemoryUsageStatic as _
 	};
 
@@ -69,7 +67,6 @@ mod tests {
 		let ordering = Ordering::Relaxed;
 
 		assert_eq!(ordering.memory_usage(), 1);
-		assert_eq!(ordering.memory_usage_const(), 1);
 		assert_eq!(Ordering::MEMORY_USAGE, 1);
 	}
 
@@ -88,7 +85,6 @@ mod tests {
 					let num: $ty = Default::default();
 
 					assert_eq!(num_atomic.memory_usage(), num.memory_usage());
-					assert_eq!(num_atomic.memory_usage_const(), num.memory_usage_const());
 					assert_eq!(<$ty_atomic>::MEMORY_USAGE, <$ty>::MEMORY_USAGE);
 				}
 			)*

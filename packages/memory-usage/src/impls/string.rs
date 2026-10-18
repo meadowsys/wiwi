@@ -1,14 +1,14 @@
 #[cfg(feature = "std")]
 use crate::macros::impl_memory_usage;
-use crate::macros::impl_memory_usage_const;
 
-impl_memory_usage_const! {
+impl_memory_usage! {
 	str |self| self.len();
 }
 
 #[cfg(feature = "std")]
 impl_memory_usage! {
-	String
+	// todo this is only dyn because shrink is not const
+	dyn String
 	|self| size_of::<String>() + self.capacity();
 	compacted |self| size_of::<String>() + self.len();
 	compact |self| {
@@ -24,14 +24,13 @@ impl_memory_usage! {
 mod tests {
 	#[cfg(feature = "std")]
 	use crate::MemoryUsageStatic as _;
-	use crate::{ MemoryUsage as _, MemoryUsageConst as _ };
+	use crate::MemoryUsage as _;
 
 	#[test]
 	fn str_usage() {
 		let str = "awawawa";
 
 		assert_eq!(str.memory_usage(), 7);
-		assert_eq!(str.memory_usage_const(), 7);
 	}
 
 	#[cfg(feature = "std")]

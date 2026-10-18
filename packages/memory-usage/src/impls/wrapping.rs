@@ -22,7 +22,6 @@ mod tests {
 	use super::*;
 	use crate::{
 		MemoryUsage as _,
-		MemoryUsageConst as _,
 		MemoryUsageStatic as _
 	};
 
@@ -35,7 +34,6 @@ mod tests {
 					let num: $ty = 24; // 7
 
 					assert_eq!(num_wrapping.memory_usage(), num.memory_usage());
-					assert_eq!(num_wrapping.memory_usage_const(), num.memory_usage_const());
 					assert_eq!(<Wrapping<$ty>>::MEMORY_USAGE, $ty::MEMORY_USAGE);
 				}
 			)*

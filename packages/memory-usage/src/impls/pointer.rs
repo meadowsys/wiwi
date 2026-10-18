@@ -8,20 +8,17 @@ use core::ptr::NonNull;
 
 impl_memory_usage_static! {
 	{ T: ?Sized }
-	{ T: ?Sized }
 	*const T
 	=> size_of::<*const T>();
 }
 
 impl_memory_usage_static! {
 	{ T: ?Sized }
-	{ T: ?Sized }
 	*mut T
 	=> size_of::<*mut T>();
 }
 
 impl_memory_usage_static! {
-	{ T: ?Sized }
 	{ T: ?Sized }
 	NonNull<T>
 	=> size_of::<NonNull<T>>();
@@ -32,7 +29,6 @@ mod tests {
 	use super::*;
 	use crate::{
 		MemoryUsage as _,
-		MemoryUsageConst as _,
 		MemoryUsageStatic as _
 	};
 
@@ -51,14 +47,12 @@ mod tests {
 		let ptr = &raw const val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*const ()>::MEMORY_USAGE, expected);
 
 		let val = [1, 2, 3, 4, 5];
 		let ptr = &raw const val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*const [i32; 5]>::MEMORY_USAGE, expected);
 	}
 
@@ -74,14 +68,12 @@ mod tests {
 		let ptr = &raw const *val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*const [i32]>::MEMORY_USAGE, expected);
 
 		let val = &() as &dyn Trait;
 		let ptr = &raw const *val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*const dyn Trait>::MEMORY_USAGE, expected);
 	}
 
@@ -97,14 +89,12 @@ mod tests {
 		let ptr = &raw mut val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*mut ()>::MEMORY_USAGE, expected);
 
 		let mut val = [1, 2, 3, 4, 5];
 		let ptr = &raw mut val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*mut [i32; 5]>::MEMORY_USAGE, expected);
 	}
 
@@ -120,14 +110,12 @@ mod tests {
 		let ptr = &raw mut *val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*mut [i32]>::MEMORY_USAGE, expected);
 
 		let val = &mut () as &mut dyn Trait;
 		let ptr = &raw mut *val;
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<*mut dyn Trait>::MEMORY_USAGE, expected);
 	}
 
@@ -139,14 +127,12 @@ mod tests {
 		let ptr = NonNull::from_ref(&val);
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<NonNull<()>>::MEMORY_USAGE, expected);
 
 		let mut val = [1, 2, 3, 4, 5];
 		let ptr = NonNull::from_mut(&mut val);
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<NonNull<[i32; 5]>>::MEMORY_USAGE, expected);
 	}
 
@@ -158,14 +144,12 @@ mod tests {
 		let ptr = NonNull::from_ref(val);
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<NonNull<[i32]>>::MEMORY_USAGE, expected);
 
 		let val = &mut () as &mut dyn Trait;
 		let ptr = NonNull::from_mut(val);
 
 		assert_eq!(ptr.memory_usage(), expected);
-		assert_eq!(ptr.memory_usage_const(), expected);
 		assert_eq!(<NonNull<dyn Trait>>::MEMORY_USAGE, expected);
 	}
 }
