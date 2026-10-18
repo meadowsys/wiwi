@@ -6,10 +6,6 @@ pub mod prelude;
 #[cfg(feature = "axum-0-8")]
 mod axum_0_8;
 
-#[doc(hidden)]
-#[path = "proc_macro_support.rs"]
-pub mod __proc_macro_support;
-
 pub struct Err<E> {
 	// use box to make stack size smaller
 	frame: Box<TypedFrame<E>>
@@ -550,4 +546,11 @@ where
 			}
 		}
 	}
+}
+
+#[doc(hidden)]
+pub mod __proc_macro_support {
+	pub use core::error::Error;
+	pub use core::fmt::{ Debug, Display };
+	pub use displaydoc::Display;
 }
