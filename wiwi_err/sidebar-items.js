@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["__proc_macro_support","prelude"],"struct":["DetailedDisplay","Err","ErrorImplementorBorrowed","ErrorImplementorOwned","SimpleDisplay"],"trait":["ErrorExt","ErrorTrait","OptionExt","ResultExt","ResultManyExt"]};
+window.SIDEBAR_ITEMS = {"mod":["prelude"],"struct":["DetailedDisplay","Err","ErrorImplementorBorrowed","ErrorImplementorOwned","SimpleDisplay"],"trait":["ErrorExt","ErrorTrait","OptionExt","ResultExt","ResultManyExt"]};

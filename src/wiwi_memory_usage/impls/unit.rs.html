@@ -8,18 +8,16 @@
 <a href=#8 id=8 data-nosnippet>8</a></span><span class="kw">mod </span>tests {
 <a href=#9 id=9 data-nosnippet>9</a>	<span class="kw">use crate</span>::{
 <a href=#10 id=10 data-nosnippet>10</a>		MemoryUsage <span class="kw">as _</span>,
-<a href=#11 id=11 data-nosnippet>11</a>		MemoryUsageConst <span class="kw">as _</span>,
-<a href=#12 id=12 data-nosnippet>12</a>		MemoryUsageStatic <span class="kw">as _
-<a href=#13 id=13 data-nosnippet>13</a>	</span>};
-<a href=#14 id=14 data-nosnippet>14</a>
-<a href=#15 id=15 data-nosnippet>15</a>	<span class="attr">#[test]
-<a href=#16 id=16 data-nosnippet>16</a>	</span><span class="kw">fn </span>unit_usage() {
-<a href=#17 id=17 data-nosnippet>17</a>		<span class="attr">#[expect(clippy::let_unit_value, reason = <span class="string">"intentional"</span>)]
-<a href=#18 id=18 data-nosnippet>18</a>		</span><span class="kw">let </span>unit = ();
-<a href=#19 id=19 data-nosnippet>19</a>
-<a href=#20 id=20 data-nosnippet>20</a>		<span class="macro">assert_eq!</span>(unit.memory_usage(), <span class="number">0</span>);
-<a href=#21 id=21 data-nosnippet>21</a>		<span class="macro">assert_eq!</span>(unit.memory_usage_const(), <span class="number">0</span>);
-<a href=#22 id=22 data-nosnippet>22</a>		<span class="macro">assert_eq!</span>(&lt;()&gt;::MEMORY_USAGE, <span class="number">0</span>);
-<a href=#23 id=23 data-nosnippet>23</a>	}
-<a href=#24 id=24 data-nosnippet>24</a>}
+<a href=#11 id=11 data-nosnippet>11</a>		MemoryUsageStatic <span class="kw">as _
+<a href=#12 id=12 data-nosnippet>12</a>	</span>};
+<a href=#13 id=13 data-nosnippet>13</a>
+<a href=#14 id=14 data-nosnippet>14</a>	<span class="attr">#[test]
+<a href=#15 id=15 data-nosnippet>15</a>	</span><span class="kw">fn </span>unit_usage() {
+<a href=#16 id=16 data-nosnippet>16</a>		<span class="attr">#[expect(clippy::let_unit_value, reason = <span class="string">"intentional"</span>)]
+<a href=#17 id=17 data-nosnippet>17</a>		</span><span class="kw">let </span>unit = ();
+<a href=#18 id=18 data-nosnippet>18</a>
+<a href=#19 id=19 data-nosnippet>19</a>		<span class="macro">assert_eq!</span>(unit.memory_usage(), <span class="number">0</span>);
+<a href=#20 id=20 data-nosnippet>20</a>		<span class="macro">assert_eq!</span>(&lt;()&gt;::MEMORY_USAGE, <span class="number">0</span>);
+<a href=#21 id=21 data-nosnippet>21</a>	}
+<a href=#22 id=22 data-nosnippet>22</a>}
 </code></pre></div></section></main></body></html>

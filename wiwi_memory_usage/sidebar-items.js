@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":["MemoryUsage","MemoryUsageConst","MemoryUsageStatic"]};
+window.SIDEBAR_ITEMS = {"trait":["MemoryCompaction","MemoryUsage","MemoryUsageStatic"]};
